@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Build directories
+bld/
+
+# Temporary & backup files
+*~
+
+# QTC files
+*.user
