@@ -13,15 +13,20 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#include "function.h"
+#pragma once
+#include <cassert>
+#include <memory>
 
 namespace bier {
 
-Function::Function(const std::string& name, bier::Type* return_type,
-                   std::vector<bier::ValuePtr>&& arguments) :
-    arguments_(std::move(arguments)),
-    return_type_(return_type == nullptr ? std::nullopt : std::make_optional(return_type)),
-    name_(name) {
-}
+class BasicBlock;
+class FunctionSignature;
+class Function;
+class Value;
+
+using BasicBlockPtr = std::unique_ptr<BasicBlock>;
+using FunctionSigPtr = std::unique_ptr<FunctionSignature>;
+using FunctionPtr = std::unique_ptr<Function>;
+using ValuePtr = std::unique_ptr<Value>;
 
 }   // _bier

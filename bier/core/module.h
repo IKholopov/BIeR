@@ -14,13 +14,15 @@
    limitations under the License.
 */
 #pragma once
-#include <memory>
+#include <bier/common.h>
 
 namespace bier {
 
-class Value;
-class BasicBlock;
-using ValuePtr = std::unique_ptr<Value>;
-using BasicBlockPtr = std::unique_ptr<BasicBlock>;
+class Module {
+public:
+
+private:
+
+};
 
 }   // _bier

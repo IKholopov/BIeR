@@ -1,6 +1,10 @@
 # Build core library
 
-file(GLOB bier_core_SRC function.cpp
+file(GLOB bier_core_SRC
+    function.cpp
+    label.cpp
+    module.cpp
+    operation.cpp
     type.cpp)
 
 message(${BIER_INC})

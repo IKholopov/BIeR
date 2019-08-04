@@ -8,5 +8,5 @@ find_package(LLVM)
 
 set(BIER_INC ${CMAKE_CURRENT_SOURCE_DIR} CACHE STRING "bier inc dir")
 
-add_subdirectory(core)
+add_subdirectory(bier)
 

@@ -13,16 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#pragma once
-#include <string>
-#include <common.h>
+#include "label.h"
 
 namespace bier {
 
-class Type : public Interface {
-public:
-    virtual std::string ToString() const = 0;
-};
+const Function* Label::GetContextFunction() const {
+    return context_function_;
+}
 
 }   // _bier
-

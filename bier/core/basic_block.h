@@ -14,25 +14,17 @@
    limitations under the License.
 */
 #pragma once
-#include <common.h>
-
-#include "type.h"
-
-#include <optional>
+#include <bier/common.h>
 #include <vector>
 
 namespace bier {
 
-class Function {
+class BasicBlock {
 public:
-    explicit Function(const std::string& name, Type* return_type = nullptr,
-             std::vector<ValuePtr>&& arguments = {});
+
 
 private:
-    std::vector<ValuePtr> arguments_;
-    std::vector<BasicBlockPtr> blocks_;
-    std::optional<Type*> return_type_ = std::nullopt;
-    std::string name_;
+    std::vector<>
 };
 
 }   // _bier
