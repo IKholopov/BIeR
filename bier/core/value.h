@@ -22,6 +22,8 @@ class Value {
 public:
     virtual ~Value() = default;
     virtual const Type* GetType() const = 0;
+    virtual std::string GetName() const = 0;
+    virtual bool IsMutable() const = 0;
 };
 
 }   // _bier

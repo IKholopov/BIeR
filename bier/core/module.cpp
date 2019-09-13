@@ -17,6 +17,90 @@
 
 namespace bier {
 
+namespace {
 
+class NotRegisteredInModuleException : public std::runtime_error {
+public:
+    NotRegisteredInModuleException() : std::runtime_error("Not registered in module") {
+    }
+};
+
+}   // _namespace
+
+Module::Module(std::unique_ptr<TypeRegistryInterface>&& typeRegistry)
+    : types_(std::move(typeRegistry)) {
+}
+
+const Layout* Module::AddAnnonymousLayout(LayoutPtr&& layout) {
+    const Layout* ptr = layout.get();
+    anonymous_layouts_.emplace(std::move(layout));
+    return ptr;
+}
+
+const Layout* Module::AddAnnonymousLayout(const std::vector<Layout::LayoutEntry>& entries) {
+    auto layout = MakeLayout(entries);
+    const Layout* ptr = layout.get();
+    anonymous_layouts_.emplace(std::move(layout));
+    return ptr;
+}
+
+const Layout* Module::AddNamedLayout(LayoutPtr&& layout, const std::string& name) {
+    const Layout* ptr = layout.get();
+    named_layouts_.insert({name, std::move(layout)});
+    return ptr;
+}
+
+const Layout* Module::AddNamedLayout(const std::vector<Layout::LayoutEntry>& entries,
+                                     const std::string& name) {
+    auto layout = MakeLayout(entries);
+    const Layout* ptr = layout.get();
+    named_layouts_.insert({name, std::move(layout)});
+    return ptr;
+}
+
+FunctionSignature* Module::AddExternalFunction(const std::string& name,
+                                               const FunctionType* function_type) {
+    FunctionSignature* signature = AddSignature(name, function_type);
+    external_functions_.insert(signature);
+    return signature;
+}
+
+Function* Module::AddFunction(const std::string& name, const FunctionType* function_type) {
+    FunctionSignature* signature = AddSignature(name, function_type);
+    auto function = std::make_unique<Function>(signature);
+    Function* functionPtr = function.get();
+    functions_.insert({signature, std::move(function)});
+    return functionPtr;
+}
+
+Function* Module::GetFunction(const std::string& name) {
+    check(ContainerHas(function_sigs_, name), std::runtime_error("unknown function " + name));
+    const FunctionSignature* signature = function_sigs_.at(name).get();
+    check(ContainerHas(functions_, signature), std::runtime_error("unknown function " + name));
+    return functions_.at(signature).get();
+}
+
+const FunctionSignature* Module::GetFunctionSignature(const std::string& name) {
+    check(ContainerHas(function_sigs_, name), std::runtime_error("unknown function " + name));
+    return function_sigs_.at(name).get();
+}
+
+FunctionSignature* Module::AddSignature(const std::string& name,
+                                        const FunctionType* functionType) {
+    check(types_->Has(functionType), NotRegisteredInModuleException());
+    check(!ContainerHas(function_sigs_, name), std::runtime_error(name + " already registered in the module"));
+    FunctionSigPtr functionSignature = std::make_unique<FunctionSignature>(name, functionType);
+    return function_sigs_.insert({name,
+                                  std::move(functionSignature)}).first->second.get();
+}
+
+LayoutPtr Module::MakeLayout(const std::vector<Layout::LayoutEntry>& entries) const {
+    auto layout = std::make_unique<Layout>();
+    for (const auto& entry : entries) {
+        layout->Add(entry);
+    }
+
+    return layout;
+}
 
 }   // _bier

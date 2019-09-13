@@ -13,7 +13,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#include "type.h"
+#include <catch2/catch.hpp>
+#include <bier/serialization/op_literals.h>
 
+using namespace bier;
 
+namespace bier_tests {
 
+TEST_CASE("Declare external function", "[functions_declaration]") {
+    REQUIRE(Literal::OpCodeValue(OpCodes::ADD_OP) == "add");
+    REQUIRE(Literal::OpCodeValue(OpCodes::EQ_OP) == "eq");
+    REQUIRE(Literal::OpCodeValue(OpCodes::ALLOC_OP) == "alloc");
+}
+
+}   // _bier_tests

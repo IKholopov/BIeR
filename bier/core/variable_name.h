@@ -14,20 +14,19 @@
    limitations under the License.
 */
 #pragma once
+#include <bier/common.h>
 #include <string>
 
 namespace bier {
 
-class VariableName {
+class VariableNameStorage {
 public:
-    explicit VariableName(const std::string& name) : name_(name)
-        {}
-    VariableName(const std::string& name, int index) : name_(name), index_(index)
-        {}
+    std::string Allocate(const std::string& name);
+    std::string AllocateUnique(const std::string& name);
 
 private:
-    std::string name_;
-    int index_ = -1;
+    StdHashMap<std::string, int> name_to_id;
+    int anonymous_counter_ = 0;
 };
 
 }   // _bier

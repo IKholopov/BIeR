@@ -14,18 +14,158 @@
    limitations under the License.
 */
 #include "function.h"
+#include <boost/functional/hash.hpp>
 
 namespace bier {
 
-FunctionSignature::FunctionSignature(const std::string& name, bier::Type* return_type,
-                   std::vector<bier::ValuePtr>&& arguments) :
-    arguments_(std::move(arguments)),
-    name_(name),
-    return_type_(return_type == nullptr ? std::nullopt : std::make_optional(return_type)) {
+HashType FunctionType::HashPtr::operator()(const FunctionType* type) const {
+    assert(type != nullptr);
+    HashType hash = 0;
+    boost::hash_combine(hash, type->return_type_.has_value());
+    if(type->return_type_.has_value()) {
+        boost::hash_combine(hash, type->return_type_.value());
+    }
+    for(const Type* arg : type->arguments_) {
+        boost::hash_combine(hash, arg);
+    }
+    return hash;
+}
+
+FunctionType::FunctionType(std::optional<const Type*> return_type,
+                           const std::vector<const Type*>& arguments) :
+    arguments_(arguments),
+    return_type_(return_type) {
+}
+
+std::string FunctionType::ToString() const {
+    return "func()";
+}
+
+HashType FunctionSignature::HashPtr::operator()(const FunctionSignature* signature) const {
+    assert(signature != nullptr);
+    HashType hash = 0;
+    boost::hash_combine(hash, signature->FuncType());
+    boost::hash_combine(hash, signature->Name());
+    return hash;
+}
+
+FunctionSignature::FunctionSignature(const std::string& name, const FunctionType* type) :
+    type_(type),
+    name_(name) {
+    for(const Type* arg : type->Arguments()) {
+        arguments_.push_back(std::make_unique<ArgumentValue>(arg));
+    }
+}
+
+std::string FunctionSignature::ToString() const {
+    return "func()";
+}
+
+const Type* FunctionSignature::GetType() const {
+    return FuncType();
+}
+
+std::string FunctionSignature::GetName() const {
+    return Name();
+}
+
+bool FunctionSignature::IsMutable() const {
+    return false;
 }
 
 const Type* Function::GetType() const {
-    return signature_;
+    return signature_->FuncType();
+}
+
+std::string Function::GetName() const {
+    return signature_->Name();
+}
+
+BasicBlock* Function::CreateBlock(const std::string& label, BasicBlock* insertAfter) {
+    if (insertAfter == nullptr) {
+        insertAfter = last_block_;
+    }
+
+    auto block = std::make_unique<BasicBlock>(this, label);
+
+    if (insertAfter == nullptr) {
+        AllocateArgumentVariables();
+        first_block_ = std::move(block);
+        last_block_ = first_block_.get();
+        return last_block_;
+    }
+    insertAfter->InsertNext(std::move(block));
+    if (last_block_ == insertAfter) {
+        last_block_ = last_block_->Next();
+    }
+    return insertAfter->Next();
+}
+
+BasicBlock* Function::CreateBlockAtStart(const std::string& label) {
+    auto block = std::make_unique<BasicBlock>(this, label);
+    block->Attach(std::move(first_block_));
+    first_block_ = std::move(block);
+
+    return first_block_.get();
+}
+
+OneWayIteratorRange<BasicBlock> Function::GetBlocks() const {
+    return OneWayIteratorRange<BasicBlock>(first_block_.get());
+}
+
+OneWayIteratorRange<BasicBlock> Function::GetBlocks() {
+    return OneWayIteratorRange<BasicBlock>(first_block_.get());
+}
+
+const Variable* Function::AllocateVariable(const Variable::Metadata& metadata) {
+    Variable::Metadata data = metadata;
+    data.name = variable_names_.Allocate(data.name);
+    variables_.emplace_back(std::make_unique<Variable>(data));
+    return variables_.back().get();
+}
+
+void Function::Normalize() {
+    ClearLostVariables();
+}
+
+void Function::AllocateArgumentVariables() {
+    for (const auto arg : signature_->Arguments()) {
+        AllocateUnique(Variable::Metadata(arg->GetName(), arg->GetType()));
+    }
+}
+
+const Variable* Function::AllocateUnique(const Variable::Metadata& metadata) {
+    variable_names_.AllocateUnique(metadata.name);
+    variables_.emplace_back(std::make_unique<Variable>(metadata));
+    return variables_.back().get();
+}
+
+void Function::ClearLostVariables() {
+    StdHashSet<const Value*> values;
+    for (const auto& block : GetBlocks()) {
+        for (const auto& op : block.GetOperations()) {
+            for (const Value* value : op->GetArguments()) {
+                values.insert(value);
+            }
+            if (op->GetReturnValue().has_value()) {
+                values.insert(op->GetReturnValue().value());
+            }
+        }
+    }
+
+    for (int i = variables_.size() - 1; i >= 0; --i) {
+        if( !ContainerHas(values, variables_.at(i).get()) ) {
+            variables_.erase(variables_.begin() + i);
+        }
+    }
+}
+
+const Type* ArgumentValue::GetType() const {
+    return data_->type;
+}
+
+std::string ArgumentValue::GetName() const {
+    return data_->name;
 }
 
 }   // _bier

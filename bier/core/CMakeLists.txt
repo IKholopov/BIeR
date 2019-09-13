@@ -1,13 +1,16 @@
 # Build core library
 
-file(GLOB bier_core_SRC
+add_library(bier_core
+    basic_block.cpp
+    basic_types.cpp
+    const_value.cpp
     function.cpp
     label.cpp
+    layout.cpp
     module.cpp
     operation.cpp
-    type.cpp)
-
-message(${BIER_INC})
-
-add_library(bier_core ${bier_core_SRC})
+    types_registry.cpp
+    variable.cpp
+    variable_name.cpp)
 target_include_directories(bier_core PUBLIC ${BIER_INC})
+target_cxx(bier_core)

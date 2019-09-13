@@ -15,35 +15,52 @@
 */
 #pragma once
 
-#include <bier/core/function.h>
+#include <bier/core/function_context.h>
 #include <bier/core/value.h>
+#include <vector>
 
 namespace bier {
 
 class Operation : public FunctionContextMemeber {
 public:
-    virtual std::vector<Value*> GetArguments() const = 0;
-    virtual Value* GetReturnValue() const = 0;
+    virtual std::vector<const Value*> GetArguments() const = 0;
+    virtual void SubstituteArguments(const std::vector<const Value*>& args) = 0;
+
+    virtual std::optional<const Value*> GetReturnValue() const = 0;
+    virtual void SubstituteReturnValue(const Value* return_value) = 0;
+
+    virtual int OpCode() const = 0;
+};
+
+template <int IOpCode>
+class BaseOperation : public Operation {
+    int OpCode() const override {
+        return IOpCode;
+    }
 };
 
 class BinaryOperation : public Operation {
 public:
     enum class BinOp {
-        ADD,
-        SUB,
-        MULT,
-        DIV,
-        EQ,
-        NE,
-        LE,
-        LT,
-        GE,
-        GT,
-        STORE,
+        ADD,        // a + b
+        SUB,        // a - b
+        MULT,       // a * b
+        UDIV,       // a / b
+        SDIV,       // a / b
+        UREM,       // a % b
+        SREM,       // a % b
+        EQ,         // a == b
+        NE,         // a != b
+        SLE,        // a <= b
+        SLT,        // a < b
+        SGE,        // a >= b
+        SGT,        // a > b
+        STORE,      // *b = a
         INVALID
     };
 
-    BinaryOperation(const Function* context_func, BinOp op, Value* left, Value* right, Value* return_value);
+    BinaryOperation(const Function* context_func, BinOp op, const Value* left, const Value* right,
+                    const Value* return_value);
 
     BinOp GetOp() const {
         return op_;
@@ -53,26 +70,38 @@ public:
     const Function* GetContextFunction() const override;
 
     // Operation interface
-    std::vector<Value*> GetArguments() const override;
-    Value* GetReturnValue() const override;
+    std::vector<const Value*> GetArguments() const override;
+    void SubstituteArguments(const std::vector<const Value*>& args) override;
+    std::optional<const Value*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Value* return_value) override;
+    int OpCode() const override;
+
+    const Value* LeftValue() const {
+        return left_value_;
+    }
+    const Value* RightValue() const {
+        return right_value_;
+    }
 
 private:
     const Function* context_function_ = nullptr;
-    Value* left_value_ = nullptr;
-    Value* right_value_ = nullptr;
-    Value* return_value_ = nullptr;
+    const Value* left_value_ = nullptr;
+    const Value* right_value_ = nullptr;
+    const Value* return_value_ = nullptr;
     BinOp op_ = BinOp::INVALID;
 };
 
-class UnaryOpertaion : public Operation {
+class UnaryOperation : public Operation {
 public:
     enum class UnOp {
         ALLOC,
         LOAD,
+        ASSIGN,
         INVALID
     };
 
-    UnaryOpertaion(const Function* context_func, UnOp op, Value* argument, Value* return_value);
+    UnaryOperation(const Function* context_func, UnOp op,
+                   const Value* argument, const Value* return_value);
 
     UnOp GetOp() const {
         return op_;
@@ -82,13 +111,16 @@ public:
     const Function* GetContextFunction() const override;
 
     // Operation interface
-    std::vector<Value*> GetArguments() const override;
-    Value* GetReturnValue() const override;
+    std::vector<const Value*> GetArguments() const override;
+    void SubstituteArguments(const std::vector<const Value*>& args) override;
+    std::optional<const Value*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Value* return_value) override;
+    int OpCode() const override;
 
 private:
     const Function* context_function_ = nullptr;
-    Value* argument_ = nullptr;
-    Value* return_value_ = nullptr;
+    const Value* argument_ = nullptr;
+    const Value* return_value_ = nullptr;
     UnOp op_ = UnOp::INVALID;
 };
 

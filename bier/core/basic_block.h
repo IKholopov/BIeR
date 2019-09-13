@@ -15,16 +15,53 @@
 */
 #pragma once
 #include <bier/common.h>
+#include <bier/core/const_value.h>
+#include <bier/core/function_context.h>
+#include <bier/core/operation.h>
+#include <bier/utils/iterator_range.h>
+#include <bier/utils/intrusive_list.h>
+#include <list>
 #include <vector>
 
 namespace bier {
 
-class BasicBlock {
+class BasicBlock : public IntrusiveListNode<BasicBlock>, public FunctionContextMemeber {
 public:
+    template <typename T>
+    using OperationContainer = std::list<T>;
+    using OperationIterator = OperationContainer<OperationPtr>::iterator;
 
+    explicit BasicBlock(const Function* function, const std::string& label = "")
+        : label_(label), context_(function) {
+    }
+
+    void Append(OperationPtr&& operation);
+    void InsertAt(OperationIterator iterator, OperationPtr&& operation);
+    void DeleteAt(OperationIterator iterator);
+    const ConstValue* InsertConst(std::unique_ptr<ConstValue>&& value);
+    void TerminateBlock() {
+        branch_terminated_ = true;
+    }
+
+    // FunctionContextMemeber interface
+    const Function* GetContextFunction() const override;
+    auto GetOperations() const {
+        return IteratorRange(operations_);
+    }
+    auto GetOperations() {
+        return MutableIteratorRange<decltype(operations_)>(operations_);
+    }
+
+    const std::string& GetLabel() const {
+        return label_;
+    }
 
 private:
-    std::vector<>
+    std::vector<std::unique_ptr<ConstValue>> constants_;
+    OperationContainer<OperationPtr> operations_;
+    std::string label_;
+    const Function* context_ = nullptr;
+    bool branch_terminated_ = false;
 };
 
 }   // _bier
