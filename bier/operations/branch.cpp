@@ -20,8 +20,7 @@
 namespace bier {
 
 BranchOperation::BranchOperation(const Function* context, const BasicBlock* target)
-    : context_(context),
-      target_(target) {
+    : context_(context), target_(target) {
     check(context_ == target_->GetContextFunction(),
           std::runtime_error("branch to block outside the function"));
     assert(!target_->GetLabel().empty());
@@ -36,7 +35,7 @@ std::optional<const Value*> BranchOperation::GetReturnValue() const {
 }
 
 std::vector<const BasicBlock*> BranchOperation::DestinationBlocks() const {
-    return { target_ };
+    return {target_};
 }
 
 ConditionalBranchOperation::ConditionalBranchOperation(const Function* context,
@@ -47,15 +46,15 @@ ConditionalBranchOperation::ConditionalBranchOperation(const Function* context,
       target_true_(target_true),
       target_false_(target_false),
       condition_(condition) {
-    check(context_ == target_true_->GetContextFunction()
-          && context_ == target_false_->GetContextFunction(),
+    check(context_ == target_true_->GetContextFunction() &&
+              context_ == target_false_->GetContextFunction(),
           std::runtime_error("branch to block outside the function"));
     assert(!target_true_->GetLabel().empty());
     assert(!target_false_->GetLabel().empty());
 }
 
 std::vector<const Value*> ConditionalBranchOperation::GetArguments() const {
-    return { condition_ };
+    return {condition_};
 }
 
 void ConditionalBranchOperation::SubstituteArguments(const std::vector<const Value*>& args) {
@@ -68,7 +67,7 @@ std::optional<const Value*> ConditionalBranchOperation::GetReturnValue() const {
 }
 
 std::vector<const BasicBlock*> ConditionalBranchOperation::DestinationBlocks() const {
-    return { target_true_, target_false_ };
+    return {target_true_, target_false_};
 }
 
-}   // _bier
+}  // namespace bier

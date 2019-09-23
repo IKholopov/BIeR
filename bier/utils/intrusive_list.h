@@ -24,7 +24,8 @@ public:
     using Ptr = std::unique_ptr<T>;
     class Iterator {
     public:
-        explicit Iterator(IntrusiveListNode* node) : node_(node) {}
+        explicit Iterator(IntrusiveListNode* node) : node_(node) {
+        }
 
         const T& operator*() const {
             return static_cast<const T&>(*node_);
@@ -95,4 +96,4 @@ private:
     Ptr next_;
 };
 
-}   // _bier
+}  // namespace bier

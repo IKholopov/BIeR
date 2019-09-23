@@ -25,8 +25,8 @@ public:
     CallOp(const Function* context, const Function* function,
            std::optional<const Value*> return_value = std::nullopt,
            const std::vector<const Value*>& arguments = {});
-    CallOp(const Function* context, const FunctionType* type,
-           const Value* func_value, std::optional<const Value*> return_value = std::nullopt,
+    CallOp(const Function* context, const FunctionType* type, const Value* func_value,
+           std::optional<const Value*> return_value = std::nullopt,
            const std::vector<const Value*>& arguments = {});
 
     // FunctionContextInterface
@@ -59,4 +59,4 @@ private:
     void CheckReturnAndArgs() const;
 };
 
-}   // _bier
+}  // namespace bier

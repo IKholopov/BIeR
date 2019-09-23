@@ -37,8 +37,8 @@ public:
     }
 
     bool IsValid(uint64_t value) const override {
-        static_assert (NBits <= 64, "values over 64-bits length are not supported");
-        return ((~( NBits == 64 ? -1 : ((1ull << NBits) - 1ull)) & value) == 0);
+        static_assert(NBits <= 64, "values over 64-bits length are not supported");
+        return ((~(NBits == 64 ? -1 : ((1ull << NBits) - 1ull)) & value) == 0);
     }
 
     unsigned int GetNBits() const override {
@@ -46,4 +46,4 @@ public:
     }
 };
 
-}   // _bier
+}  // namespace bier

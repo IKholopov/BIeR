@@ -59,22 +59,23 @@ DefaultTypesRegistry* DefaultTypesRegistry::DefaultTypes() {
     return this;
 }
 
-const FunctionType* DefaultTypesRegistry::MakeFunctionType(std::optional<const Type*> return_type,
-                                                    const std::vector<const Type*>& arguments) {
+const FunctionType* DefaultTypesRegistry::MakeFunctionType(
+    std::optional<const Type*> return_type, const std::vector<const Type*>& arguments) {
     auto funcType = std::make_unique<FunctionType>(return_type, arguments);
     const FunctionType* func_type_ptr = funcType.get();
     if (ContainerHas(function_types_, func_type_ptr)) {
         return function_types_.at(func_type_ptr).get();
     }
 
-    function_types_.insert({ func_type_ptr, std::move(funcType) });
+    function_types_.insert({func_type_ptr, std::move(funcType)});
     all_types_.insert(func_type_ptr);
     ptr_types_.insert(func_type_ptr);
     func_types_.insert(func_type_ptr);
     return func_type_ptr;
 }
 
-bool DefaultTypesRegistry::IsPtrCompatibleWith(const Type* ptr_type, const Type* underlying_type) const {
+bool DefaultTypesRegistry::IsPtrCompatibleWith(const Type* ptr_type,
+                                               const Type* underlying_type) const {
     if (ptr_type == &any_ptr_) {
         return true;
     }
@@ -100,4 +101,4 @@ const Type* DefaultTypesRegistry::GetPtrTo(const Type* type) {
     return ptr;
 }
 
-}   // _bier
+}  // namespace bier

@@ -17,21 +17,25 @@
 
 namespace bier {
 
-std::string VariableNameStorage::Allocate(const std::string& name) {
+std::string VariableNameStorage::Allocate(const std::string& name, bool createNew) {
     if (name.empty()) {
         return std::to_string(anonymous_counter_++);
     }
     if (ContainerHas(name_to_id, name)) {
-        return name + std::to_string(name_to_id.at(name)++);
+        if (createNew) {
+            return name + std::to_string(name_to_id.at(name)++);
+        }
+        return name;
     }
     name_to_id.insert({name, 0});
     return name;
 }
 
 std::string VariableNameStorage::AllocateUnique(const std::string& name) {
-    check(!ContainerHas(name_to_id, name), std::runtime_error("Failed to allocate unique variable " + name));
+    check(!ContainerHas(name_to_id, name),
+          std::runtime_error("Failed to allocate unique variable " + name));
     name_to_id.insert({name, 0});
     return name;
 }
 
-}   // _bier
+}  // namespace bier

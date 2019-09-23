@@ -24,4 +24,4 @@ public:
     virtual void Apply(ModulePtr&& module) = 0;
 };
 
-}   // _bier
+}  // namespace bier

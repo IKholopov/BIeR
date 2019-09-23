@@ -29,7 +29,7 @@ class TypeRegistryInterface {
 public:
     virtual ~TypeRegistryInterface() = default;
     virtual bool Has(const Type* type) const = 0;
-    virtual const DefaultTypesRegistry* DefaultTypes() const  = 0;
+    virtual const DefaultTypesRegistry* DefaultTypes() const = 0;
     virtual DefaultTypesRegistry* DefaultTypes() = 0;
 };
 
@@ -79,7 +79,7 @@ public:
     }
 
     const FunctionType* MakeFunctionType(std::optional<const Type*> return_type = std::nullopt,
-                                 const std::vector<const Type*>& arguments = {});
+                                         const std::vector<const Type*>& arguments = {});
 
     bool IsPtr(const Type* type) const {
         return ContainerHas(ptr_types_, type);
@@ -113,4 +113,4 @@ private:
     StdHashSet<TypePtr> custom_ptrs_;
 };
 
-}   // _bier
+}  // namespace bier

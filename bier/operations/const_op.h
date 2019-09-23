@@ -40,4 +40,4 @@ private:
     const Value* return_value_ = nullptr;
 };
 
-}   // _bier
+}  // namespace bier

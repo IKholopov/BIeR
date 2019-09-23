@@ -25,5 +25,4 @@ public:
     virtual const Function* GetContextFunction() const = 0;
 };
 
-}   // _bier
-
+}  // namespace bier

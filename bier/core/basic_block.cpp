@@ -18,7 +18,8 @@
 namespace bier {
 
 void BasicBlock::Append(bier::OperationPtr&& operation) {
-    check(!branch_terminated_, std::runtime_error("trying to add operation to block with branch at the end"));
+    check(!branch_terminated_,
+          std::runtime_error("trying to add operation to block with branch at the end"));
     operations_.emplace_back(std::move(operation));
 }
 
@@ -41,5 +42,4 @@ const Function* BasicBlock::GetContextFunction() const {
     return context_;
 }
 
-}   // _bier
-
+}  // namespace bier

@@ -17,18 +17,15 @@
 
 namespace bier {
 
-const Function* ReturnVoidOp::GetContextFunction() const
-{
+const Function* ReturnVoidOp::GetContextFunction() const {
     return context_;
 }
 
-std::vector<const Value*> ReturnVoidOp::GetArguments() const
-{
+std::vector<const Value*> ReturnVoidOp::GetArguments() const {
     return {};
 }
 
-std::optional<const Value*> ReturnVoidOp::GetReturnValue() const
-{
+std::optional<const Value*> ReturnVoidOp::GetReturnValue() const {
     return std::nullopt;
 }
 
@@ -40,8 +37,9 @@ ReturnValueOp::ReturnValueOp(const Function* context_func, const Value* value)
     check(return_type.has_value(),
           std::runtime_error(context_->GetName() + " has return type, but void is returned"));
     check(return_type.value() == value->GetType(),
-          std::runtime_error(context_->GetName() + " has return type " +  return_type.value()->ToString() + ", but "
-                             + value->GetType()->ToString() + " is returned"));
+          std::runtime_error(context_->GetName() + " has return type " +
+                             return_type.value()->ToString() + ", but " +
+                             value->GetType()->ToString() + " is returned"));
 }
 
 const Function* ReturnValueOp::GetContextFunction() const {
@@ -49,7 +47,7 @@ const Function* ReturnValueOp::GetContextFunction() const {
 }
 
 std::vector<const Value*> ReturnValueOp::GetArguments() const {
-    return { value_ };
+    return {value_};
 }
 
 void ReturnValueOp::SubstituteArguments(const std::vector<const Value*>& args) {
@@ -65,4 +63,4 @@ void ReturnValueOp::SubstituteReturnValue(const Value*) {
     assert(false);
 }
 
-}   // _bier
+}  // namespace bier

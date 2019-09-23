@@ -67,6 +67,6 @@ enum Op : int {
     OPS_COUNT
 };
 
-}   // _OpCodes
+}  // namespace OpCodes
 
-}   // _bier
+}  // namespace bier

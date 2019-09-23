@@ -21,7 +21,7 @@ namespace bier {
 
 class VariableNameStorage {
 public:
-    std::string Allocate(const std::string& name);
+    std::string Allocate(const std::string& name, bool createNew = false);
     std::string AllocateUnique(const std::string& name);
 
 private:
@@ -29,5 +29,4 @@ private:
     int anonymous_counter_ = 0;
 };
 
-}   // _bier
-
+}  // namespace bier

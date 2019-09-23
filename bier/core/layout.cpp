@@ -66,4 +66,4 @@ int Layout::GetNextOffset() const {
     return offsets_.empty() ? 0 : offsets_.back() + entries_.back().count;
 }
 
-}   // _bier
+}  // namespace bier

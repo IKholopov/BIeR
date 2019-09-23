@@ -17,8 +17,7 @@
 
 namespace bier {
 
-Variable::Variable(const Metadata& data)
-    : data_(data) {
+Variable::Variable(const Metadata& data) : data_(data) {
 }
 
 Variable::Metadata::Metadata(const std::string& _name, const Type* _type, bool _is_mutable)
@@ -26,4 +25,4 @@ Variable::Metadata::Metadata(const std::string& _name, const Type* _type, bool _
     assert(type != nullptr);
 }
 
-}   // _bier
+}  // namespace bier

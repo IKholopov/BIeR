@@ -29,4 +29,4 @@ std::string TypedPtrType::ToString() const {
     return underlying_->ToString() + "*";
 }
 
-}   // _bier
+}  // namespace bier

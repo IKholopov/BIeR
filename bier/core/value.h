@@ -26,4 +26,4 @@ public:
     virtual bool IsMutable() const = 0;
 };
 
-}   // _bier
+}  // namespace bier

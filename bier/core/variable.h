@@ -55,4 +55,4 @@ private:
     Metadata data_;
 };
 
-}   // _bier
+}  // namespace bier

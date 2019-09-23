@@ -18,7 +18,6 @@
 namespace bier {
 
 void Verifier::Verify(const Function* /* function */) {
-
 }
 
-}   // _bier
+}  // namespace bier

@@ -14,6 +14,15 @@ endfunction(target_cxx)
 find_package(Boost REQUIRED)
 
 include(GNUInstallDirs)
+
+set(BIER_INC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+add_subdirectory(bier)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
+
 add_library(bier INTERFACE)
 target_include_directories(
   bier
@@ -29,15 +38,6 @@ target_link_libraries(bier
         bier::bier_llvm)
 add_library(bier::bier ALIAS bier)
 
-
-set(BIER_INC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
-
-add_subdirectory(bier)
-if(BUILD_TESTS)
-    add_subdirectory(tests)
-endif()
 
 install(TARGETS bier bier_core bier_builder bier_ops bier_serialization bier_pass bier_llvm
         EXPORT bier-targets

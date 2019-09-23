@@ -55,4 +55,4 @@ private:
     const IntTypeBase* type_ = nullptr;
 };
 
-}   // _bier
+}  // namespace bier

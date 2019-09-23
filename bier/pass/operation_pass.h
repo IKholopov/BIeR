@@ -38,4 +38,4 @@ private:
     ModulePtr current_module_;
 };
 
-}   // _bier
+}  // namespace bier

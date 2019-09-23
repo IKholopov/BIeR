@@ -26,17 +26,18 @@ std::ostream& StringSerializer::TranslateFunctionSignature(const FunctionSignatu
     for (const auto arg : op->Arguments()) {
         stream << arg->GetType()->ToString() << " %" << arg->GetName() << ",";
     }
-    stream << ") " << (op->ReturnType().has_value() ? op->ReturnType().value()->ToString() : "void");
+    stream << ") "
+           << (op->ReturnType().has_value() ? op->ReturnType().value()->ToString() : "void");
     return stream;
 }
 
 std::ostream& StringSerializer::TranslateOp(const Operation* op, std::ostream& stream) const {
     auto return_val = op->GetReturnValue();
     if (return_val.has_value()) {
-        stream << (return_val.value()->IsMutable() ? "$" : "%") << return_val.value()->GetName() << " "
-               << return_val.value()->GetType()->ToString() << " = ";
+        stream << (return_val.value()->IsMutable() ? "$" : "%") << return_val.value()->GetName()
+               << " " << return_val.value()->GetType()->ToString() << " = ";
     }
-    stream << Literal::OpCodeValue(op->OpCode()) << " ";
+    stream << OpCodeName(op->OpCode()) << " ";
     if (op->OpCode() == OpCodes::ALLOC_LAYOUT_OP) {
         auto alloc_op = static_cast<const AllocateLayout*>(op);
         const Layout* layout = alloc_op->GetLayout();
@@ -61,7 +62,7 @@ std::ostream& StringSerializer::TranslateValue(const Value* value, std::ostream&
         stream << const_val->GetConstValue();
     } else {
         stream << (value->IsMutable() ? "$" : "%") << value->GetName();
-    // TODO
+        // TODO
     }
     stream << ", ";
     return stream;
@@ -96,4 +97,12 @@ std::ostream& StringSerializer::PrintModule(const Module* module, std::ostream& 
     return stream;
 }
 
-}   // _bier
+std::string StringSerializer::OpCodeName(int code) const
+{
+    if (code >= Literal::StartingExtCode) {
+        throw std::runtime_error("Name of opcode " + std::to_string(code) + " is not specified");
+    }
+    return Literal::OpCodeValue(code);
+}
+
+}  // namespace bier

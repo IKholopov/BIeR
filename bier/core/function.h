@@ -36,12 +36,13 @@ public:
     };
     struct PredPtr {
         constexpr bool operator()(const FunctionType* left, const FunctionType* right) const {
-            return left->return_type_ == right->return_type_ && left->arguments_ == right->arguments_;
+            return left->return_type_ == right->return_type_ &&
+                   left->arguments_ == right->arguments_;
         }
     };
 
     explicit FunctionType(std::optional<const Type*> return_type = std::nullopt,
-             const std::vector<const Type*>& arguments = {});
+                          const std::vector<const Type*>& arguments = {});
 
     std::string ToString() const override;
 
@@ -67,8 +68,7 @@ struct ArgumentData {
 
 class ArgumentValue : public Value {
 public:
-    explicit ArgumentValue(const Type* argType)
-        : data_(std::make_unique<ArgumentData>(argType)) {
+    explicit ArgumentValue(const Type* argType) : data_(std::make_unique<ArgumentData>(argType)) {
     }
 
     // Value interface
@@ -94,8 +94,9 @@ public:
         HashType operator()(const FunctionSignature* signature) const;
     };
     struct PredPtr {
-        constexpr bool operator()(const FunctionSignature* left, const FunctionSignature* right) const {
-            return left->type_ == right->type_ && left->name_== right->name_;
+        constexpr bool operator()(const FunctionSignature* left,
+                                  const FunctionSignature* right) const {
+            return left->type_ == right->type_ && left->name_ == right->name_;
         }
     };
 
@@ -114,11 +115,11 @@ public:
     std::string GetName() const override;
     bool IsMutable() const override;
 
-    std::optional<const Type*> ReturnType() const{
+    std::optional<const Type*> ReturnType() const {
         return type_->ReturnType();
     }
     auto Arguments() const {
-        return IteratorPtrRange<decltype (arguments_)>(arguments_);
+        return IteratorPtrRange<decltype(arguments_)>(arguments_);
     }
 
     auto Arguments() {
@@ -151,8 +152,7 @@ public:
         return signature_;
     }
 
-    BasicBlock* CreateBlock(const std::string& label = "",
-                            BasicBlock* insertAfter = nullptr);
+    BasicBlock* CreateBlock(const std::string& label = "", BasicBlock* insertAfter = nullptr);
     BasicBlock* CreateBlockAtStart(const std::string& label = "");
     OneWayIteratorRange<BasicBlock> GetBlocks() const;
     OneWayIteratorRange<BasicBlock> GetBlocks();
@@ -166,7 +166,7 @@ public:
     void Normalize();
 
 private:
-    std::vector<VariablePtr> variables_;
+    StdHashMap<std::string, VariablePtr> variables_;
     VariableNameStorage variable_names_;
     BasicBlockPtr first_block_;
     BasicBlock* last_block_ = nullptr;
@@ -177,4 +177,4 @@ private:
     void ClearLostVariables();
 };
 
-}   // _bier
+}  // namespace bier

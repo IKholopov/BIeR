@@ -22,7 +22,7 @@ void SSAPass::OnFunction(Function* function) {
     function_ = function;
 
     std::vector<const Value*> values;
-    for (const auto& variable : function->GetVariables()) {
+    for (const auto& [name, variable] : function->GetVariables()) {
         if (variable->IsMutable()) {
             values.push_back(variable.get());
         }
@@ -33,21 +33,25 @@ void SSAPass::OnFunction(Function* function) {
     allocated_.clear();
     BasicBlock* start_block = function->CreateBlockAtStart();
     for (const Value* val : values) {
-        const Value* one = start_block->InsertConst(std::make_unique<IntegerConst>(1,
-                                                                                   static_cast<const IntTypeBase*>(Types()->GetInt64())));
-        const Variable* variable = function->AllocateVariable(Variable::Metadata(val->GetName() + "_ptr", Types()->GetPtrTo(val->GetType())));
-        auto unOp = std::make_unique<UnaryOperation>(start_block->GetContextFunction(), UnaryOperation::UnOp::ALLOC, one, variable );
+        const Value* one = start_block->InsertConst(std::make_unique<IntegerConst>(
+            1, static_cast<const IntTypeBase*>(Types()->GetInt64())));
+        const Variable* variable = function->AllocateVariable(
+            Variable::Metadata(val->GetName() + "_ptr", Types()->GetPtrTo(val->GetType())));
+        auto unOp = std::make_unique<UnaryOperation>(start_block->GetContextFunction(),
+                                                     UnaryOperation::UnOp::ALLOC, one, variable);
         start_block->Append(std::move(unOp));
         mutable_values_.insert({val, variable});
         allocated_.insert(variable);
     }
-    start_block->Append(std::make_unique<BranchOperation>(start_block->GetContextFunction(), start_block->Next()));
+    start_block->Append(
+        std::make_unique<BranchOperation>(start_block->GetContextFunction(), start_block->Next()));
 }
 
 OperationPass::OperationIterator SSAPass::OperationTransformation(BasicBlock* block,
                                                                   OperationIterator iterator) {
     Operation* op = iterator->get();
-    if (op->GetReturnValue().has_value() && ContainerHas(allocated_, op->GetReturnValue().value())) {
+    if (op->GetReturnValue().has_value() &&
+        ContainerHas(allocated_, op->GetReturnValue().value())) {
         // Skip allocations
         return ++iterator;
     }
@@ -68,8 +72,8 @@ OperationPass::OperationIterator SSAPass::OperationTransformation(BasicBlock* bl
         op->SubstituteArguments(args);
     }
     ++next_it;
-    if (op->GetReturnValue().has_value()
-            && ContainerHas(mutable_values_, op->GetReturnValue().value())) {
+    if (op->GetReturnValue().has_value() &&
+        ContainerHas(mutable_values_, op->GetReturnValue().value())) {
         op->SubstituteReturnValue(MakeStore(block, next_it, op->GetReturnValue().value()));
         ++next_it;
     }
@@ -79,20 +83,22 @@ OperationPass::OperationIterator SSAPass::OperationTransformation(BasicBlock* bl
 
 const Value* SSAPass::MakeLoad(BasicBlock* block, OperationIterator iterator,
                                const Value* to_load) const {
-    const Value* loaded = function_->AllocateVariable(Variable::Metadata(to_load->GetName() + "_val",
-                                                                         to_load->GetType()));
-    block->InsertAt(iterator, std::make_unique<UnaryOperation>(function_, UnaryOperation::UnOp::LOAD,
-                                                                 mutable_values_.at(to_load), loaded ));
+    const Value* loaded = function_->AllocateVariable(
+        Variable::Metadata(to_load->GetName() + "_val", to_load->GetType()));
+    block->InsertAt(iterator,
+                    std::make_unique<UnaryOperation>(function_, UnaryOperation::UnOp::LOAD,
+                                                     mutable_values_.at(to_load), loaded));
     return loaded;
 }
 
 const Value* SSAPass::MakeStore(BasicBlock* block, OperationPass::OperationIterator iterator,
                                 const Value* to_store) const {
-    const Value* store_in = function_->AllocateVariable(Variable::Metadata(to_store->GetName() + "_val",
-                                                                         to_store->GetType()));
-    block->InsertAt(iterator, std::make_unique<BinaryOperation>(function_, BinaryOperation::BinOp::STORE,
-                                                                store_in, mutable_values_.at(to_store), nullptr));
+    const Value* store_in = function_->AllocateVariable(
+        Variable::Metadata(to_store->GetName() + "_val", to_store->GetType()));
+    block->InsertAt(iterator, std::make_unique<BinaryOperation>(
+                                  function_, BinaryOperation::BinOp::STORE, store_in,
+                                  mutable_values_.at(to_store), nullptr));
     return store_in;
 }
 
-}   // _bier
+}  // namespace bier

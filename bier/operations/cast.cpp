@@ -18,9 +18,7 @@
 namespace bier {
 
 CastOperation::CastOperation(const Function* funciton, const Value* from, const Value* to)
-    : context_(funciton),
-      from_(from),
-      to_(to) {
+    : context_(funciton), from_(from), to_(to) {
     assert(from_ != nullptr);
     assert(to_ != nullptr);
     assert(context_ != nullptr);
@@ -31,7 +29,7 @@ const Function* CastOperation::GetContextFunction() const {
 }
 
 std::vector<const Value*> CastOperation::GetArguments() const {
-    return { from_ };
+    return {from_};
 }
 
 void CastOperation::SubstituteArguments(const std::vector<const Value*>& args) {
@@ -47,4 +45,4 @@ void CastOperation::SubstituteReturnValue(const Value* return_value) {
     to_ = return_value;
 }
 
-}   // _bier
+}  // namespace bier

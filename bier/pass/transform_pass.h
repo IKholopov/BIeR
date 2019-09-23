@@ -23,4 +23,4 @@ public:
     virtual ModulePtr GetTransformed() = 0;
 };
 
-}   // _biers
+}  // namespace bier

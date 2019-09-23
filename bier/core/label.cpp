@@ -21,4 +21,4 @@ const Function* Label::GetContextFunction() const {
     return context_function_;
 }
 
-}   // _bier
+}  // namespace bier

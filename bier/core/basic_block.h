@@ -64,4 +64,4 @@ private:
     bool branch_terminated_ = false;
 };
 
-}   // _bier
+}  // namespace bier

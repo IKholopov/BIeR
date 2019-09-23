@@ -26,4 +26,4 @@ TEST_CASE("Declare external function", "[functions_declaration]") {
     REQUIRE(Literal::OpCodeValue(OpCodes::ALLOC_OP) == "alloc");
 }
 
-}   // _bier_tests
+}  // namespace bier_tests

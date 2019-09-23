@@ -28,6 +28,8 @@ public:
     std::ostream& TranslateValue(const Value* value, std::ostream& stream) const;
     std::ostream& TranslateLayout(const Layout* layout, std::ostream& stream) const;
     std::ostream& PrintModule(const Module* module, std::ostream& stream) const;
+
+    virtual std::string OpCodeName(int code) const;
 };
 
-}   // _bier
+}  // namespace bier

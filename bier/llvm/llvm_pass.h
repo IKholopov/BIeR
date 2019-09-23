@@ -40,7 +40,7 @@ private:
     void CreateFunction(const Function* func);
     void TranslateOperation(const Operation* op);
 
-    const DefaultTypesRegistry* Types() const;
+    DefaultTypesRegistry* Types() const;
 
     template <typename FBuildOp>
     void TranslateBinOpSimple(const Operation* op, FBuildOp buildOp);
@@ -50,6 +50,8 @@ private:
     void TranslateBinOpRoundArithmetic(const Operation* op, FBuildOp buildOp);
     llvm::Value* LlvmValue(const Value* value);
     llvm::StructType* LlvmLayout(const Layout* value);
+
+    llvm::Value* PtrCast(const Value* bier_from, const Type* bier_to_type);
 };
 
-}   // _bier
+}  // namespace bier

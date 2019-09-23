@@ -18,9 +18,16 @@
 
 namespace bier {
 
-ModuleBuilder::ModuleBuilder(Module* module_to_attach)
-    : module_(module_to_attach) {
+ModuleBuilder::ModuleBuilder(Module* module_to_attach) : module_(module_to_attach) {
     assert(module_to_attach != nullptr);
+}
+
+Function* ModuleBuilder::CreateFunction(const std::string& name,
+                                        std::optional<const Type*> return_type,
+                                        const std::vector<const Type*>& arguments) {
+    check(!module_->HasFunction(name), std::runtime_error("function " + name + " already defined!"));
+    const FunctionType* func_type = module_->Types()->MakeFunctionType(return_type, arguments);
+    return module_->AddFunction(name, func_type);
 }
 
 BasicBlock* ModuleBuilder::CreateBlock(Function* function, const std::string& label,
@@ -49,13 +56,13 @@ const Value* ModuleBuilder::CreateSDiv(const Value* left, const Value* right,
     return CreateArithmetic<BinaryOperation::BinOp::SDIV>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateEQ(const Value* left, const Value* right,
-                                     const std::string& name, bool is_mutable) {
+const Value* ModuleBuilder::CreateEQ(const Value* left, const Value* right, const std::string& name,
+                                     bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::EQ>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateNE(const Value* left, const Value* right,
-                                     const std::string& name, bool is_mutable) {
+const Value* ModuleBuilder::CreateNE(const Value* left, const Value* right, const std::string& name,
+                                     bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::NE>(left, right, name, is_mutable);
 }
 
@@ -84,95 +91,86 @@ void ModuleBuilder::CreateStore(const Value* ptr, const Value* value) {
     check(module_->Types()->IsPtr(ptr->GetType()),
           std::runtime_error("store to non-ptr type " + ptr->GetType()->ToString() + " requested"));
     check(module_->Types()->IsPtrCompatibleWith(ptr->GetType(), store_type),
-          std::runtime_error("store to " + ptr->GetType()->ToString() + " of " + store_type->ToString() + " is not possible"));
-    current_block_->Append(std::make_unique<BinaryOperation>(CurrentFunction(),
-                                                            BinaryOperation::BinOp::STORE,
-                                                            value, ptr,
-                                                             nullptr));
-
+          std::runtime_error("store to " + ptr->GetType()->ToString() + " of " +
+                             store_type->ToString() + " is not possible"));
+    current_block_->Append(std::make_unique<BinaryOperation>(
+        CurrentFunction(), BinaryOperation::BinOp::STORE, value, ptr, nullptr));
 }
 
-const Value* ModuleBuilder::CreateAlloc(const Type* load_type, const std::string& name, bool is_mutable) {
-    return CreateAlloc(load_type, CreateInt64Const(1), name, is_mutable);
+const Value* ModuleBuilder::CreateAlloc(const Type* alloc_type, const std::string& name,
+                                        bool is_mutable) {
+    return CreateAlloc(alloc_type, CreateInt64Const(1), name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateAlloc(const Type* load_type, const Value* count,
+const Value* ModuleBuilder::CreateAlloc(const Type* alloc_type, const Value* count,
                                         const std::string& name, bool is_mutable) {
-    const Variable* result = CurrentFunction()->AllocateVariable(Variable::Metadata(name,
-                                                                                    load_type,
-                                                                                    is_mutable));
+    const Variable* result =
+        CurrentFunction()->AllocateVariable(Variable::Metadata(name, module_->Types()->GetPtrTo(alloc_type), is_mutable));
     check(module_->Types()->IsInteger(count->GetType()),
           std::runtime_error("cannot allocate count of " + count->GetType()->ToString() + " type"));
-    current_block_->Append(std::make_unique<UnaryOperation>(CurrentFunction(),
-                                                            UnaryOperation::UnOp::ALLOC,
-                                                            count,
-                                                            result));
+    current_block_->Append(std::make_unique<UnaryOperation>(
+        CurrentFunction(), UnaryOperation::UnOp::ALLOC, count, result));
 
     return result;
 }
 
-const Value* ModuleBuilder::CreateAlloc(const Layout* layout, const std::string& name, bool is_mutable) {
+const Value* ModuleBuilder::CreateAlloc(const Layout* layout, const std::string& name,
+                                        bool is_mutable) {
     return CreateAlloc(layout, CreateInt64Const(1), name, is_mutable);
 }
 
 const Value* ModuleBuilder::CreateAlloc(const Layout* layout, const Value* count,
                                         const std::string& name, bool is_mutable) {
-    const Variable* result = CurrentFunction()->AllocateVariable(Variable::Metadata(name,
-                                                                                    module_->Types()->GetPtr(),
-                                                                                    is_mutable));
-    current_block_->Append(std::make_unique<AllocateLayout>(CurrentFunction(), layout, count,
-                                                            result));
+    const Variable* result = CurrentFunction()->AllocateVariable(
+        Variable::Metadata(name, module_->Types()->GetPtr(), is_mutable));
+    current_block_->Append(
+        std::make_unique<AllocateLayout>(CurrentFunction(), layout, count, result));
     return result;
 }
 
 const Value* ModuleBuilder::CreateLoad(const Value* ptr, const Type* load_type,
                                        const std::string& name, bool is_mutable) {
-    const Variable* result = CurrentFunction()->AllocateVariable(Variable::Metadata(name,
-                                                                                    load_type,
-                                                                                    is_mutable));
-    check(module_->Types()->IsPtr(ptr->GetType()),
-          std::runtime_error("load from non-ptr type " + ptr->GetType()->ToString() + " requested"));
+    const Variable* result =
+        CurrentFunction()->AllocateVariable(Variable::Metadata(name, load_type, is_mutable));
+    check(
+        module_->Types()->IsPtr(ptr->GetType()),
+        std::runtime_error("load from non-ptr type " + ptr->GetType()->ToString() + " requested"));
     check(module_->Types()->IsPtrCompatibleWith(ptr->GetType(), load_type),
-          std::runtime_error("load from " + ptr->GetType()->ToString() + " to " + load_type->ToString() + " is not possible"));
-    current_block_->Append(std::make_unique<UnaryOperation>(CurrentFunction(),
-                                                            UnaryOperation::UnOp::LOAD,
-                                                            ptr,
-                                                            result));
+          std::runtime_error("load from " + ptr->GetType()->ToString() + " to " +
+                             load_type->ToString() + " is not possible"));
+    current_block_->Append(std::make_unique<UnaryOperation>(
+        CurrentFunction(), UnaryOperation::UnOp::LOAD, ptr, result));
 
     return result;
 }
 
 void ModuleBuilder::CreateAssign(const Value* from, const Value* to) {
     check(to->IsMutable(), std::runtime_error("cannot assign to immutable"));
-    check(from->GetType() == to->GetType(), std::runtime_error("cannot assign from type " + from->GetType()->ToString()
-                                                               + " to " + to->GetType()->ToString() + " without explicit cast"));
-    current_block_->Append(std::make_unique<UnaryOperation>(CurrentFunction(),
-                                                            UnaryOperation::UnOp::ASSIGN,
-                                                            from,
-                                                            to));
+    check(from->GetType() == to->GetType(),
+          std::runtime_error("cannot assign from type " + from->GetType()->ToString() + " to " +
+                             to->GetType()->ToString() + " without explicit cast"));
+    current_block_->Append(std::make_unique<UnaryOperation>(
+        CurrentFunction(), UnaryOperation::UnOp::ASSIGN, from, to));
 }
 
-const Value* ModuleBuilder::CreateAssign(const Value* from,
-                                         const std::string& name, bool is_mutable) {
-    const Variable* result = CurrentFunction()->AllocateVariable(Variable::Metadata(name,
-                                                                                    from->GetType(),
-                                                                                    is_mutable));
-    current_block_->Append(std::make_unique<UnaryOperation>(CurrentFunction(),
-                                                            UnaryOperation::UnOp::ASSIGN,
-                                                            from,
-                                                            result));
+const Value* ModuleBuilder::CreateAssign(const Value* from, const std::string& name,
+                                         bool is_mutable) {
+    const Variable* result =
+        CurrentFunction()->AllocateVariable(Variable::Metadata(name, from->GetType(), is_mutable));
+    current_block_->Append(std::make_unique<UnaryOperation>(
+        CurrentFunction(), UnaryOperation::UnOp::ASSIGN, from, result));
     return result;
 }
 
-std::optional<const Value*> ModuleBuilder::CreateCall(const Function* func, const std::vector<const Value*>& args,
-                                                      const std::string& name,
-                                                      bool is_mutable) {
+std::optional<const Value*> ModuleBuilder::CreateCall(const Function* func,
+                                                      const std::vector<const Value*>& args,
+                                                      const std::string& name, bool is_mutable) {
     std::optional<const Variable*> result;
     auto return_type = func->GetSignature()->ReturnType();
     if (return_type.has_value()) {
         result = CreateVariable(name, return_type.value(), is_mutable);
     }
-    current_block_->Append(std::make_unique<CallOp>(CurrentFunction(), func, result, args) );
+    current_block_->Append(std::make_unique<CallOp>(CurrentFunction(), func, result, args));
     return result;
 }
 
@@ -184,13 +182,15 @@ std::optional<const Value*> ModuleBuilder::CreateCall(const FunctionSignature* f
     if (return_type.has_value()) {
         result = CreateVariable(name, return_type.value(), is_mutable);
     }
-    current_block_->Append(std::make_unique<CallOp>(CurrentFunction(), func_sig->FuncType(), func_sig, result, args) );
+    current_block_->Append(
+        std::make_unique<CallOp>(CurrentFunction(), func_sig->FuncType(), func_sig, result, args));
     return result;
 }
 
 void ModuleBuilder::CreateReturnVoid() {
     check(!CurrentFunction()->GetSignature()->FuncType()->ReturnType().has_value(),
-          std::runtime_error(CurrentFunction()->GetName() + " has return type, but void is returned"));
+          std::runtime_error(CurrentFunction()->GetName() +
+                             " has return type, but void is returned"));
     current_block_->Append(std::make_unique<ReturnVoidOp>(CurrentFunction()));
 }
 
@@ -203,8 +203,10 @@ const Value* ModuleBuilder::CreateGEP(const Value* ptr, const Layout* layout, in
                                       std::optional<const Value*> base_offset,
                                       std::optional<const Value*> element_offset) {
     assert(layout != nullptr);
-    check(module_->Types()->IsPtr(ptr->GetType()), "cannot load from type " + ptr->GetType()->ToString());
-    const Variable* result = CreateVariable(name, module_->Types()->GetPtrTo(layout->GetEntry(element_index)), is_mutable);
+    check(module_->Types()->IsPtr(ptr->GetType()),
+          "cannot load from type " + ptr->GetType()->ToString());
+    const Variable* result = CreateVariable(
+        name, module_->Types()->GetPtrTo(layout->GetEntry(element_index)), is_mutable);
     auto gep = std::make_unique<GEPOp>(CurrentFunction(), ptr, element_index, result, layout,
                                        base_offset, element_offset);
     current_block_->Append(std::move(gep));
@@ -228,12 +230,12 @@ void ModuleBuilder::CreateBranch(const BasicBlock* target) {
     current_block_->TerminateBlock();
 }
 
-void ModuleBuilder::CreateConditionBranch(const Value* condtion,
-                                          const BasicBlock* target_true, const BasicBlock* target_false) {
+void ModuleBuilder::CreateConditionBranch(const Value* condtion, const BasicBlock* target_true,
+                                          const BasicBlock* target_false) {
     check(condtion->GetType() == module_->Types()->GetInt1(),
           std::runtime_error("condition should be of type bool"));
-    current_block_->Append(std::make_unique<ConditionalBranchOperation>(CurrentFunction(),
-                                                                        condtion, target_true, target_false));
+    current_block_->Append(std::make_unique<ConditionalBranchOperation>(CurrentFunction(), condtion,
+                                                                        target_true, target_false));
     current_block_->TerminateBlock();
 }
 
@@ -248,24 +250,25 @@ const Variable* ModuleBuilder::CreateVariable(const std::string& name, const Typ
     return CurrentFunction()->AllocateVariable(Variable::Metadata(name, type, is_mutable));
 }
 
-template<BinaryOperation::BinOp op>
+template <BinaryOperation::BinOp op>
 const Value* ModuleBuilder::CreateCmp(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     const Variable* result = CreateVariable(name, module_->Types()->GetInt1(), is_mutable);
-    current_block_->Append(std::make_unique<BinaryOperation>(CurrentFunction(), op,
-                                                             left, right, result));
+    current_block_->Append(
+        std::make_unique<BinaryOperation>(CurrentFunction(), op, left, right, result));
     return result;
 }
 
-template<BinaryOperation::BinOp op>
+template <BinaryOperation::BinOp op>
 const Value* ModuleBuilder::CreateArithmetic(const Value* left, const Value* right,
                                              const std::string& name, bool is_mutable) {
-    check(left->GetType() == right->GetType(), std::runtime_error("types mismatch " + left->GetType()->ToString()
-                                                                  + " " + right->GetType()->ToString()));
+    check(left->GetType() == right->GetType(),
+          std::runtime_error("types mismatch " + left->GetType()->ToString() + " " +
+                             right->GetType()->ToString()));
     const Variable* result = CreateVariable(name, left->GetType(), is_mutable);
-    current_block_->Append(std::make_unique<BinaryOperation>(CurrentFunction(), op,
-                                                             left, right, result));
+    current_block_->Append(
+        std::make_unique<BinaryOperation>(CurrentFunction(), op, left, right, result));
     return result;
 }
 
-}   // _bier
+}  // namespace bier

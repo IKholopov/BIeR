@@ -26,8 +26,8 @@ class Module {
 public:
     using TTypeRegister = DefaultTypesRegistry;
 
-    explicit Module(std::unique_ptr<TypeRegistryInterface>&& typeRegistry=
-            std::make_unique<DefaultTypesRegistry>());
+    explicit Module(std::unique_ptr<TypeRegistryInterface>&& typeRegistry =
+                        std::make_unique<DefaultTypesRegistry>());
 
     // Types
     const DefaultTypesRegistry* Types() const {
@@ -49,15 +49,15 @@ public:
     const Layout* AddNamedLayout(const std::vector<Layout::LayoutEntry>& entries,
                                  const std::string& name);
     const Layout* GetNamedLayout(const std::string& name) const {
-        check(ContainerHas(named_layouts_, name), std::runtime_error("unknown layout \"" + name + "\""));
+        check(ContainerHas(named_layouts_, name),
+              std::runtime_error("unknown layout \"" + name + "\""));
         return named_layouts_.at(name).get();
     }
 
     // Functions
     FunctionSignature* AddExternalFunction(const std::string& name,
                                            const FunctionType* function_type);
-    Function* AddFunction(const std::string& name,
-                          const FunctionType* function_type);
+    Function* AddFunction(const std::string& name, const FunctionType* function_type);
 
     const FunctionSignature* GetFunctionSignature(const std::string& name) const {
         return function_sigs_.at(name).get();
@@ -75,6 +75,7 @@ public:
         return IteratorRange(external_functions_);
     }
 
+    bool HasFunction(const std::string& name) const;
     Function* GetFunction(const std::string& name);
     const FunctionSignature* GetFunctionSignature(const std::string& name);
 
@@ -90,11 +91,10 @@ private:
     HashPtrMap<FunctionSignature, FunctionPtr> functions_;
     StdHashSet<const FunctionSignature*> external_functions_;
 
-    FunctionSignature* AddSignature(const std::string& name,
-                                    const FunctionType* functionType);
+    FunctionSignature* AddSignature(const std::string& name, const FunctionType* functionType);
     LayoutPtr MakeLayout(const std::vector<Layout::LayoutEntry>& entries) const;
 };
 
 using ModulePtr = std::unique_ptr<Module>;
 
-}   // _bier
+}  // namespace bier

@@ -42,20 +42,20 @@ class BaseOperation : public Operation {
 class BinaryOperation : public Operation {
 public:
     enum class BinOp {
-        ADD,        // a + b
-        SUB,        // a - b
-        MULT,       // a * b
-        UDIV,       // a / b
-        SDIV,       // a / b
-        UREM,       // a % b
-        SREM,       // a % b
-        EQ,         // a == b
-        NE,         // a != b
-        SLE,        // a <= b
-        SLT,        // a < b
-        SGE,        // a >= b
-        SGT,        // a > b
-        STORE,      // *b = a
+        ADD,    // a + b
+        SUB,    // a - b
+        MULT,   // a * b
+        UDIV,   // a / b
+        SDIV,   // a / b
+        UREM,   // a % b
+        SREM,   // a % b
+        EQ,     // a == b
+        NE,     // a != b
+        SLE,    // a <= b
+        SLT,    // a < b
+        SGE,    // a >= b
+        SGT,    // a > b
+        STORE,  // *b = a
         INVALID
     };
 
@@ -93,15 +93,10 @@ private:
 
 class UnaryOperation : public Operation {
 public:
-    enum class UnOp {
-        ALLOC,
-        LOAD,
-        ASSIGN,
-        INVALID
-    };
+    enum class UnOp { ALLOC, LOAD, ASSIGN, INVALID };
 
-    UnaryOperation(const Function* context_func, UnOp op,
-                   const Value* argument, const Value* return_value);
+    UnaryOperation(const Function* context_func, UnOp op, const Value* argument,
+                   const Value* return_value);
 
     UnOp GetOp() const {
         return op_;
@@ -124,4 +119,4 @@ private:
     UnOp op_ = UnOp::INVALID;
 };
 
-}   // _bier
+}  // namespace bier

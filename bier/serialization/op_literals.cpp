@@ -19,147 +19,150 @@
 namespace bier {
 
 // BinOp
-template<>
+template <>
 struct OpLiteral<OpCodes::ADD_OP> {
     static constexpr const char* Literal = "add";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::SUB_OP> {
     static constexpr const char* Literal = "sub";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::MULT_OP> {
     static constexpr const char* Literal = "mul";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::UDIV_OP> {
     static constexpr const char* Literal = "udiv";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::SDIV_OP> {
     static constexpr const char* Literal = "sdiv";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::UREM_OP> {
     static constexpr const char* Literal = "urem";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::SREM_OP> {
     static constexpr const char* Literal = "srem";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::EQ_OP> {
     static constexpr const char* Literal = "eq";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::NE_OP> {
     static constexpr const char* Literal = "ne";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::LE_OP> {
     static constexpr const char* Literal = "le";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::LT_OP> {
     static constexpr const char* Literal = "lt";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::GE_OP> {
     static constexpr const char* Literal = "ge";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::GT_OP> {
     static constexpr const char* Literal = "gt";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::STORE_OP> {
     static constexpr const char* Literal = "store";
 };
 
 // UnOp
-template<>
+template <>
 struct OpLiteral<OpCodes::ALLOC_OP> {
     static constexpr const char* Literal = "alloc";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::LOAD_OP> {
     static constexpr const char* Literal = "load";
 };
 
-template<>
+template <>
 struct OpLiteral<OpCodes::ASSIGN_OP> {
     static constexpr const char* Literal = "assign";
 };
 
 // Const
-template<>
+template <>
 struct OpLiteral<OpCodes::CONST_OP> {
     static constexpr const char* Literal = "const";
 };
 
 // Return
-template<>
+template <>
 struct OpLiteral<OpCodes::RETVOID_OP> {
     static constexpr const char* Literal = "ret";
 };
-template<>
+template <>
 struct OpLiteral<OpCodes::RETVALUE_OP> {
     static constexpr const char* Literal = "ret";
 };
 
 // GEP
-template<>
+template <>
 struct OpLiteral<OpCodes::GEP_OP> {
     static constexpr const char* Literal = "gep";
 };
 
 // CALL
-template<>
+template <>
 struct OpLiteral<OpCodes::CALL_OP> {
     static constexpr const char* Literal = "call";
 };
 
 // BRANCH
-template<>
+template <>
 struct OpLiteral<OpCodes::BRANCH_OP> {
     static constexpr const char* Literal = "branch";
 };
 
-template<>
+template <>
 struct OpLiteral<OpCodes::COND_BRANCH_OP> {
     static constexpr const char* Literal = "cond";
 };
 
 // CAST
-template<>
+template <>
 struct OpLiteral<OpCodes::CAST_OP> {
     static constexpr const char* Literal = "cast";
 };
 
 // Alloc layout
-template<>
+template <>
 struct OpLiteral<OpCodes::ALLOC_LAYOUT_OP> {
     static constexpr const char* Literal = "alloc_layout";
 };
 
-LiteralArray<0>::LiteralArray() : Value(OpLiteral<0>::Literal) {
-};
+LiteralArray<0>::LiteralArray() : Value(OpLiteral<0>::Literal){};
 
 const Literal Literal::instance_;
 
 std::string Literal::OpCodeValue(int op_code) {
+    assert(op_code < StartingExtCode);
     return instance_.Get(op_code);
 }
 
+const int Literal::StartingExtCode = static_cast<int>(OpCodes::OPS_COUNT);
+
 const char* Literal::Get(int op_code) const {
-    static_assert (sizeof (LiteralArray<OpCodes::OPS_COUNT-1>) == OpCodes::OPS_COUNT * sizeof (void*),
-                   "sizes do not match");
-    static_assert (alignof (LiteralArray<OpCodes::OPS_COUNT-1>) == sizeof (void*),
-                   "alignment do not match");
+    static_assert(
+        sizeof(LiteralArray<OpCodes::OPS_COUNT - 1>) == OpCodes::OPS_COUNT * sizeof(void*),
+        "sizes do not match");
+    static_assert(alignof(LiteralArray<OpCodes::OPS_COUNT - 1>) == sizeof(void*),
+                  "alignment do not match");
 
     assert(op_code >= 0);
     assert(op_code < OpCodes::OPS_COUNT);
     return *((&(LiteralArray<0>::Value)) + op_code);
 }
 
-}   // _bier
+}  // namespace bier

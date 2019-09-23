@@ -22,19 +22,18 @@ HashType FunctionType::HashPtr::operator()(const FunctionType* type) const {
     assert(type != nullptr);
     HashType hash = 0;
     boost::hash_combine(hash, type->return_type_.has_value());
-    if(type->return_type_.has_value()) {
+    if (type->return_type_.has_value()) {
         boost::hash_combine(hash, type->return_type_.value());
     }
-    for(const Type* arg : type->arguments_) {
+    for (const Type* arg : type->arguments_) {
         boost::hash_combine(hash, arg);
     }
     return hash;
 }
 
 FunctionType::FunctionType(std::optional<const Type*> return_type,
-                           const std::vector<const Type*>& arguments) :
-    arguments_(arguments),
-    return_type_(return_type) {
+                           const std::vector<const Type*>& arguments)
+    : arguments_(arguments), return_type_(return_type) {
 }
 
 std::string FunctionType::ToString() const {
@@ -49,10 +48,9 @@ HashType FunctionSignature::HashPtr::operator()(const FunctionSignature* signatu
     return hash;
 }
 
-FunctionSignature::FunctionSignature(const std::string& name, const FunctionType* type) :
-    type_(type),
-    name_(name) {
-    for(const Type* arg : type->Arguments()) {
+FunctionSignature::FunctionSignature(const std::string& name, const FunctionType* type)
+    : type_(type), name_(name) {
+    for (const Type* arg : type->Arguments()) {
         arguments_.push_back(std::make_unique<ArgumentValue>(arg));
     }
 }
@@ -118,10 +116,17 @@ OneWayIteratorRange<BasicBlock> Function::GetBlocks() {
 }
 
 const Variable* Function::AllocateVariable(const Variable::Metadata& metadata) {
+    check(!metadata.is_mutable || !metadata.name.empty(), std::runtime_error("mutable variable should have a name"));
     Variable::Metadata data = metadata;
-    data.name = variable_names_.Allocate(data.name);
-    variables_.emplace_back(std::make_unique<Variable>(data));
-    return variables_.back().get();
+    const bool create_new = !data.is_mutable;
+    data.name = variable_names_.Allocate(data.name, create_new);
+    if (ContainerHas(variables_, data.name)) {
+        return variables_.at(data.name).get();
+    }
+    auto var = std::make_unique<Variable>(data);
+    const Variable* varPtr = var.get();
+    variables_.insert({ varPtr->GetName(), std::move(var) });
+    return varPtr;
 }
 
 void Function::Normalize() {
@@ -130,14 +135,17 @@ void Function::Normalize() {
 
 void Function::AllocateArgumentVariables() {
     for (const auto arg : signature_->Arguments()) {
+        check(!arg->GetName().empty(), std::runtime_error("please, name your argument variables"));
         AllocateUnique(Variable::Metadata(arg->GetName(), arg->GetType()));
     }
 }
 
 const Variable* Function::AllocateUnique(const Variable::Metadata& metadata) {
     variable_names_.AllocateUnique(metadata.name);
-    variables_.emplace_back(std::make_unique<Variable>(metadata));
-    return variables_.back().get();
+    auto var = std::make_unique<Variable>(metadata);
+    const Variable* varPtr = var.get();
+    variables_.insert({varPtr->GetName(), std::move(var)});
+    return varPtr;
 }
 
 void Function::ClearLostVariables() {
@@ -153,10 +161,15 @@ void Function::ClearLostVariables() {
         }
     }
 
-    for (int i = variables_.size() - 1; i >= 0; --i) {
-        if( !ContainerHas(values, variables_.at(i).get()) ) {
-            variables_.erase(variables_.begin() + i);
+    std::vector<std::string> varsToDelete;
+    for (const auto& [name, var] : variables_) {
+        if (!ContainerHas(values, var.get())) {
+            varsToDelete.push_back(name);
         }
+    }
+
+    for (const auto& name : varsToDelete) {
+        variables_.erase(name);
     }
 }
 
@@ -168,4 +181,4 @@ std::string ArgumentValue::GetName() const {
     return data_->name;
 }
 
-}   // _bier
+}  // namespace bier

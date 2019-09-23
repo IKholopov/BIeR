@@ -18,7 +18,7 @@
 
 namespace bier {
 
-template<typename TContainer, typename TIterator=typename TContainer::const_iterator>
+template <typename TContainer, typename TIterator = typename TContainer::const_iterator>
 class OneWayIteratorRange {
 public:
     using iterator = TIterator;
@@ -28,14 +28,12 @@ public:
     }
     explicit OneWayIteratorRange(TContainer& container)
         : begin_(container.begin()), end_(container.end()) {
-
     }
     explicit OneWayIteratorRange(const TContainer* container)
         : begin_(container->begin()), end_(container->end()) {
     }
     explicit OneWayIteratorRange(TContainer* container)
         : begin_(container->begin()), end_(container->end()) {
-
     }
 
     iterator begin() const {
@@ -50,7 +48,7 @@ private:
     iterator end_;
 };
 
-template<typename TContainer, typename TIterator=typename TContainer::const_iterator>
+template <typename TContainer, typename TIterator = typename TContainer::const_iterator>
 class BaseIteratorRange {
 public:
     using iterator = TIterator;
@@ -75,48 +73,53 @@ private:
     std::size_t size_;
 };
 
-template<typename TContainer, typename TIterator=typename TContainer::const_iterator>
+template <typename TContainer, typename TIterator = typename TContainer::const_iterator>
 class IteratorRange : public BaseIteratorRange<TContainer, TIterator> {
 public:
     using iterator = TIterator;
 
     explicit IteratorRange(const TContainer& container)
-        : BaseIteratorRange<TContainer, TIterator>(container.begin(), container.end(), container.size()) {
+        : BaseIteratorRange<TContainer, TIterator>(container.begin(), container.end(),
+                                                   container.size()) {
     }
     explicit IteratorRange(TContainer& container)
-        : BaseIteratorRange<TContainer, TIterator>(container.begin(), container.end(), container.size()) {
-
+        : BaseIteratorRange<TContainer, TIterator>(container.begin(), container.end(),
+                                                   container.size()) {
     }
     explicit IteratorRange(const TContainer* container)
-        : BaseIteratorRange<TContainer, TIterator>(container->begin(), container->end(), container->size()) {
+        : BaseIteratorRange<TContainer, TIterator>(container->begin(), container->end(),
+                                                   container->size()) {
     }
     explicit IteratorRange(TContainer* container)
-        : BaseIteratorRange<TContainer, TIterator>(container->begin(), container->end(), container->size()) {
-
+        : BaseIteratorRange<TContainer, TIterator>(container->begin(), container->end(),
+                                                   container->size()) {
     }
 };
 
-template<typename TContainer, typename TIterator=typename TContainer::const_iterator>
+template <typename TContainer, typename TIterator = typename TContainer::const_iterator>
 class InversedIteratorRange : public BaseIteratorRange<TContainer, TIterator> {
 public:
     using iterator = TIterator;
 
     explicit InversedIteratorRange(const TContainer& container)
-        : BaseIteratorRange<TContainer, TIterator>(container.rbegin(), container.rend(), container.size()) {
+        : BaseIteratorRange<TContainer, TIterator>(container.rbegin(), container.rend(),
+                                                   container.size()) {
     }
     explicit InversedIteratorRange(TContainer& container)
-        : BaseIteratorRange<TContainer, TIterator>(container.rbegin(), container.rend(), container.size()) {
-
+        : BaseIteratorRange<TContainer, TIterator>(container.rbegin(), container.rend(),
+                                                   container.size()) {
     }
     explicit InversedIteratorRange(const TContainer* container)
-        : BaseIteratorRange<TContainer, TIterator>(container->rbegin(), container->rend(), container->size()) {
+        : BaseIteratorRange<TContainer, TIterator>(container->rbegin(), container->rend(),
+                                                   container->size()) {
     }
     explicit InversedIteratorRange(TContainer* container)
-        : BaseIteratorRange<TContainer, TIterator>(container->rbegin(), container->rend(), container->size()) {
+        : BaseIteratorRange<TContainer, TIterator>(container->rbegin(), container->rend(),
+                                                   container->size()) {
     }
 };
 
 template <typename TContainer>
 using MutableIteratorRange = IteratorRange<TContainer, typename TContainer::iterator>;
 
-}   // _bier
+}  // namespace bier

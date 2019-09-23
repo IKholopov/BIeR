@@ -36,4 +36,4 @@ private:
     const Function* context_function_ = nullptr;
 };
 
-}   // _bier
+}  // namespace bier

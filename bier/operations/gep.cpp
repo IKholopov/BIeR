@@ -18,9 +18,8 @@
 
 namespace bier {
 
-GEPOp::GEPOp(const Function* func, const Value* ptr, int element_index,
-             const Value* return_value, const Layout* layout,
-             std::optional<const Value*> base_offset,
+GEPOp::GEPOp(const Function* func, const Value* ptr, int element_index, const Value* return_value,
+             const Layout* layout, std::optional<const Value*> base_offset,
              std::optional<const Value*> element_offset)
     : context_(func),
       ptr_(ptr),
@@ -30,10 +29,11 @@ GEPOp::GEPOp(const Function* func, const Value* ptr, int element_index,
       base_offset_(base_offset),
       element_offset_(element_offset) {
     auto typed_ptr = dynamic_cast<const TypedPtrType*>(return_ptr_->GetType());
-    check((typed_ptr != nullptr && typed_ptr->GetUnderlying() == mem_layout_->GetEntry(index_))
-          || dynamic_cast<const PtrType*>(return_ptr_->GetType()) != nullptr,
-          std::runtime_error("cannot assign pointer of " + mem_layout_->GetEntry(element_index)->ToString()
-                             + " to " + return_ptr_->GetType()->ToString()));
+    check((typed_ptr != nullptr && typed_ptr->GetUnderlying() == mem_layout_->GetEntry(index_)) ||
+              dynamic_cast<const PtrType*>(return_ptr_->GetType()) != nullptr,
+          std::runtime_error("cannot assign pointer of " +
+                             mem_layout_->GetEntry(element_index)->ToString() + " to " +
+                             return_ptr_->GetType()->ToString()));
 }
 
 const Function* GEPOp::GetContextFunction() const {
@@ -41,7 +41,7 @@ const Function* GEPOp::GetContextFunction() const {
 }
 
 std::vector<const Value*> GEPOp::GetArguments() const {
-    std::vector<const Value*> arguments = { ptr_ };
+    std::vector<const Value*> arguments = {ptr_};
     if (base_offset_.has_value()) {
         arguments.push_back(base_offset_.value());
     }
@@ -71,6 +71,4 @@ void GEPOp::SubstituteReturnValue(const Value* return_value) {
     return_ptr_ = return_value;
 }
 
-
-
-}   // _bier
+}  // namespace bier

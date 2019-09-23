@@ -20,8 +20,7 @@
 namespace bier {
 
 template <int IOpCode>
-struct OpLiteral {
-};
+struct OpLiteral {};
 
 template <int IOpCode>
 struct LiteralArray : public LiteralArray<IOpCode - 1> {
@@ -37,10 +36,11 @@ struct LiteralArray<0> {
 class Literal : private LiteralArray<OpCodes::OPS_COUNT - 1> {
 public:
     static std::string OpCodeValue(int op_code);
+    static const int StartingExtCode;
 
 private:
     static const Literal instance_;
     const char* Get(int op_code) const;
 };
 
-}   // _bier
+}  // namespace bier

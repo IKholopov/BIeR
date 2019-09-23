@@ -40,7 +40,8 @@ using HashType = std::size_t;
 template <typename T>
 using HashPtrSet = std::unordered_set<const T*, typename T::HashPtr, typename T::PredPtr>;
 template <typename TKey, typename TValue>
-using HashPtrMap = std::unordered_map<const TKey*, TValue, typename TKey::HashPtr, typename TKey::PredPtr>;
+using HashPtrMap =
+    std::unordered_map<const TKey*, TValue, typename TKey::HashPtr, typename TKey::PredPtr>;
 
 template <typename T>
 using HashSet = std::unordered_set<T, typename T::Hash>;
@@ -59,9 +60,9 @@ bool ContainerHas(const TContainer& container, const TObject& object) {
 
 template <typename TExcept>
 void check(bool condition, const TExcept& exception) {
-    if(!condition) {
+    if (!condition) {
         throw exception;
     }
 }
 
-}   // _bier
+}  // namespace bier

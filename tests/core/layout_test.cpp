@@ -50,4 +50,4 @@ TEST_CASE("Correct between border", "[layout]") {
     REQUIRE_THROWS(layout.GetEntry(16));
 }
 
-}   // _bier_tests
+}  // namespace bier_tests

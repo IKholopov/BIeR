@@ -39,3 +39,7 @@ bld/
 
 # QTC files
 *.user
+
+# JetBrains
+cmake-build-*/
+.idea/

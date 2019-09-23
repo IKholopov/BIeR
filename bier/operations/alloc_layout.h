@@ -8,8 +8,8 @@ namespace bier {
 
 class AllocateLayout : public BaseOperation<OpCodes::ALLOC_LAYOUT_OP> {
 public:
-    AllocateLayout(const Function* context, const Layout* layout,
-                   const Value* count, const Value* result);
+    AllocateLayout(const Function* context, const Layout* layout, const Value* count,
+                   const Value* result);
 
     // Интерфейс Operation
     std::vector<const Value*> GetArguments() const override;
@@ -33,4 +33,4 @@ private:
     const Value* result_ptr_ = nullptr;
 };
 
-}   // _bier
+}  // namespace bier

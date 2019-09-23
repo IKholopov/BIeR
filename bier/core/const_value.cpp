@@ -17,9 +17,9 @@
 
 namespace bier {
 
-IntegerConst::IntegerConst(uint64_t value, const IntTypeBase* type)
-    : value_(value), type_(type) {
-    check(type_->IsValid(value), std::runtime_error(std::to_string(value) + "is not in range of " + type_->ToString()));
+IntegerConst::IntegerConst(uint64_t value, const IntTypeBase* type) : value_(value), type_(type) {
+    check(type_->IsValid(value),
+          std::runtime_error(std::to_string(value) + "is not in range of " + type_->ToString()));
 }
 
-}   // _bier
+}  // namespace bier

@@ -53,6 +53,9 @@ public:
     const std::string& Name() const {
         return name_;
     }
+    int GetOffset(int idx, int element_offset) const {
+        return offsets_[idx] + element_offset;
+    }
 
 private:
     std::vector<LayoutEntry> entries_;
@@ -64,4 +67,4 @@ private:
 
 using LayoutPtr = std::unique_ptr<Layout>;
 
-} // _bier
+}  // namespace bier

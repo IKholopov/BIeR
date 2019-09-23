@@ -30,9 +30,11 @@ public:
 
     // Operation interface
     std::vector<const Value*> GetArguments() const override;
-    void SubstituteArguments(const std::vector<const Value*>&) override {}
+    void SubstituteArguments(const std::vector<const Value*>&) override {
+    }
     std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value*) override {}
+    void SubstituteReturnValue(const Value*) override {
+    }
 
 private:
     const Function* context_ = nullptr;
@@ -56,4 +58,4 @@ private:
     const Value* value_ = nullptr;
 };
 
-}   // _bier
+}  // namespace bier

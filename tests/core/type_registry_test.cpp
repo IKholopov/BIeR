@@ -23,11 +23,11 @@ namespace bier_tests {
 
 TEST_CASE("Stable integer types", "[type_registry]") {
     DefaultTypesRegistry registry;
-    REQUIRE( registry.GetInt1() == registry.GetInt1() );
-    REQUIRE( registry.GetInt8() == registry.GetInt8() );
-    REQUIRE( registry.GetInt16() == registry.GetInt16() );
-    REQUIRE( registry.GetInt8() != registry.GetInt32() );
-    REQUIRE( registry.GetInt32() == registry.GetInt32() );
+    REQUIRE(registry.GetInt1() == registry.GetInt1());
+    REQUIRE(registry.GetInt8() == registry.GetInt8());
+    REQUIRE(registry.GetInt16() == registry.GetInt16());
+    REQUIRE(registry.GetInt8() != registry.GetInt32());
+    REQUIRE(registry.GetInt32() == registry.GetInt32());
 }
 
 TEST_CASE("Same Function types", "[type_registry]") {
@@ -36,7 +36,8 @@ TEST_CASE("Same Function types", "[type_registry]") {
     const FunctionType* second = nullptr;
     {
         const Type* return_type = registry.GetInt32();
-        std::vector<const Type*> args = { registry.GetPtr(), registry.GetInt32(), registry.GetInt8Ptr() };
+        std::vector<const Type*> args = {registry.GetPtr(), registry.GetInt32(),
+                                         registry.GetInt8Ptr()};
         first = registry.MakeFunctionType(return_type, args);
         second = registry.MakeFunctionType(return_type, args);
         REQUIRE(first == second);
@@ -44,10 +45,11 @@ TEST_CASE("Same Function types", "[type_registry]") {
     const FunctionType* different = nullptr;
     {
         const Type* return_type = registry.GetInt1();
-        std::vector<const Type*> args = { registry.GetPtr(), registry.GetInt32(), registry.GetInt8Ptr() };
+        std::vector<const Type*> args = {registry.GetPtr(), registry.GetInt32(),
+                                         registry.GetInt8Ptr()};
         different = registry.MakeFunctionType(return_type, args);
         REQUIRE(first != different);
     }
 }
 
-}   // _bier_tests
+}  // namespace bier_tests

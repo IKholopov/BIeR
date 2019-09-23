@@ -26,17 +26,17 @@ public:
     virtual std::vector<const BasicBlock*> DestinationBlocks() const = 0;
 };
 
-class BranchOperation
-        : public BaseOperation<OpCodes::Op::BRANCH_OP>,
-          public Branch {
+class BranchOperation : public BaseOperation<OpCodes::Op::BRANCH_OP>, public Branch {
 public:
     BranchOperation(const Function* context, const BasicBlock* target);
 
     // Интерфейс Operation
     std::vector<const Value*> GetArguments() const override;
-    void SubstituteArguments(const std::vector<const Value*>&) override {}
+    void SubstituteArguments(const std::vector<const Value*>&) override {
+    }
     std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value*) override {}
+    void SubstituteReturnValue(const Value*) override {
+    }
 
     // Интерфейс FunctionContextMember
     const Function* GetContextFunction() const override {
@@ -51,9 +51,8 @@ private:
     const BasicBlock* target_ = nullptr;
 };
 
-class ConditionalBranchOperation
-        : public BaseOperation<OpCodes::Op::COND_BRANCH_OP>,
-          public Branch {
+class ConditionalBranchOperation : public BaseOperation<OpCodes::Op::COND_BRANCH_OP>,
+                                   public Branch {
 public:
     ConditionalBranchOperation(const Function* context, const Value* condition,
                                const BasicBlock* target_true, const BasicBlock* target_false);
@@ -62,7 +61,8 @@ public:
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
     std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value*) override {}
+    void SubstituteReturnValue(const Value*) override {
+    }
 
     // Интерфейс FunctionContextMember
     const Function* GetContextFunction() const override {
@@ -79,4 +79,4 @@ private:
     const Value* condition_ = nullptr;
 };
 
-}   // _bier
+}  // namespace bier

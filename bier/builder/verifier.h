@@ -21,8 +21,7 @@ namespace bier {
 
 class Verifier {
 public:
-    explicit Verifier(const TypeRegistryInterface* types)
-        : types_(types) {
+    explicit Verifier(const TypeRegistryInterface* types) : types_(types) {
     }
 
     void Verify(const Function* function);
@@ -31,4 +30,4 @@ private:
     const TypeRegistryInterface* types_ = nullptr;
 };
 
-}   // _bier
+}  // namespace bier

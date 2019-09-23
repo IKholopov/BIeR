@@ -25,9 +25,8 @@ TEST_CASE("Declare external function", "[functions_declaration]") {
     const FunctionType* i32__ptr_i32_i8ptr = nullptr;
     {
         const Type* return_type = module.Types()->GetInt32();
-        std::vector<const Type*> args = { module.Types()->GetPtr(),
-                                          module.Types()->GetInt32(),
-                                          module.Types()->GetInt8Ptr() };
+        std::vector<const Type*> args = {module.Types()->GetPtr(), module.Types()->GetInt32(),
+                                         module.Types()->GetInt8Ptr()};
         i32__ptr_i32_i8ptr = module.Types()->MakeFunctionType(return_type, args);
     }
     const std::string name = "external_func";
@@ -44,9 +43,8 @@ TEST_CASE("Declare internal function", "[functions_declaration]") {
     const FunctionType* i32__ptr_i32_i8ptr = nullptr;
     {
         const Type* return_type = module.Types()->GetInt32();
-        std::vector<const Type*> args = { module.Types()->GetPtr(),
-                                          module.Types()->GetInt32(),
-                                          module.Types()->GetInt8Ptr() };
+        std::vector<const Type*> args = {module.Types()->GetPtr(), module.Types()->GetInt32(),
+                                         module.Types()->GetInt8Ptr()};
         i32__ptr_i32_i8ptr = module.Types()->MakeFunctionType(return_type, args);
     }
     const std::string name = "external_func";
@@ -67,9 +65,8 @@ TEST_CASE("Cannot declare same name", "[functions_declaration]") {
     const FunctionType* i32__ = nullptr;
     {
         const Type* return_type = module.Types()->GetInt32();
-        std::vector<const Type*> args = { module.Types()->GetPtr(),
-                                          module.Types()->GetInt32(),
-                                          module.Types()->GetInt8Ptr() };
+        std::vector<const Type*> args = {module.Types()->GetPtr(), module.Types()->GetInt32(),
+                                         module.Types()->GetInt8Ptr()};
         i32__ptr_i32_i8ptr = module.Types()->MakeFunctionType(return_type, args);
         i32__ = module.Types()->MakeFunctionType(return_type);
     }
@@ -92,9 +89,8 @@ TEST_CASE("Can use same func type", "[functions_declaration]") {
     const FunctionType* i32__ptr_i32_i8ptr = nullptr;
     {
         const Type* return_type = module.Types()->GetInt32();
-        std::vector<const Type*> args = { module.Types()->GetPtr(),
-                                          module.Types()->GetInt32(),
-                                          module.Types()->GetInt8Ptr() };
+        std::vector<const Type*> args = {module.Types()->GetPtr(), module.Types()->GetInt32(),
+                                         module.Types()->GetInt8Ptr()};
         i32__ptr_i32_i8ptr = module.Types()->MakeFunctionType(return_type, args);
     }
     const std::string name1 = "external_func";
@@ -110,9 +106,8 @@ TEST_CASE("Retrive declared func", "[functions_declaration]") {
     const FunctionType* i32__ptr_i32_i8ptr = nullptr;
     {
         const Type* return_type = module.Types()->GetInt32();
-        std::vector<const Type*> args = { module.Types()->GetPtr(),
-                                          module.Types()->GetInt32(),
-                                          module.Types()->GetInt8Ptr() };
+        std::vector<const Type*> args = {module.Types()->GetPtr(), module.Types()->GetInt32(),
+                                         module.Types()->GetInt8Ptr()};
         i32__ptr_i32_i8ptr = module.Types()->MakeFunctionType(return_type, args);
     }
     const std::string name = "external_func";
@@ -127,9 +122,9 @@ TEST_CASE("Retrive declared func", "[functions_declaration]") {
     REQUIRE(func != nullptr);
     index = 0;
     for (const auto arg : func->GetSignature()->Arguments()) {
-        REQUIRE(arg->GetName() == "%" + names[index++]);
+        REQUIRE(arg->GetName() == names[index++]);
     }
     REQUIRE_THROWS_AS(module.GetFunction("non-existen"), std::runtime_error);
 }
 
-}   // _bier_tests
+}  // namespace bier_tests

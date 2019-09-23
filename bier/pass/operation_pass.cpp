@@ -40,7 +40,7 @@ void OperationPass::OnFunction(Function* /* function */) {
 }
 
 OperationPass::OperationIterator OperationPass::OperationTransformation(
-        BasicBlock* /* block */, OperationIterator iterator) {
+    BasicBlock* /* block */, OperationIterator iterator) {
     return ++iterator;
 }
 
@@ -48,4 +48,4 @@ DefaultTypesRegistry* OperationPass::Types() {
     return current_module_->Types();
 }
 
-}   // _bier
+}  // namespace bier

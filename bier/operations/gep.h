@@ -23,9 +23,8 @@ namespace bier {
 
 class GEPOp : public BaseOperation<OpCodes::Op::GEP_OP> {
 public:
-    GEPOp(const Function* func, const Value* ptr, int element_index,
-          const Value* return_value, const Layout* layout,
-          std::optional<const Value*> base_offset = std::nullopt,
+    GEPOp(const Function* func, const Value* ptr, int element_index, const Value* return_value,
+          const Layout* layout, std::optional<const Value*> base_offset = std::nullopt,
           std::optional<const Value*> element_offset = std::nullopt);
 
     // FunctionContextMemeber interface
@@ -61,4 +60,4 @@ private:
     std::optional<const Value*> element_offset_;
 };
 
-}   // _bier
+}  // namespace bier

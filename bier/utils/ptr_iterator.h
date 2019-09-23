@@ -18,7 +18,7 @@
 
 namespace bier {
 
-template <typename TContainer, typename TIterator=typename TContainer::const_iterator>
+template <typename TContainer, typename TIterator = typename TContainer::const_iterator>
 class PtrIterator {
 public:
     using element_type = typename TContainer::value_type::element_type;
@@ -55,6 +55,7 @@ private:
 template <typename TContainer>
 using IteratorPtrRange = IteratorRange<TContainer, PtrIterator<TContainer>>;
 template <typename TContainer>
-using MutableIteratorPtrRange = IteratorRange<TContainer, PtrIterator<TContainer, typename TContainer::iterator>>;
+using MutableIteratorPtrRange =
+    IteratorRange<TContainer, PtrIterator<TContainer, typename TContainer::iterator>>;
 
-}   // _bier
+}  // namespace bier

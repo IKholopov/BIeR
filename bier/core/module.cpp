@@ -25,7 +25,7 @@ public:
     }
 };
 
-}   // _namespace
+}  // namespace
 
 Module::Module(std::unique_ptr<TypeRegistryInterface>&& typeRegistry)
     : types_(std::move(typeRegistry)) {
@@ -73,6 +73,10 @@ Function* Module::AddFunction(const std::string& name, const FunctionType* funct
     return functionPtr;
 }
 
+bool Module::HasFunction(const std::string& name) const {
+    return ContainerHas(function_sigs_, name);
+}
+
 Function* Module::GetFunction(const std::string& name) {
     check(ContainerHas(function_sigs_, name), std::runtime_error("unknown function " + name));
     const FunctionSignature* signature = function_sigs_.at(name).get();
@@ -85,13 +89,12 @@ const FunctionSignature* Module::GetFunctionSignature(const std::string& name) {
     return function_sigs_.at(name).get();
 }
 
-FunctionSignature* Module::AddSignature(const std::string& name,
-                                        const FunctionType* functionType) {
+FunctionSignature* Module::AddSignature(const std::string& name, const FunctionType* functionType) {
     check(types_->Has(functionType), NotRegisteredInModuleException());
-    check(!ContainerHas(function_sigs_, name), std::runtime_error(name + " already registered in the module"));
+    check(!ContainerHas(function_sigs_, name),
+          std::runtime_error(name + " already registered in the module"));
     FunctionSigPtr functionSignature = std::make_unique<FunctionSignature>(name, functionType);
-    return function_sigs_.insert({name,
-                                  std::move(functionSignature)}).first->second.get();
+    return function_sigs_.insert({name, std::move(functionSignature)}).first->second.get();
 }
 
 LayoutPtr Module::MakeLayout(const std::vector<Layout::LayoutEntry>& entries) const {
@@ -103,4 +106,4 @@ LayoutPtr Module::MakeLayout(const std::vector<Layout::LayoutEntry>& entries) co
     return layout;
 }
 
-}   // _bier
+}  // namespace bier
