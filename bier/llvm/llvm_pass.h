@@ -37,7 +37,7 @@ private:
     llvm::FunctionType* ConvertFunctionType(const FunctionType* type);
     llvm::Type* ConvertBasicType(std::optional<const Type*> type);
     void CreateDeclaration(const FunctionSignature* signature, bool external);
-    void CreateFunction(const Function* func);
+    llvm::Function* CreateFunction(const Function* func);
     void TranslateOperation(const Operation* op);
 
     DefaultTypesRegistry* Types() const;
@@ -48,6 +48,7 @@ private:
     void TranslateBinOpArithmetic(const Operation* op, FBuildOp buildOp);
     template <typename FBuildOp>
     void TranslateBinOpRoundArithmetic(const Operation* op, FBuildOp buildOp);
+    void TranslateGEP(const Operation* op);
     llvm::Value* LlvmValue(const Value* value);
     llvm::StructType* LlvmLayout(const Layout* value);
 

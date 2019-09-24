@@ -15,6 +15,7 @@
 */
 #include "llvm_pass.h"
 #include <bier/operations/ops.h>
+#include <llvm/IR/Verifier.h>
 
 namespace bier {
 
@@ -30,9 +31,11 @@ void BuildLLVMIRPass::Apply(ModulePtr&& module) {
     }
 
     for (const auto& [name, func] : module->GetDefinedFunctions()) {
-        CreateFunction(func.get());
+        auto function = CreateFunction(func.get());
+        llvm::verifyFunction(*function, &llvm::errs());
     }
 
+    llvm::verifyModule(*llvm_, &llvm::errs());
     bier_module_ = nullptr;
 }
 
@@ -88,7 +91,7 @@ void BuildLLVMIRPass::CreateDeclaration(const FunctionSignature* signature, bool
     }
 }
 
-void BuildLLVMIRPass::CreateFunction(const Function* func) {
+llvm::Function* BuildLLVMIRPass::CreateFunction(const Function* func) {
     llvm::Function* llvm_func = llvm_->getFunction(func->GetName());
     auto it = func->GetSignature()->Arguments().begin();
     for (auto& arg : llvm_func->args()) {
@@ -109,6 +112,7 @@ void BuildLLVMIRPass::CreateFunction(const Function* func) {
         }
     }
     llvm_values_.clear();
+    return llvm_func;
 }
 
 void BuildLLVMIRPass::TranslateOperation(const Operation* op) {
@@ -189,29 +193,9 @@ void BuildLLVMIRPass::TranslateOperation(const Operation* op) {
         case OpCodes::Op::RETVALUE_OP:
             builder_.CreateRet(LlvmValue(op->GetArguments().front()));
             break;
-        case OpCodes::Op::GEP_OP: {
-            auto operation = static_cast<const GEPOp*>(op);
-            llvm::Value* base_offset = operation->BaseOffset().has_value()
-                                           ? LlvmValue(operation->BaseOffset().value())
-                                           : builder_.getInt32(0);
-            llvm::Value* element_offset = operation->ElementOffset().has_value()
-                                              ? LlvmValue(operation->ElementOffset().value())
-                                              : builder_.getInt32(0);
-            const Layout* layout = operation->GetLayout();
-            llvm::StructType* struct_type = LlvmLayout(layout);
-            llvm::Value* src_ptr = LlvmValue(op->GetArguments().front());
-            src_ptr = builder_.CreateCast(llvm::Instruction::CastOps::BitCast, src_ptr, struct_type->getPointerTo());
-            assert(!struct_type->isPointerTy());
-            std::vector<llvm::Value*> offsets{base_offset, builder_.getInt32(operation->ElementIndex())};
-            if (operation->ElementOffset().has_value()) {
-                offsets.push_back(element_offset);
-            }
-            llvm::Value* return_val = builder_.CreateGEP(
-                struct_type, src_ptr,
-                offsets,
-                operation->GetReturnValue().value()->GetName());
-            llvm_values_.insert({op->GetReturnValue().value(), return_val});
-        } break;
+        case OpCodes::Op::GEP_OP:
+            TranslateGEP(op);
+            break;
         case OpCodes::Op::CALL_OP: {
             auto operation = static_cast<const CallOp*>(op);
             const Value* callee = operation->Callee();
@@ -291,6 +275,30 @@ void BuildLLVMIRPass::TranslateOperation(const Operation* op) {
 
 DefaultTypesRegistry* BuildLLVMIRPass::Types() const {
     return bier_module_->Types();
+}
+
+void BuildLLVMIRPass::TranslateGEP(const Operation* op) {
+    auto operation = static_cast<const GEPOp*>(op);
+    llvm::Value* base_offset = operation->BaseOffset().has_value()
+                                   ? LlvmValue(operation->BaseOffset().value())
+                                   : builder_.getInt32(0);
+    llvm::Value* element_offset = operation->ElementOffset().has_value()
+                                      ? LlvmValue(operation->ElementOffset().value())
+                                      : builder_.getInt32(0);
+    const Layout* layout = operation->GetLayout();
+    llvm::StructType* struct_type = LlvmLayout(layout);
+    llvm::Value* src_ptr = LlvmValue(op->GetArguments().front());
+    src_ptr = builder_.CreateCast(llvm::Instruction::CastOps::BitCast, src_ptr, struct_type->getPointerTo());
+    assert(!struct_type->isPointerTy());
+    std::vector<llvm::Value*> offsets{base_offset, builder_.getInt32(operation->ElementIndex())};
+    if (operation->ElementOffset().has_value()) {
+        offsets.push_back(element_offset);
+    }
+    llvm::Value* return_val = builder_.CreateGEP(
+        struct_type, src_ptr,
+        offsets,
+        operation->GetReturnValue().value()->GetName());
+    llvm_values_.insert({op->GetReturnValue().value(), return_val});
 }
 
 llvm::Value* BuildLLVMIRPass::LlvmValue(const Value* value) {

@@ -75,7 +75,7 @@ OperationPass::OperationIterator SSAPass::OperationTransformation(BasicBlock* bl
     if (op->GetReturnValue().has_value() &&
         ContainerHas(mutable_values_, op->GetReturnValue().value())) {
         op->SubstituteReturnValue(MakeStore(block, next_it, op->GetReturnValue().value()));
-        ++next_it;
+        // ++next_it;
     }
 
     return next_it;

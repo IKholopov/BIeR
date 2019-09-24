@@ -75,6 +75,14 @@ public:
         return IteratorRange(external_functions_);
     }
 
+    auto GetAnnonymousLayouts() const {
+        return IteratorRange(anonymous_layouts_);
+    }
+
+    auto GetNamedLayouts() const {
+        return IteratorRange(named_layouts_);
+    }
+
     bool HasFunction(const std::string& name) const;
     Function* GetFunction(const std::string& name);
     const FunctionSignature* GetFunctionSignature(const std::string& name);

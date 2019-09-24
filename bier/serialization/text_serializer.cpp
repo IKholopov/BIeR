@@ -38,6 +38,10 @@ std::ostream& StringSerializer::TranslateOp(const Operation* op, std::ostream& s
                << " " << return_val.value()->GetType()->ToString() << " = ";
     }
     stream << OpCodeName(op->OpCode()) << " ";
+    if (op->OpCode() == OpCodes::GEP_OP) {
+        auto gep_op = static_cast<const GEPOp*>(op);
+        stream << " idx " << gep_op->ElementIndex() << " ";
+    }
     if (op->OpCode() == OpCodes::ALLOC_LAYOUT_OP) {
         auto alloc_op = static_cast<const AllocateLayout*>(op);
         const Layout* layout = alloc_op->GetLayout();
@@ -69,7 +73,7 @@ std::ostream& StringSerializer::TranslateValue(const Value* value, std::ostream&
 }
 
 std::ostream& StringSerializer::TranslateLayout(const Layout* layout, std::ostream& stream) const {
-    stream << "[";
+    stream << "\"" << layout->Name() << "\" [";
     for (const auto& entry : layout->Entries()) {
         stream << "[" << entry.type->ToString() << " x " << entry.count << "] ";
     }
@@ -78,6 +82,9 @@ std::ostream& StringSerializer::TranslateLayout(const Layout* layout, std::ostre
 
 std::ostream& StringSerializer::PrintModule(const Module* module, std::ostream& stream) const {
     assert(module != nullptr);
+    for (const auto& [name, layout] : module->GetNamedLayouts()) {
+        TranslateLayout(layout.get(), stream) << "\n";
+    }
     for (const auto& signature : module->GetExternalFunctions()) {
         TranslateFunctionSignature(signature, stream) << "\n";
     }
