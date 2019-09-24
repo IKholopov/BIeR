@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "call.h"
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
@@ -26,14 +27,15 @@ CallOp::CallOp(const Function* context, const Function* function,
       return_value_(return_value) {
     check((!return_value_.has_value() && !function->GetSignature()->ReturnType().has_value()) ||
               return_value.value()->GetType() == function->GetSignature()->ReturnType().value(),
-          std::runtime_error("call to function " + function->GetName() +
-                             " does not match return type"));
+          IRException("call to function " + function->GetName() +
+                             " does not match return type", context_));
     int index = 0;
     check(function->GetSignature()->Arguments().Size() == arguments.size(),
-          std::runtime_error("not enough arguments"));
+          IRException("not enough arguments", context_));
     for (const auto arg : function->GetSignature()->Arguments()) {
         check(arg->GetType() == arguments[index++]->GetType(),
-              std::runtime_error("type for argument " + arg->GetName() + " does not match"));
+              IRException("type for argument " + arg->GetName() + " does not match",
+                          context_));
     }
 }
 
@@ -64,18 +66,19 @@ void CallOp::SubstituteReturnValue(const Value* return_value) {
 }
 
 void CallOp::CheckReturnAndArgs() const {
+    auto message = "call to function does not match return type "
+            + (!return_value_.has_value() ? "none" : return_value_.value()->GetType()->ToString())
+            + " vs " + (!type_->ReturnType().has_value() ? "none" : type_->ReturnType().value()->ToString());
     check((!return_value_.has_value() && !type_->ReturnType().has_value()) ||
               (return_value_.has_value() &&
                return_value_.value()->GetType() == type_->ReturnType().value()),
-          std::runtime_error("call to function does not match return type "
-                             + (!return_value_.has_value() ? "none" : return_value_.value()->GetType()->ToString())
-                             + " vs " + (!type_->ReturnType().has_value() ? "none" : type_->ReturnType().value()->ToString()) ));
+          IRException(message, context_));
     int index = 0;
-    check(type_->Arguments().size() == args_.size(), std::runtime_error("not enough arguments"));
+    check(type_->Arguments().size() == args_.size(), IRException("not enough arguments", context_));
     for (const auto arg : type_->Arguments()) {
-        check(
-            arg == args_[index]->GetType(),
-            std::runtime_error("type for argument " + args_[index]->GetName() + " does not match"));
+        check(arg == args_[index]->GetType(),
+            IRException("type for argument " + args_[index]->GetName() + " does not match",
+                        context_));
         index += 1;
     }
 }

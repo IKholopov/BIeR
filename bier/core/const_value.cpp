@@ -14,12 +14,13 @@
    limitations under the License.
 */
 #include "const_value.h"
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
 IntegerConst::IntegerConst(uint64_t value, const IntTypeBase* type) : value_(value), type_(type) {
     check(type_->IsValid(value),
-          std::runtime_error(std::to_string(value) + "is not in range of " + type_->ToString()));
+          IRException(std::to_string(value) + "is not in range of " + type_->ToString()));
 }
 
 }  // namespace bier

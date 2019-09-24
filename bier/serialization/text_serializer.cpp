@@ -107,7 +107,7 @@ std::ostream& StringSerializer::PrintModule(const Module* module, std::ostream& 
 std::string StringSerializer::OpCodeName(int code) const
 {
     if (code >= Literal::StartingExtCode) {
-        throw std::runtime_error("Name of opcode " + std::to_string(code) + " is not specified");
+        throw IRException("Name of opcode " + std::to_string(code) + " is not specified");
     }
     return Literal::OpCodeValue(code);
 }

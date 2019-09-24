@@ -134,7 +134,9 @@ private:
 
 class Function : public Value {
 public:
-    explicit Function(FunctionSignature* signature) : signature_(signature) {
+    explicit Function(FunctionSignature* signature)
+        : variable_names_(this),
+          signature_(signature) {
         assert(signature != nullptr);
     }
 

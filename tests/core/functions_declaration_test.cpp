@@ -73,7 +73,7 @@ TEST_CASE("Cannot declare same name", "[functions_declaration]") {
     const std::string name = "external_func";
     module.AddExternalFunction(name, i32__ptr_i32_i8ptr);
     REQUIRE(module.GetDeclaredFunctions().Size() == 1);
-    REQUIRE_THROWS_AS(module.AddFunction(name, i32__), std::runtime_error);
+    REQUIRE_THROWS_AS(module.AddFunction(name, i32__), IRException);
 }
 
 TEST_CASE("Cannot declare with unknown type", "[functions_declaration]") {
@@ -81,7 +81,7 @@ TEST_CASE("Cannot declare with unknown type", "[functions_declaration]") {
     const FunctionType localVar;
 
     const std::string name = "external_func";
-    REQUIRE_THROWS_AS(module.AddFunction(name, &localVar), std::runtime_error);
+    REQUIRE_THROWS_AS(module.AddFunction(name, &localVar), IRException);
 }
 
 TEST_CASE("Can use same func type", "[functions_declaration]") {
@@ -124,7 +124,7 @@ TEST_CASE("Retrive declared func", "[functions_declaration]") {
     for (const auto arg : func->GetSignature()->Arguments()) {
         REQUIRE(arg->GetName() == names[index++]);
     }
-    REQUIRE_THROWS_AS(module.GetFunction("non-existen"), std::runtime_error);
+    REQUIRE_THROWS_AS(module.GetFunction("non-existen"), IRException);
 }
 
 }  // namespace bier_tests

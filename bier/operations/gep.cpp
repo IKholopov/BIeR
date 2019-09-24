@@ -15,6 +15,7 @@
 */
 #include "gep.h"
 #include <bier/core/function.h>
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
@@ -31,9 +32,9 @@ GEPOp::GEPOp(const Function* func, const Value* ptr, int element_index, const Va
     auto typed_ptr = dynamic_cast<const TypedPtrType*>(return_ptr_->GetType());
     check((typed_ptr != nullptr && typed_ptr->GetUnderlying() == mem_layout_->GetEntry(index_)) ||
               dynamic_cast<const PtrType*>(return_ptr_->GetType()) != nullptr,
-          std::runtime_error("cannot assign pointer of " +
+          IRException("cannot assign pointer of " +
                              mem_layout_->GetEntry(element_index)->ToString() + " to " +
-                             return_ptr_->GetType()->ToString()));
+                             return_ptr_->GetType()->ToString(), context_));
 }
 
 const Function* GEPOp::GetContextFunction() const {

@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "layout.h"
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
@@ -51,7 +52,7 @@ int Layout::Add(const Layout* layout) {
 const Type* Layout::GetEntry(int index) const {
     assert(!offsets_.empty() && offsets_.size() == entries_.size());
     check(index >= 0 && index < GetNextOffset(),
-          std::runtime_error("out of bound index " + std::to_string(index) + " requested"));
+          IRException("out of bound index " + std::to_string(index) + " requested"));
     auto element = std::lower_bound(offsets_.begin(), offsets_.end(), index);
     const bool between_entries = element == offsets_.end() || *element != index;
     ssize_t idx = element - offsets_.begin();

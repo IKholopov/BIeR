@@ -14,19 +14,27 @@
    limitations under the License.
 */
 #pragma once
-#include <bier/common.h>
+#include <bier/core/function_context.h>
 #include <string>
 
 namespace bier {
 
-class VariableNameStorage {
+class VariableNameStorage : public FunctionContextMemeber {
 public:
+    explicit VariableNameStorage(const Function* function) : context_(function) {
+    }
+
     std::string Allocate(const std::string& name, bool createNew = false);
     std::string AllocateUnique(const std::string& name);
 
+    // FunctionContextMemeber interface
+    const Function* GetContextFunction() const override;
+
 private:
     StdHashMap<std::string, int> name_to_id;
+    const Function* context_ = nullptr;
     int anonymous_counter_ = 0;
+
 };
 
 }  // namespace bier

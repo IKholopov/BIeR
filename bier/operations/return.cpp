@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "return.h"
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
@@ -35,11 +36,13 @@ ReturnValueOp::ReturnValueOp(const Function* context_func, const Value* value)
     assert(value != nullptr);
     auto return_type = context_->GetSignature()->FuncType()->ReturnType();
     check(return_type.has_value(),
-          std::runtime_error(context_->GetName() + " has return type, but void is returned"));
+          IRException(context_->GetName() + " has return type, but void is returned",
+                      context_));
     check(return_type.value() == value->GetType(),
-          std::runtime_error(context_->GetName() + " has return type " +
+          IRException(context_->GetName() + " has return type " +
                              return_type.value()->ToString() + ", but " +
-                             value->GetType()->ToString() + " is returned"));
+                             value->GetType()->ToString() + " is returned",
+                      context_));
 }
 
 const Function* ReturnValueOp::GetContextFunction() const {

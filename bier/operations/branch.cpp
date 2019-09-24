@@ -16,13 +16,14 @@
 #include "branch.h"
 #include <bier/core/basic_block.h>
 #include <bier/core/function.h>
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
 BranchOperation::BranchOperation(const Function* context, const BasicBlock* target)
     : context_(context), target_(target) {
     check(context_ == target_->GetContextFunction(),
-          std::runtime_error("branch to block outside the function"));
+          IRException("branch to block outside the function", context_));
     assert(!target_->GetLabel().empty());
 }
 
@@ -48,7 +49,7 @@ ConditionalBranchOperation::ConditionalBranchOperation(const Function* context,
       condition_(condition) {
     check(context_ == target_true_->GetContextFunction() &&
               context_ == target_false_->GetContextFunction(),
-          std::runtime_error("branch to block outside the function"));
+          IRException("branch to block outside the function", context_));
     assert(!target_true_->GetLabel().empty());
     assert(!target_false_->GetLabel().empty());
 }

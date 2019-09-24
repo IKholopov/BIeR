@@ -73,7 +73,7 @@ llvm::Type* BuildLLVMIRPass::ConvertBasicType(std::optional<const Type*> type) {
         const TypedPtrType* typed_ptr = static_cast<const TypedPtrType*>(type.value());
         return ConvertBasicType(typed_ptr->GetUnderlying())->getPointerTo();
     }
-    throw std::runtime_error("Failed to convert to llvm type: " + type.value()->ToString());
+    throw IRException("Failed to convert to llvm type: " + type.value()->ToString());
 }
 
 void BuildLLVMIRPass::CreateDeclaration(const FunctionSignature* signature, bool external) {
@@ -268,7 +268,7 @@ void BuildLLVMIRPass::TranslateOperation(const Operation* op) {
                                 builder_.CreateAlloca(LlvmLayout(operation->GetLayout()), LlvmValue(count))});
         } break;
         default:
-            throw std::runtime_error("not supported opcode: " + std::to_string(op->OpCode()));
+            throw IRException("not supported opcode: " + std::to_string(op->OpCode()));
             // TODO
     }
 }

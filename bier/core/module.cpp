@@ -17,16 +17,6 @@
 
 namespace bier {
 
-namespace {
-
-class NotRegisteredInModuleException : public std::runtime_error {
-public:
-    NotRegisteredInModuleException() : std::runtime_error("Not registered in module") {
-    }
-};
-
-}  // namespace
-
 Module::Module(std::unique_ptr<TypeRegistryInterface>&& typeRegistry)
     : types_(std::move(typeRegistry)) {
 }
@@ -78,21 +68,21 @@ bool Module::HasFunction(const std::string& name) const {
 }
 
 Function* Module::GetFunction(const std::string& name) {
-    check(ContainerHas(function_sigs_, name), std::runtime_error("unknown function " + name));
+    check(ContainerHas(function_sigs_, name), IRException("unknown function " + name));
     const FunctionSignature* signature = function_sigs_.at(name).get();
-    check(ContainerHas(functions_, signature), std::runtime_error("unknown function " + name));
+    check(ContainerHas(functions_, signature), IRException("unknown function " + name));
     return functions_.at(signature).get();
 }
 
 const FunctionSignature* Module::GetFunctionSignature(const std::string& name) {
-    check(ContainerHas(function_sigs_, name), std::runtime_error("unknown function " + name));
+    check(ContainerHas(function_sigs_, name), IRException("unknown function " + name));
     return function_sigs_.at(name).get();
 }
 
 FunctionSignature* Module::AddSignature(const std::string& name, const FunctionType* functionType) {
-    check(types_->Has(functionType), NotRegisteredInModuleException());
+    check(types_->Has(functionType), IRException("Not registered in module"));
     check(!ContainerHas(function_sigs_, name),
-          std::runtime_error(name + " already registered in the module"));
+          IRException(name + " already registered in the module"));
     FunctionSigPtr functionSignature = std::make_unique<FunctionSignature>(name, functionType);
     return function_sigs_.insert({name, std::move(functionSignature)}).first->second.get();
 }

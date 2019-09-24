@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "function.h"
+#include <bier/core/exceptions.h>
 #include <boost/functional/hash.hpp>
 
 namespace bier {
@@ -116,7 +117,8 @@ OneWayIteratorRange<BasicBlock> Function::GetBlocks() {
 }
 
 const Variable* Function::AllocateVariable(const Variable::Metadata& metadata) {
-    check(!metadata.is_mutable || !metadata.name.empty(), std::runtime_error("mutable variable should have a name"));
+    check(!metadata.is_mutable || !metadata.name.empty(),
+          IRException("mutable variable should have a name", this));
     Variable::Metadata data = metadata;
     const bool create_new = !data.is_mutable;
     data.name = variable_names_.Allocate(data.name, create_new);
@@ -135,7 +137,8 @@ void Function::Normalize() {
 
 void Function::AllocateArgumentVariables() {
     for (const auto arg : signature_->Arguments()) {
-        check(!arg->GetName().empty(), std::runtime_error("please, name your argument variables"));
+        check(!arg->GetName().empty(), IRException("please, name your argument variables",
+                                                   this));
         AllocateUnique(Variable::Metadata(arg->GetName(), arg->GetType()));
     }
 }

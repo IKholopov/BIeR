@@ -15,6 +15,7 @@
 */
 #pragma once
 #include <bier/common.h>
+#include <bier/core/exceptions.h>
 #include <bier/core/function.h>
 #include <bier/core/layout.h>
 #include <bier/core/types_registry.h>
@@ -50,7 +51,7 @@ public:
                                  const std::string& name);
     const Layout* GetNamedLayout(const std::string& name) const {
         check(ContainerHas(named_layouts_, name),
-              std::runtime_error("unknown layout \"" + name + "\""));
+              IRException("unknown layout \"" + name + "\""));
         return named_layouts_.at(name).get();
     }
 

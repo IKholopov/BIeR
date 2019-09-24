@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "variable_name.h"
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
@@ -33,9 +34,13 @@ std::string VariableNameStorage::Allocate(const std::string& name, bool createNe
 
 std::string VariableNameStorage::AllocateUnique(const std::string& name) {
     check(!ContainerHas(name_to_id, name),
-          std::runtime_error("Failed to allocate unique variable " + name));
+          IRException("Failed to allocate unique variable " + name, context_));
     name_to_id.insert({name, 0});
     return name;
+}
+
+const Function* VariableNameStorage::GetContextFunction() const {
+    return context_;
 }
 
 }  // namespace bier

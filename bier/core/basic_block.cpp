@@ -14,12 +14,14 @@
    limitations under the License.
 */
 #include "basic_block.h"
+#include <bier/core/exceptions.h>
 
 namespace bier {
 
 void BasicBlock::Append(bier::OperationPtr&& operation) {
     check(!branch_terminated_,
-          std::runtime_error("trying to add operation to block with branch at the end"));
+          IRException("trying to add operation to block with branch at the end",
+                      GetContextFunction(), this));
     operations_.emplace_back(std::move(operation));
 }
 

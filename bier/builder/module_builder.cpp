@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "module_builder.h"
+#include <bier/core/exceptions.h>
 #include <bier/operations/ops.h>
 
 namespace bier {
@@ -25,7 +26,7 @@ ModuleBuilder::ModuleBuilder(Module* module_to_attach) : module_(module_to_attac
 Function* ModuleBuilder::CreateFunction(const std::string& name,
                                         std::optional<const Type*> return_type,
                                         const std::vector<const Type*>& arguments) {
-    check(!module_->HasFunction(name), std::runtime_error("function " + name + " already defined!"));
+    check(!module_->HasFunction(name), IRException("function " + name + " already defined!"));
     const FunctionType* func_type = module_->Types()->MakeFunctionType(return_type, arguments);
     return module_->AddFunction(name, func_type);
 }
@@ -89,11 +90,13 @@ const Value* ModuleBuilder::CreateSGT(const Value* left, const Value* right,
 void ModuleBuilder::CreateStore(const Value* ptr, const Value* value) {
     const Type* store_type = value->GetType();
     check(module_->Types()->IsPtr(ptr->GetType()),
-          std::runtime_error("store to non-ptr type " + ptr->GetType()->ToString() + " requested"));
+          IRException("store to non-ptr type " + ptr->GetType()->ToString() + " requested",
+                      CurrentFunction(), CurrentBlock()));
     check(module_->Types()->IsPtrCompatibleWith(ptr->GetType(), store_type),
-          std::runtime_error("store to " + ptr->GetType()->ToString() + " of " +
-                             store_type->ToString() + " is not possible"));
-    current_block_->Append(std::make_unique<BinaryOperation>(
+          IRException("store to " + ptr->GetType()->ToString() + " of " +
+                             store_type->ToString() + " is not possible",
+                      CurrentFunction(), CurrentBlock()));
+    CurrentBlock()->Append(std::make_unique<BinaryOperation>(
         CurrentFunction(), BinaryOperation::BinOp::STORE, value, ptr, nullptr));
 }
 
@@ -107,8 +110,9 @@ const Value* ModuleBuilder::CreateAlloc(const Type* alloc_type, const Value* cou
     const Variable* result =
         CurrentFunction()->AllocateVariable(Variable::Metadata(name, module_->Types()->GetPtrTo(alloc_type), is_mutable));
     check(module_->Types()->IsInteger(count->GetType()),
-          std::runtime_error("cannot allocate count of " + count->GetType()->ToString() + " type"));
-    current_block_->Append(std::make_unique<UnaryOperation>(
+          IRException("cannot allocate count of " + count->GetType()->ToString() + " type",
+                      CurrentFunction(), CurrentBlock()));
+    CurrentBlock()->Append(std::make_unique<UnaryOperation>(
         CurrentFunction(), UnaryOperation::UnOp::ALLOC, count, result));
 
     return result;
@@ -123,7 +127,7 @@ const Value* ModuleBuilder::CreateAlloc(const Layout* layout, const Value* count
                                         const std::string& name, bool is_mutable) {
     const Variable* result = CurrentFunction()->AllocateVariable(
         Variable::Metadata(name, module_->Types()->GetPtr(), is_mutable));
-    current_block_->Append(
+    CurrentBlock()->Append(
         std::make_unique<AllocateLayout>(CurrentFunction(), layout, count, result));
     return result;
 }
@@ -134,21 +138,25 @@ const Value* ModuleBuilder::CreateLoad(const Value* ptr, const Type* load_type,
         CurrentFunction()->AllocateVariable(Variable::Metadata(name, load_type, is_mutable));
     check(
         module_->Types()->IsPtr(ptr->GetType()),
-        std::runtime_error("load from non-ptr type " + ptr->GetType()->ToString() + " requested"));
+        IRException("load from non-ptr type " + ptr->GetType()->ToString() + " requested",
+                    CurrentFunction(), CurrentBlock()));
     check(module_->Types()->IsPtrCompatibleWith(ptr->GetType(), load_type),
-          std::runtime_error("load from " + ptr->GetType()->ToString() + " to " +
-                             load_type->ToString() + " is not possible"));
-    current_block_->Append(std::make_unique<UnaryOperation>(
+          IRException("load from " + ptr->GetType()->ToString() + " to " +
+                             load_type->ToString() + " is not possible",
+                      CurrentFunction(), CurrentBlock()));
+    CurrentBlock()->Append(std::make_unique<UnaryOperation>(
         CurrentFunction(), UnaryOperation::UnOp::LOAD, ptr, result));
 
     return result;
 }
 
 void ModuleBuilder::CreateAssign(const Value* from, const Value* to) {
-    check(to->IsMutable(), std::runtime_error("cannot assign to immutable"));
+    check(to->IsMutable(), IRException("cannot assign to immutable",
+                                       CurrentFunction(), CurrentBlock()));
     check(from->GetType() == to->GetType(),
-          std::runtime_error("cannot assign from type " + from->GetType()->ToString() + " to " +
-                             to->GetType()->ToString() + " without explicit cast"));
+          IRException("cannot assign from type " + from->GetType()->ToString() + " to " +
+                             to->GetType()->ToString() + " without explicit cast",
+                      CurrentFunction(), CurrentBlock()));
     current_block_->Append(std::make_unique<UnaryOperation>(
         CurrentFunction(), UnaryOperation::UnOp::ASSIGN, from, to));
 }
@@ -189,8 +197,9 @@ std::optional<const Value*> ModuleBuilder::CreateCall(const FunctionSignature* f
 
 void ModuleBuilder::CreateReturnVoid() {
     check(!CurrentFunction()->GetSignature()->FuncType()->ReturnType().has_value(),
-          std::runtime_error(CurrentFunction()->GetName() +
-                             " has return type, but void is returned"));
+          IRException(CurrentFunction()->GetName() +
+                             " has return type, but void is returned",
+                      CurrentFunction(), CurrentBlock()));
     current_block_->Append(std::make_unique<ReturnVoidOp>(CurrentFunction()));
 }
 
@@ -204,7 +213,8 @@ const Value* ModuleBuilder::CreateGEP(const Value* ptr, const Layout* layout, in
                                       std::optional<const Value*> element_offset) {
     assert(layout != nullptr);
     check(module_->Types()->IsPtr(ptr->GetType()),
-          "cannot load from type " + ptr->GetType()->ToString());
+          IRException("cannot load from type " + ptr->GetType()->ToString(),
+                      CurrentFunction(), CurrentBlock()));
     const Variable* result = CreateVariable(
         name, module_->Types()->GetPtrTo(layout->GetEntry(element_index)), is_mutable);
     auto gep = std::make_unique<GEPOp>(CurrentFunction(), ptr, element_index, result, layout,
@@ -233,7 +243,7 @@ void ModuleBuilder::CreateBranch(const BasicBlock* target) {
 void ModuleBuilder::CreateConditionBranch(const Value* condtion, const BasicBlock* target_true,
                                           const BasicBlock* target_false) {
     check(condtion->GetType() == module_->Types()->GetInt1(),
-          std::runtime_error("condition should be of type bool"));
+          IRException("condition should be of type bool", CurrentFunction(), CurrentBlock()));
     current_block_->Append(std::make_unique<ConditionalBranchOperation>(CurrentFunction(), condtion,
                                                                         target_true, target_false));
     current_block_->TerminateBlock();
@@ -263,8 +273,9 @@ template <BinaryOperation::BinOp op>
 const Value* ModuleBuilder::CreateArithmetic(const Value* left, const Value* right,
                                              const std::string& name, bool is_mutable) {
     check(left->GetType() == right->GetType(),
-          std::runtime_error("types mismatch " + left->GetType()->ToString() + " " +
-                             right->GetType()->ToString()));
+          IRException("types mismatch " + left->GetType()->ToString() + " " +
+                             right->GetType()->ToString(),
+                      CurrentFunction(), CurrentBlock()));
     const Variable* result = CreateVariable(name, left->GetType(), is_mutable);
     current_block_->Append(
         std::make_unique<BinaryOperation>(CurrentFunction(), op, left, right, result));

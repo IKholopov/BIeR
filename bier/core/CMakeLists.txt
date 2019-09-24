@@ -4,6 +4,7 @@ add_library(bier_core STATIC
         basic_block.cpp
         basic_types.cpp
         const_value.cpp
+        exceptions.cpp
         function.cpp
         label.cpp
         layout.cpp
