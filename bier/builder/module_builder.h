@@ -121,7 +121,12 @@ public:
 
     void AttachTo(BasicBlock* block);
 
+    void SetPosition(const SourcePos& position) {
+        position_ = position;
+    }
+
 private:
+    SourcePos position_;
     Module* module_ = nullptr;
     BasicBlock* current_block_ = nullptr;
 

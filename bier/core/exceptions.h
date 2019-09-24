@@ -34,25 +34,31 @@ struct IRContext {
 
 class IRException : public std::exception {
 public:
-    IRException(const std::string& base_message, const IRContext& context)
-        : data_(context),
-          base_message_(base_message) {
-    }
+    IRException(const std::string& base_message, const IRContext& context);
     explicit IRException(const std::string& base_message,
                          std::optional<const Function*> function = std::nullopt,
                          std::optional<const BasicBlock*> block = std::nullopt);
 
     virtual const char* what() const noexcept override;
-    IRContext& Context() {
-        return data_;
+
+    void SetBaseMessage(const std::string& message) {
+        messages_.base_message = message;
     }
+    void SetFunctionMessage(const Function* function);
+    void SetBlockMessage(const BasicBlock* block);
+    void SetPosition(const SourcePos& pos);
 
 private:
-    IRContext data_;
-    std::string base_message_;
+    struct Messages {
+        std::string base_message;
+        std::string function_message;
+        std::string block_message;
+        std::string pos_message;
+    } messages_;
     mutable std::string message_;
 
     std::string BuildMessage() const;
+    void SetContext(const IRContext& context);
 };
 
 }   // bier
