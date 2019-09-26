@@ -23,71 +23,71 @@ ModuleBuilder::ModuleBuilder(Module* module_to_attach) : module_(module_to_attac
     assert(module_to_attach != nullptr);
 }
 
-Function* ModuleBuilder::CreateFunction(const std::string& name,
-                                        std::optional<const Type*> return_type,
-                                        const std::vector<const Type*>& arguments) {
+Function* ModuleBuilder::CreateFunctionImpl(const std::string& name,
+                                            std::optional<const Type*> return_type,
+                                            const std::vector<const Type*>& arguments) {
     check(!module_->HasFunction(name), IRException("function " + name + " already defined!"));
     const FunctionType* func_type = module_->Types()->MakeFunctionType(return_type, arguments);
     return module_->AddFunction(name, func_type);
 }
 
-BasicBlock* ModuleBuilder::CreateBlock(Function* function, const std::string& label,
+BasicBlock* ModuleBuilder::CreateBlockImpl(Function* function, const std::string& label,
                                        BasicBlock* insert_after) {
     current_block_ = function->CreateBlock(label, insert_after);
     return current_block_;
 }
 
-const Value* ModuleBuilder::CreateAdd(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateAddImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::ADD>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSub(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateSubImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::SUB>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateMul(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateMulImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::MULT>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSDiv(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateSDivImpl(const Value* left, const Value* right,
                                        const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::SDIV>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateEQ(const Value* left, const Value* right, const std::string& name,
+const Value* ModuleBuilder::CreateEQImpl(const Value* left, const Value* right, const std::string& name,
                                      bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::EQ>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateNE(const Value* left, const Value* right, const std::string& name,
+const Value* ModuleBuilder::CreateNEImpl(const Value* left, const Value* right, const std::string& name,
                                      bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::NE>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSLE(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateSLEImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SLE>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSLT(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateSLTImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SLT>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSGE(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateSGEImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SGE>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSGT(const Value* left, const Value* right,
+const Value* ModuleBuilder::CreateSGTImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SGT>(left, right, name, is_mutable);
 }
 
-void ModuleBuilder::CreateStore(const Value* ptr, const Value* value) {
+void ModuleBuilder::CreateStoreImpl(const Value* ptr, const Value* value) {
     const Type* store_type = value->GetType();
     check(module_->Types()->IsPtr(ptr->GetType()),
           IRException("store to non-ptr type " + ptr->GetType()->ToString() + " requested",
@@ -100,12 +100,12 @@ void ModuleBuilder::CreateStore(const Value* ptr, const Value* value) {
         CurrentFunction(), BinaryOperation::BinOp::STORE, value, ptr, nullptr));
 }
 
-const Value* ModuleBuilder::CreateAlloc(const Type* alloc_type, const std::string& name,
+const Value* ModuleBuilder::CreateAllocSingleImpl(const Type* alloc_type, const std::string& name,
                                         bool is_mutable) {
-    return CreateAlloc(alloc_type, CreateInt64Const(1), name, is_mutable);
+    return CreateAllocArrayImpl(alloc_type, CreateInt64Const(1), name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateAlloc(const Type* alloc_type, const Value* count,
+const Value* ModuleBuilder::CreateAllocArrayImpl(const Type* alloc_type, const Value* count,
                                         const std::string& name, bool is_mutable) {
     const Variable* result =
         CurrentFunction()->AllocateVariable(Variable::Metadata(name, module_->Types()->GetPtrTo(alloc_type), is_mutable));
@@ -118,12 +118,12 @@ const Value* ModuleBuilder::CreateAlloc(const Type* alloc_type, const Value* cou
     return result;
 }
 
-const Value* ModuleBuilder::CreateAlloc(const Layout* layout, const std::string& name,
+const Value* ModuleBuilder::CreateAllocLayoutSingleImpl(const Layout* layout, const std::string& name,
                                         bool is_mutable) {
-    return CreateAlloc(layout, CreateInt64Const(1), name, is_mutable);
+    return CreateAllocLayoutArrayImpl(layout, CreateInt64Const(1), name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateAlloc(const Layout* layout, const Value* count,
+const Value* ModuleBuilder::CreateAllocLayoutArrayImpl(const Layout* layout, const Value* count,
                                         const std::string& name, bool is_mutable) {
     const Variable* result = CurrentFunction()->AllocateVariable(
         Variable::Metadata(name, module_->Types()->GetPtr(), is_mutable));
@@ -132,7 +132,7 @@ const Value* ModuleBuilder::CreateAlloc(const Layout* layout, const Value* count
     return result;
 }
 
-const Value* ModuleBuilder::CreateLoad(const Value* ptr, const Type* load_type,
+const Value* ModuleBuilder::CreateLoadImpl(const Value* ptr, const Type* load_type,
                                        const std::string& name, bool is_mutable) {
     const Variable* result =
         CurrentFunction()->AllocateVariable(Variable::Metadata(name, load_type, is_mutable));
@@ -150,7 +150,7 @@ const Value* ModuleBuilder::CreateLoad(const Value* ptr, const Type* load_type,
     return result;
 }
 
-void ModuleBuilder::CreateAssign(const Value* from, const Value* to) {
+void ModuleBuilder::CreateAssignBetweenImpl(const Value* from, const Value* to) {
     check(to->IsMutable(), IRException("cannot assign to immutable",
                                        CurrentFunction(), CurrentBlock()));
     check(from->GetType() == to->GetType(),
@@ -161,7 +161,7 @@ void ModuleBuilder::CreateAssign(const Value* from, const Value* to) {
         CurrentFunction(), UnaryOperation::UnOp::ASSIGN, from, to));
 }
 
-const Value* ModuleBuilder::CreateAssign(const Value* from, const std::string& name,
+const Value* ModuleBuilder::CreateAssignImpl(const Value* from, const std::string& name,
                                          bool is_mutable) {
     const Variable* result =
         CurrentFunction()->AllocateVariable(Variable::Metadata(name, from->GetType(), is_mutable));
@@ -170,7 +170,7 @@ const Value* ModuleBuilder::CreateAssign(const Value* from, const std::string& n
     return result;
 }
 
-std::optional<const Value*> ModuleBuilder::CreateCall(const Function* func,
+std::optional<const Value*> ModuleBuilder::CreateCallFuncImpl(const Function* func,
                                                       const std::vector<const Value*>& args,
                                                       const std::string& name, bool is_mutable) {
     std::optional<const Variable*> result;
@@ -182,7 +182,7 @@ std::optional<const Value*> ModuleBuilder::CreateCall(const Function* func,
     return result;
 }
 
-std::optional<const Value*> ModuleBuilder::CreateCall(const FunctionSignature* func_sig,
+std::optional<const Value*> ModuleBuilder::CreateCallFuncSigImpl(const FunctionSignature* func_sig,
                                                       const std::vector<const Value*>& args,
                                                       const std::string& name, bool is_mutable) {
     std::optional<const Variable*> result;
@@ -195,7 +195,7 @@ std::optional<const Value*> ModuleBuilder::CreateCall(const FunctionSignature* f
     return result;
 }
 
-void ModuleBuilder::CreateReturnVoid() {
+void ModuleBuilder::CreateReturnVoidImpl() {
     check(!CurrentFunction()->GetSignature()->FuncType()->ReturnType().has_value(),
           IRException(CurrentFunction()->GetName() +
                              " has return type, but void is returned",
@@ -203,11 +203,11 @@ void ModuleBuilder::CreateReturnVoid() {
     current_block_->Append(std::make_unique<ReturnVoidOp>(CurrentFunction()));
 }
 
-void ModuleBuilder::CreateReturnValue(const Value* value) {
+void ModuleBuilder::CreateReturnValueImpl(const Value* value) {
     current_block_->Append(std::make_unique<ReturnValueOp>(CurrentFunction(), value));
 }
 
-const Value* ModuleBuilder::CreateGEP(const Value* ptr, const Layout* layout, int element_index,
+const Value* ModuleBuilder::CreateGEPImpl(const Value* ptr, const Layout* layout, int element_index,
                                       const std::string& name, bool is_mutable,
                                       std::optional<const Value*> base_offset,
                                       std::optional<const Value*> element_offset) {
@@ -223,7 +223,7 @@ const Value* ModuleBuilder::CreateGEP(const Value* ptr, const Layout* layout, in
     return result;
 }
 
-const Value* ModuleBuilder::CastTo(const Value* value, const Type* target_type,
+const Value* ModuleBuilder::CastToImpl(const Value* value, const Type* target_type,
                                    const std::string& name, bool is_mutable) {
     const Variable* result = CreateVariable(name, target_type, is_mutable);
     current_block_->Append(std::make_unique<CastOperation>(CurrentFunction(), value, result));
@@ -235,12 +235,12 @@ Function* ModuleBuilder::CurrentFunction() {
     return module_->GetFunction(current_block_->GetContextFunction()->GetName());
 }
 
-void ModuleBuilder::CreateBranch(const BasicBlock* target) {
+void ModuleBuilder::CreateBranchImpl(const BasicBlock* target) {
     current_block_->Append(std::make_unique<BranchOperation>(CurrentFunction(), target));
     current_block_->TerminateBlock();
 }
 
-void ModuleBuilder::CreateConditionBranch(const Value* condtion, const BasicBlock* target_true,
+void ModuleBuilder::CreateConditionBranchImpl(const Value* condtion, const BasicBlock* target_true,
                                           const BasicBlock* target_false) {
     check(condtion->GetType() == module_->Types()->GetInt1(),
           IRException("condition should be of type bool", CurrentFunction(), CurrentBlock()));

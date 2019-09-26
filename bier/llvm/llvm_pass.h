@@ -33,6 +33,8 @@ private:
     StdHashMap<const Value*, llvm::Value*> llvm_values_;
     StdHashMap<const BasicBlock*, llvm::BasicBlock*> llvm_blocks_;
     StdHashMap<const Layout*, llvm::StructType*> llvm_layouts_;
+    const bier::Function* current_func_ = nullptr;
+    const bier::BasicBlock* current_block_ = nullptr;
 
     llvm::FunctionType* ConvertFunctionType(const FunctionType* type);
     llvm::Type* ConvertBasicType(std::optional<const Type*> type);

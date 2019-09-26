@@ -47,7 +47,7 @@ void IRException::SetBlockMessage(const BasicBlock* block) {
 }
 
 void IRException::SetPosition(const SourcePos& pos) {
-    messages_.pos_message = "at (" + std::to_string(pos.line) + ", " + std::to_string(pos.col);
+    messages_.pos_message = "at " + std::to_string(pos.line) + ", " + std::to_string(pos.col);
 }
 
 std::string IRException::BuildMessage() const {

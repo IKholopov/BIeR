@@ -136,6 +136,7 @@ class Function : public Value {
 public:
     explicit Function(FunctionSignature* signature)
         : variable_names_(this),
+          label_names_(this),
           signature_(signature) {
         assert(signature != nullptr);
     }
@@ -170,6 +171,7 @@ public:
 private:
     StdHashMap<std::string, VariablePtr> variables_;
     VariableNameStorage variable_names_;
+    VariableNameStorage label_names_;
     BasicBlockPtr first_block_;
     BasicBlock* last_block_ = nullptr;
     FunctionSignature* signature_ = nullptr;

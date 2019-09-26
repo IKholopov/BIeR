@@ -85,7 +85,8 @@ BasicBlock* Function::CreateBlock(const std::string& label, BasicBlock* insertAf
         insertAfter = last_block_;
     }
 
-    auto block = std::make_unique<BasicBlock>(this, label);
+    const std::string block_label = label_names_.Allocate(label, true);
+    auto block = std::make_unique<BasicBlock>(this, block_label);
 
     if (insertAfter == nullptr) {
         AllocateArgumentVariables();
@@ -101,7 +102,8 @@ BasicBlock* Function::CreateBlock(const std::string& label, BasicBlock* insertAf
 }
 
 BasicBlock* Function::CreateBlockAtStart(const std::string& label) {
-    auto block = std::make_unique<BasicBlock>(this, label);
+    const std::string block_label = label_names_.Allocate(label, true);
+    auto block = std::make_unique<BasicBlock>(this, block_label);
     block->Attach(std::move(first_block_));
     first_block_ = std::move(block);
 

@@ -92,6 +92,7 @@ void BuildLLVMIRPass::CreateDeclaration(const FunctionSignature* signature, bool
 }
 
 llvm::Function* BuildLLVMIRPass::CreateFunction(const Function* func) {
+    current_func_ = func;
     llvm::Function* llvm_func = llvm_->getFunction(func->GetName());
     auto it = func->GetSignature()->Arguments().begin();
     for (auto& arg : llvm_func->args()) {
@@ -105,6 +106,7 @@ llvm::Function* BuildLLVMIRPass::CreateFunction(const Function* func) {
                                                               block.GetLabel(), llvm_func)});
     }
     for (const auto& block : func->GetBlocks()) {
+        current_block_ = &block;
         llvm::BasicBlock* llvm_block = llvm_blocks_.at(&block);
         builder_.SetInsertPoint(llvm_block);
         for (const auto& op : block.GetOperations()) {
@@ -306,6 +308,10 @@ llvm::Value* BuildLLVMIRPass::LlvmValue(const Value* value) {
     if (int_val != nullptr) {
         return builder_.getIntN(int_val->IntType()->GetNBits(), int_val->GetValue());
     }
+    check(ContainerHas(llvm_values_, value), IRException("LLVM-pass failure, not found variable " + value->GetName(),
+                                                         IRContext{
+                                                             current_func_, current_block_,
+                                                             std::nullopt}));
     return llvm_values_.at(value);
 }
 

@@ -24,7 +24,7 @@ public:
     explicit VariableNameStorage(const Function* function) : context_(function) {
     }
 
-    std::string Allocate(const std::string& name, bool createNew = false);
+    std::string Allocate(const std::string& name, bool createNew);
     std::string AllocateUnique(const std::string& name);
 
     // FunctionContextMemeber interface

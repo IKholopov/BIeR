@@ -56,8 +56,10 @@ std::vector<const Value*> CallOp::GetArguments() const {
 }
 
 void CallOp::SubstituteArguments(const std::vector<const Value*>& args) {
-    assert(args.size() == args_.size());
-    args_ = args;
+    assert(args.size() == args_.size() + 1);
+    value_ = *args.begin();
+    args_ = std::vector(args.begin() + 1, args.end());
+
 }
 
 void CallOp::SubstituteReturnValue(const Value* return_value) {

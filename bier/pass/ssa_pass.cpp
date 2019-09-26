@@ -62,7 +62,7 @@ OperationPass::OperationIterator SSAPass::OperationTransformation(BasicBlock* bl
     for (const Value* val : op->GetArguments()) {
         if (ContainerHas(mutable_values_, val)) {
             args.push_back(MakeLoad(block, next_it, val));
-            ++next_it;
+            // ++next_it;
             ++n_loads;
         } else {
             args.push_back(val);
