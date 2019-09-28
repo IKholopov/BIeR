@@ -132,6 +132,25 @@ private:
     std::string name_;
 };
 
+class FunctionPointer : public Value {
+public:
+    explicit FunctionPointer(const FunctionSignature* function)
+        : signature_(function) {
+    }
+
+    // Value interface
+    const Type* GetType() const override;
+    std::string GetName() const override;
+    bool IsMutable() const override;
+
+    const FunctionSignature* GetFunc() const {
+        return signature_;
+    }
+
+private:
+    const FunctionSignature* signature_ = nullptr;
+};
+
 class Function : public Value {
 public:
     explicit Function(FunctionSignature* signature)

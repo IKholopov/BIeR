@@ -79,6 +79,20 @@ const FunctionSignature* Module::GetFunctionSignature(const std::string& name) {
     return function_sigs_.at(name).get();
 }
 
+StaticData* Module::AddStaticData(const std::string& name, const Layout* layout) {
+    check(!name.empty(), IRException("static data should be named"));
+    auto data = std::make_unique<StaticData>(types_->DefaultTypes(), layout, name);
+    StaticData* ptr = data.get();
+    static_data_.insert({name, std::move(data)});
+    return ptr;
+}
+
+const StaticData* Module::GetStaticData(const std::string& name) const {
+    check(ContainerHas(static_data_, name), IRException("static data " + name
+                                                        + " is not defined"));
+    return static_data_.at(name).get();
+}
+
 FunctionSignature* Module::AddSignature(const std::string& name, const FunctionType* functionType) {
     check(types_->Has(functionType), IRException("Not registered in module"));
     check(!ContainerHas(function_sigs_, name),

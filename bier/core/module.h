@@ -18,6 +18,7 @@
 #include <bier/core/exceptions.h>
 #include <bier/core/function.h>
 #include <bier/core/layout.h>
+#include <bier/core/static_data.h>
 #include <bier/core/types_registry.h>
 #include <bier/utils/iterator_range.h>
 
@@ -92,6 +93,13 @@ public:
         return ContainerHas(external_functions_, signature);
     }
 
+    // Static data
+    StaticData* AddStaticData(const std::string& name, const Layout* layout);
+    auto GetStaticData() const {
+        return IteratorRange(static_data_);
+    }
+    const StaticData* GetStaticData(const std::string& name) const;
+
 private:
     std::unique_ptr<TypeRegistryInterface> types_;
     StdHashSet<LayoutPtr> anonymous_layouts_;
@@ -99,6 +107,7 @@ private:
     StdHashMap<std::string, FunctionSigPtr> function_sigs_;
     HashPtrMap<FunctionSignature, FunctionPtr> functions_;
     StdHashSet<const FunctionSignature*> external_functions_;
+    StdHashMap<std::string, StaticDataPtr> static_data_;
 
     FunctionSignature* AddSignature(const std::string& name, const FunctionType* functionType);
     LayoutPtr MakeLayout(const std::vector<Layout::LayoutEntry>& entries) const;

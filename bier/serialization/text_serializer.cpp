@@ -64,6 +64,8 @@ std::ostream& StringSerializer::TranslateValue(const Value* value, std::ostream&
     const auto const_val = dynamic_cast<const ConstValue*>(value);
     if (const_val != nullptr) {
         stream << const_val->GetConstValue();
+    } else if(const auto func_ptr = dynamic_cast<const FunctionPointer*>(value)) {
+        TranslateFunctionSignature(func_ptr->GetFunc(), stream);
     } else {
         stream << (value->IsMutable() ? "$" : "%") << value->GetName();
         // TODO
@@ -80,8 +82,21 @@ std::ostream& StringSerializer::TranslateLayout(const Layout* layout, std::ostre
     return stream << "]";
 }
 
+std::ostream& StringSerializer::TranslateStaticData(const StaticData* data, std::ostream& stream) const {
+    stream << "global " << data->GetName() << "<\n";
+    size_t size = data->GetLayout()->Entries().Size();
+    for (size_t i = 0; i < size; ++i) {
+        stream << data->GetLayout()->GetEntry(i)->ToString() << " ";
+        TranslateValue(data->GetEntry(i), stream) << "\n";
+    }
+    return stream << ">\n";
+}
+
 std::ostream& StringSerializer::PrintModule(const Module* module, std::ostream& stream) const {
     assert(module != nullptr);
+    for (const auto& [name, data] : module->GetStaticData()) {
+        TranslateStaticData(data.get(), stream) << "\n";
+    }
     for (const auto& [name, layout] : module->GetNamedLayouts()) {
         TranslateLayout(layout.get(), stream) << "\n";
     }

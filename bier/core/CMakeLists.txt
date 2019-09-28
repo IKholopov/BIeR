@@ -10,6 +10,7 @@ add_library(bier_core STATIC
         layout.cpp
         module.cpp
         operation.cpp
+        static_data.cpp
         types_registry.cpp
         variable.cpp
         variable_name.cpp)

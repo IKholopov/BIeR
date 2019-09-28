@@ -37,6 +37,16 @@ BasicBlock* ModuleBuilder::CreateBlockImpl(Function* function, const std::string
     return current_block_;
 }
 
+const StaticData* ModuleBuilder::CreateStaticDataImpl(const Layout* layout,
+                                                      std::vector<ValuePtr>&& values,
+                                                      const std::string& name) {
+    StaticData* data = module_->AddStaticData(name, layout);
+    for (size_t i = 0; i < values.size(); ++i) {
+        data->SetEntry(std::move(values[i]), i);
+    }
+    return data;
+}
+
 const Value* ModuleBuilder::CreateAddImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::ADD>(left, right, name, is_mutable);
@@ -192,6 +202,19 @@ std::optional<const Value*> ModuleBuilder::CreateCallFuncSigImpl(const FunctionS
     }
     current_block_->Append(
         std::make_unique<CallOp>(CurrentFunction(), func_sig->FuncType(), func_sig, result, args));
+    return result;
+}
+
+std::optional<const Value*> ModuleBuilder::CreateCallFuncPtr(const FunctionType* func_type, const Value* func_ptr,
+                                                             const std::vector<const Value*>& args, const std::string& name,
+                                                             bool is_mutable) {
+    std::optional<const Variable*> result;
+    auto return_type = func_type->ReturnType();
+    if (return_type.has_value()) {
+        result = CreateVariable(name, return_type.value(), is_mutable);
+    }
+    current_block_->Append(
+        std::make_unique<CallOp>(CurrentFunction(), func_type, func_ptr, result, args));
     return result;
 }
 

@@ -41,6 +41,7 @@ private:
     void CreateDeclaration(const FunctionSignature* signature, bool external);
     llvm::Function* CreateFunction(const Function* func);
     void TranslateOperation(const Operation* op);
+    void CreateStaticData(const StaticData* data);
 
     DefaultTypesRegistry* Types() const;
 
@@ -51,6 +52,8 @@ private:
     template <typename FBuildOp>
     void TranslateBinOpRoundArithmetic(const Operation* op, FBuildOp buildOp);
     void TranslateGEP(const Operation* op);
+    void TranslateCast(const Operation* op);
+    void TranslateCall(const Operation* op);
     llvm::Value* LlvmValue(const Value* value);
     llvm::StructType* LlvmLayout(const Layout* value);
 

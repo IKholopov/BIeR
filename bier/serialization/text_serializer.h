@@ -27,6 +27,7 @@ public:
     std::ostream& TranslateOp(const Operation* op, std::ostream& stream) const;
     std::ostream& TranslateValue(const Value* value, std::ostream& stream) const;
     std::ostream& TranslateLayout(const Layout* layout, std::ostream& stream) const;
+    std::ostream& TranslateStaticData(const StaticData* data, std::ostream& stream) const;
     std::ostream& PrintModule(const Module* module, std::ostream& stream) const;
 
     virtual std::string OpCodeName(int code) const;

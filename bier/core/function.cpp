@@ -186,4 +186,16 @@ std::string ArgumentValue::GetName() const {
     return data_->name;
 }
 
+const Type* FunctionPointer::GetType() const {
+    return signature_->GetType();
+}
+
+std::string FunctionPointer::GetName() const {
+    return signature_->GetName();
+}
+
+bool FunctionPointer::IsMutable() const {
+    return signature_->IsMutable();
+}
+
 }  // namespace bier

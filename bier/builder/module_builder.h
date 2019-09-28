@@ -29,7 +29,7 @@ public:
     template <typename F, F Method, typename ... Arg >
     auto DiagnosticCreate(Arg&& ... args) {
         try {
-            return (this->*Method)(args...);
+            return (this->*Method)(std::forward<Arg>(args)...);
         } catch (IRException& e) {
             e.SetPosition(position_);
             throw;
@@ -48,6 +48,13 @@ public:
                             BasicBlock* insert_after = nullptr) {
         return DiagnosticCreate<decltype(&ModuleBuilder::CreateBlockImpl),
                 &ModuleBuilder::CreateBlockImpl>(function, label, insert_after);
+    }
+
+    // Create new Static Data
+    const StaticData* CreateStaticData(const Layout* layout, std::vector<ValuePtr>&& values,
+                                       const std::string& name) {
+        return DiagnosticCreate<decltype(&ModuleBuilder::CreateStaticDataImpl),
+                &ModuleBuilder::CreateStaticDataImpl>(layout, std::move(values), name);
     }
 
     // Create Instructions
@@ -175,6 +182,12 @@ public:
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateCallFuncSigImpl),
                 &ModuleBuilder::CreateCallFuncSigImpl>(func_sig, args, name, is_mutable);
     }
+    std::optional<const Value*> CreateCall(const FunctionType* func_type, const Value* func_ptr,
+                                           const std::vector<const Value*>& args = {},
+                                           const std::string& name = "", bool is_mutable = false) {
+        return DiagnosticCreate<decltype (&ModuleBuilder::CreateCallFuncPtr), &ModuleBuilder::CreateCallFuncPtr>(
+                    func_type, func_ptr, args, name, is_mutable);
+    }
 
     void CreateReturnVoid() {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateReturnVoidImpl),
@@ -208,7 +221,7 @@ public:
                                    const BasicBlock* target_false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateConditionBranchImpl),
                 &ModuleBuilder::CreateConditionBranchImpl>(condtion, target_true, target_false);
-    }
+    }    
 
     Function* CurrentFunction();
     BasicBlock* CurrentBlock() {
@@ -250,6 +263,9 @@ private:
     // Create new BasicBlock
     BasicBlock* CreateBlockImpl(Function* function, const std::string& label = "",
                             BasicBlock* insert_after = nullptr);
+
+    const StaticData* CreateStaticDataImpl(const Layout* layout, std::vector<ValuePtr>&& values,
+                                                      const std::string& name);
 
     // Create Instructions
     const Value* CreateInt1ConstImpl(bool value) {
@@ -311,6 +327,9 @@ private:
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false);
     std::optional<const Value*> CreateCallFuncSigImpl(const FunctionSignature* func_sig,
+                                           const std::vector<const Value*>& args = {},
+                                           const std::string& name = "", bool is_mutable = false);
+    std::optional<const Value*> CreateCallFuncPtr(const FunctionType* func_type, const Value* func_ptr,
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false);
 

@@ -30,6 +30,10 @@ void BuildLLVMIRPass::Apply(ModulePtr&& module) {
         CreateDeclaration(signature.get(), bier_module_->IsExternalFunction(signature.get()));
     }
 
+    for (const auto& [name, data] : module->GetStaticData()) {
+        CreateStaticData(data.get());
+    }
+
     for (const auto& [name, func] : module->GetDefinedFunctions()) {
         auto function = CreateFunction(func.get());
         llvm::verifyFunction(*function, &llvm::errs());
@@ -199,35 +203,7 @@ void BuildLLVMIRPass::TranslateOperation(const Operation* op) {
             TranslateGEP(op);
             break;
         case OpCodes::Op::CALL_OP: {
-            auto operation = static_cast<const CallOp*>(op);
-            const Value* callee = operation->Callee();
-            auto arguments = operation->GetArguments();
-            std::vector<llvm::Value*> args;
-            auto args_signature = operation->FuncType()->Arguments();
-            for (std::size_t i = 1; i < arguments.size(); ++i) {
-                const Type* arg_type = args_signature[i - 1];
-                const Value* arg = arguments[i];
-                args.push_back(PtrCast(arg, arg_type));
-            }
-            const std::string return_name =
-                op->GetReturnValue().has_value() ? op->GetReturnValue().value()->GetName() : "";
-            llvm::Value* llvm_ret = nullptr;
-            auto callee_func_sig = dynamic_cast<const FunctionSignature*>(callee);
-            auto callee_func = dynamic_cast<const Function*>(callee);
-            if (callee_func_sig != nullptr) {
-                llvm_ret = builder_.CreateCall(llvm_->getFunction(callee_func_sig->GetName()), args,
-                                               return_name);
-            } else if (callee_func != nullptr) {
-                llvm_ret = builder_.CreateCall(llvm_->getFunction(callee_func->GetName()), args,
-                                               return_name);
-            } else {
-                llvm_ret = builder_.CreateCall(ConvertFunctionType(operation->FuncType()),
-                                               LlvmValue(callee), args, return_name);
-            }
-
-            if (op->GetReturnValue().has_value()) {
-                llvm_values_.insert({op->GetReturnValue().value(), llvm_ret});
-            }
+            TranslateCall(op);
         } break;
         case OpCodes::Op::COND_BRANCH_OP: {
             auto operation = static_cast<const ConditionalBranchOperation*>(op);
@@ -240,28 +216,7 @@ void BuildLLVMIRPass::TranslateOperation(const Operation* op) {
             builder_.CreateBr(llvm_blocks_.at(operation->DestinationBlocks().front()));
         } break;
         case OpCodes::Op::CAST_OP: {
-            const Value* src = op->GetArguments().front();
-            const Value* target = op->GetReturnValue().value();
-            const Type* src_type = src->GetType();
-            const Type* target_type = target->GetType();
-            llvm::CastInst::CastOps cast_op = llvm::CastInst::CastOps::BitCast;
-            llvm::Value* return_value = nullptr;
-            if (Types()->IsPtr(src_type) && Types()->IsInteger(target_type)) {
-                cast_op = llvm::CastInst::CastOps::PtrToInt;
-            }
-            else if (Types()->IsInteger(src_type) && Types()->IsPtr(target_type)) {
-                cast_op = llvm::CastInst::CastOps::IntToPtr;
-            } else if (Types()->IsInteger(src_type) && Types()->IsInteger(target_type)) {
-                return_value = builder_.CreateIntCast(LlvmValue(src),
-                                                        ConvertBasicType(target_type), true,
-                                                        op->GetReturnValue().value()->GetName());
-                llvm_values_.insert({target, return_value});
-                break;
-            }
-            return_value = builder_.CreateCast(cast_op, LlvmValue(src),
-                                                               ConvertBasicType(target_type),
-                                                               op->GetReturnValue().value()->GetName());
-            llvm_values_.insert({target, return_value});
+            TranslateCast(op);
         } break;
         case OpCodes::Op::ALLOC_LAYOUT_OP: {
             auto operation = static_cast<const AllocateLayout*>(op);
@@ -273,6 +228,19 @@ void BuildLLVMIRPass::TranslateOperation(const Operation* op) {
             throw IRException("not supported opcode: " + std::to_string(op->OpCode()));
             // TODO
     }
+}
+
+void BuildLLVMIRPass::CreateStaticData(const StaticData* data) {
+    llvm::StructType* type = LlvmLayout(data->GetLayout());
+    llvm_->getOrInsertGlobal(data->GetName(), type);
+    llvm::GlobalVariable* variable = llvm_->getGlobalVariable(data->GetName());
+    std::vector<llvm::Constant*> values;
+    for (int i = 0; i < data->GetLayout()->Entries().Size(); ++i) {
+        const std::string& func_name = dynamic_cast<const bier::FunctionPointer*>(data->GetEntry(i))->GetFunc()->Name();
+        values.emplace_back(llvm::ConstantExpr::getCast(llvm::Instruction::CastOps::BitCast, llvm_->getFunction(func_name),
+                                    builder_.getInt8PtrTy()));
+    }
+    variable->setInitializer(llvm::ConstantStruct::get(type, values));
 }
 
 DefaultTypesRegistry* BuildLLVMIRPass::Types() const {
@@ -303,10 +271,77 @@ void BuildLLVMIRPass::TranslateGEP(const Operation* op) {
     llvm_values_.insert({op->GetReturnValue().value(), return_val});
 }
 
+void BuildLLVMIRPass::TranslateCast(const Operation* op) {
+    const Value* src = op->GetArguments().front();
+    const Value* target = op->GetReturnValue().value();
+    const Type* src_type = src->GetType();
+    const Type* target_type = target->GetType();
+    llvm::CastInst::CastOps cast_op = llvm::CastInst::CastOps::BitCast;
+    llvm::Value* return_value = nullptr;
+    if (Types()->IsPtr(src_type) && Types()->IsInteger(target_type)) {
+        cast_op = llvm::CastInst::CastOps::PtrToInt;
+    }
+    else if (Types()->IsInteger(src_type) && Types()->IsPtr(target_type)) {
+        cast_op = llvm::CastInst::CastOps::IntToPtr;
+    } else if (Types()->IsInteger(src_type) && Types()->IsInteger(target_type)) {
+        return_value = builder_.CreateIntCast(LlvmValue(src),
+                                                ConvertBasicType(target_type), true,
+                                                op->GetReturnValue().value()->GetName());
+        llvm_values_.insert({target, return_value});
+        return;
+    }
+    return_value = builder_.CreateCast(cast_op, LlvmValue(src),
+                                                       ConvertBasicType(target_type),
+                                                       op->GetReturnValue().value()->GetName());
+    llvm_values_.insert({target, return_value});
+}
+
+void BuildLLVMIRPass::TranslateCall(const Operation* op) {
+    auto operation = static_cast<const CallOp*>(op);
+    const Value* callee = operation->Callee();
+    auto arguments = operation->GetArguments();
+    std::vector<llvm::Value*> args;
+    auto args_signature = operation->FuncType()->Arguments();
+    for (std::size_t i = 1; i < arguments.size(); ++i) {
+        const Type* arg_type = args_signature[i - 1];
+        const Value* arg = arguments[i];
+        args.push_back(PtrCast(arg, arg_type));
+    }
+    const std::string return_name =
+        op->GetReturnValue().has_value() ? op->GetReturnValue().value()->GetName() : "";
+    llvm::Value* llvm_ret = nullptr;
+    auto callee_func_sig = dynamic_cast<const FunctionSignature*>(callee);
+    auto callee_func = dynamic_cast<const Function*>(callee);
+    if (callee_func_sig != nullptr) {
+        llvm_ret = builder_.CreateCall(llvm_->getFunction(callee_func_sig->GetName()), args,
+                                       return_name);
+    } else if (callee_func != nullptr) {
+        llvm_ret = builder_.CreateCall(llvm_->getFunction(callee_func->GetName()), args,
+                                       return_name);
+    } else {
+        auto llvm_callee = LlvmValue(callee);
+        auto func_type = ConvertFunctionType(operation->FuncType());
+        llvm_callee = builder_.CreateCast(llvm::Instruction::CastOps::BitCast, llvm_callee,
+                                          func_type->getPointerTo());
+        llvm_ret = builder_.CreateCall(func_type, llvm_callee, args, return_name);
+    }
+
+    if (op->GetReturnValue().has_value()) {
+        llvm_values_.insert({op->GetReturnValue().value(), llvm_ret});
+    }
+}
+
 llvm::Value* BuildLLVMIRPass::LlvmValue(const Value* value) {
     auto int_val = dynamic_cast<const IntegerConst*>(value);
     if (int_val != nullptr) {
         return builder_.getIntN(int_val->IntType()->GetNBits(), int_val->GetValue());
+    }
+    auto static_data_val = dynamic_cast<const StaticData*>(value);
+    if (static_data_val != nullptr) {
+        auto global = llvm_->getGlobalVariable(static_data_val->GetName());
+        assert(global != nullptr);
+        return builder_.CreateCast(llvm::Instruction::CastOps::BitCast, global,
+                                           builder_.getInt8PtrTy());
     }
     check(ContainerHas(llvm_values_, value), IRException("LLVM-pass failure, not found variable " + value->GetName(),
                                                          IRContext{
