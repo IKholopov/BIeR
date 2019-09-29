@@ -16,7 +16,7 @@ add_library(bier_core STATIC
         variable_name.cpp)
 add_library(bier::bier_core ALIAS bier_core)
 target_include_directories(bier_core PUBLIC ${BIER_INC})
-target_link_libraries(bier_core PRIVATE Boost::headers)
+target_link_libraries(bier_core PRIVATE Boost::boost)
 set_target_properties(bier_core
     PROPERTIES INTERFACE_LINK_LIBRARIES "")
 target_cxx(bier_core)
