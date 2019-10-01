@@ -5,3 +5,4 @@ add_executable(utils_tests
 target_include_directories(utils_tests PUBLIC ${CATCH_PATH} ${BIER_INC})
 target_link_libraries(utils_tests bier_serialization)
 target_cxx(utils_tests)
+add_test(utils utils_tests)

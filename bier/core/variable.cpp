@@ -17,12 +17,19 @@
 
 namespace bier {
 
-Variable::Variable(const Metadata& data) : data_(data) {
+Variable::Metadata::Metadata(const std::string& _name, const Type* _type, bool _is_mutable)
+    : name(_name),
+      type(_type),
+      is_mutable(_is_mutable) {
+    assert(type != nullptr);
 }
 
-Variable::Metadata::Metadata(const std::string& _name, const Type* _type, bool _is_mutable)
-    : name(_name), type(_type), is_mutable(_is_mutable) {
-    assert(type != nullptr);
+std::optional<const Operation*> Variable::GetOp() const{
+    if (IsMutable() || op_ == nullptr) {
+        return std::nullopt;
+    }
+
+    return op_;
 }
 
 }  // namespace bier

@@ -22,15 +22,15 @@ namespace bier {
 
 class CastOperation : public BaseOperation<OpCodes::Op::CAST_OP> {
 public:
-    CastOperation(const Function* funciton, const Value* from, const Value* to);
+    CastOperation(const Function* funciton, const Value* from, const Variable* to);
 
     // FunctionContextMember interface
     const Function* GetContextFunction() const override;
     // Operation interface
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value* return_value) override;
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable* return_value) override;
 
     const Type* TypeTo() const {
         return to_->GetType();
@@ -43,7 +43,7 @@ public:
 private:
     const Function* context_ = nullptr;
     const Value* from_ = nullptr;
-    const Value* to_ = nullptr;
+    const Variable* to_ = nullptr;
 };
 
 }  // namespace bier

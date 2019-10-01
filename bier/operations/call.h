@@ -23,10 +23,10 @@ namespace bier {
 class CallOp : public BaseOperation<OpCodes::Op::CALL_OP> {
 public:
     CallOp(const Function* context, const Function* function,
-           std::optional<const Value*> return_value = std::nullopt,
+           std::optional<const Variable*> return_value = std::nullopt,
            const std::vector<const Value*>& arguments = {});
     CallOp(const Function* context, const FunctionType* type, const Value* func_value,
-           std::optional<const Value*> return_value = std::nullopt,
+           std::optional<const Variable*> return_value = std::nullopt,
            const std::vector<const Value*>& arguments = {});
 
     // FunctionContextInterface
@@ -37,10 +37,10 @@ public:
     // Operation Interface
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override {
+    std::optional<const Variable*> GetReturnValue() const override {
         return return_value_;
     }
-    void SubstituteReturnValue(const Value* return_value) override;
+    void SubstituteReturnValue(const Variable* return_value) override;
 
     const Value* Callee() const {
         return value_;
@@ -54,7 +54,7 @@ private:
     const Function* context_ = nullptr;
     const FunctionType* type_ = nullptr;
     const Value* value_ = nullptr;
-    std::optional<const Value*> return_value_ = std::nullopt;
+    std::optional<const Variable*> return_value_ = std::nullopt;
 
     void CheckReturnAndArgs() const;
 };

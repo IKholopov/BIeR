@@ -26,7 +26,7 @@ std::vector<const Value*> ReturnVoidOp::GetArguments() const {
     return {};
 }
 
-std::optional<const Value*> ReturnVoidOp::GetReturnValue() const {
+std::optional<const Variable*> ReturnVoidOp::GetReturnValue() const {
     return std::nullopt;
 }
 
@@ -58,11 +58,11 @@ void ReturnValueOp::SubstituteArguments(const std::vector<const Value*>& args) {
     value_ = args[0];
 }
 
-std::optional<const Value*> ReturnValueOp::GetReturnValue() const {
+std::optional<const Variable*> ReturnValueOp::GetReturnValue() const {
     return std::nullopt;
 }
 
-void ReturnValueOp::SubstituteReturnValue(const Value*) {
+void ReturnValueOp::SubstituteReturnValue(const Variable*) {
     assert(false);
 }
 

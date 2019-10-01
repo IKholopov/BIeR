@@ -72,12 +72,20 @@ bool FunctionSignature::IsMutable() const {
     return false;
 }
 
+std::optional<const Operation*> FunctionSignature::GetOp() const {
+    return std::nullopt;
+}
+
 const Type* Function::GetType() const {
     return signature_->FuncType();
 }
 
 std::string Function::GetName() const {
     return signature_->Name();
+}
+
+std::optional<const Operation*> Function::GetOp() const {
+    return std::nullopt;
 }
 
 BasicBlock* Function::CreateBlock(const std::string& label, BasicBlock* insertAfter) {
@@ -186,6 +194,10 @@ std::string ArgumentValue::GetName() const {
     return data_->name;
 }
 
+std::optional<const Operation*> ArgumentValue::GetOp() const {
+    return std::nullopt;
+}
+
 const Type* FunctionPointer::GetType() const {
     return signature_->GetType();
 }
@@ -196,6 +208,10 @@ std::string FunctionPointer::GetName() const {
 
 bool FunctionPointer::IsMutable() const {
     return signature_->IsMutable();
+}
+
+std::optional<const Operation*> FunctionPointer::GetOp() const {
+    return signature_->GetOp();
 }
 
 }  // namespace bier

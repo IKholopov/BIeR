@@ -19,7 +19,7 @@
 
 namespace bier {
 
-GEPOp::GEPOp(const Function* func, const Value* ptr, int element_index, const Value* return_value,
+GEPOp::GEPOp(const Function* func, const Value* ptr, int element_index, const Variable* return_value,
              const Layout* layout, std::optional<const Value*> base_offset,
              std::optional<const Value*> element_offset)
     : context_(func),
@@ -64,11 +64,11 @@ void GEPOp::SubstituteArguments(const std::vector<const Value*>& args) {
     }
 }
 
-std::optional<const Value*> GEPOp::GetReturnValue() const {
+std::optional<const Variable*> GEPOp::GetReturnValue() const {
     return return_ptr_;
 }
 
-void GEPOp::SubstituteReturnValue(const Value* return_value) {
+void GEPOp::SubstituteReturnValue(const Variable* return_value) {
     return_ptr_ = return_value;
 }
 

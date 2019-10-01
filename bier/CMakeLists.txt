@@ -3,6 +3,7 @@ add_subdirectory(operations)
 add_subdirectory(builder)
 add_subdirectory(serialization)
 add_subdirectory(pass)
+add_subdirectory(dag)
 
 find_package(LLVM)
 

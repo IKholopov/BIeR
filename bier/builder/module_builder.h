@@ -82,52 +82,52 @@ public:
         return CastTo(CreateInt64Const(0), module_->Types()->GetPtr());
     }
 
-    const Value* CreateAdd(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateAdd(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateAddImpl),
                 &ModuleBuilder::CreateAddImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateSub(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSub(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateSubImpl),
                 &ModuleBuilder::CreateSubImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateMul(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateMul(const Value* left, const Value* right, const std::string& name = "",
                                bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateMulImpl),
                 &ModuleBuilder::CreateMulImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateSDiv(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSDiv(const Value* left, const Value* right, const std::string& name = "",
                                 bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateSDivImpl),
                 &ModuleBuilder::CreateSDivImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateEQ(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateEQ(const Value* left, const Value* right, const std::string& name = "",
                               bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateEQImpl),
                 &ModuleBuilder::CreateEQImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateNE(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateNE(const Value* left, const Value* right, const std::string& name = "",
                               bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateNEImpl),
                 &ModuleBuilder::CreateNEImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateSLE(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSLE(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateSLEImpl),
                 &ModuleBuilder::CreateSLEImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateSLT(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSLT(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateSLTImpl),
                 &ModuleBuilder::CreateSLTImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateSGE(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSGE(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateSGEImpl),
                 &ModuleBuilder::CreateSGEImpl>(left, right, name, is_mutable);
     }
-    const Value* CreateSGT(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSGT(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateSGTImpl),
                 &ModuleBuilder::CreateSGTImpl>(left, right, name, is_mutable);
@@ -157,32 +157,32 @@ public:
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateAllocLayoutArrayImpl),
                 &ModuleBuilder::CreateAllocLayoutArrayImpl>(layout, count, name, is_mutable);
     }
-    const Value* CreateLoad(const Value* ptr, const Type* load_type, const std::string& name = "",
+    const Variable* CreateLoad(const Value* ptr, const Type* load_type, const std::string& name = "",
                             bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateLoadImpl),
                 &ModuleBuilder::CreateLoadImpl>(ptr, load_type, name, is_mutable);
     }
-    void CreateAssign(const Value* from, const Value* to) {
+    void CreateAssign(const Value* from, const Variable* to) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateAssignBetweenImpl),
                 &ModuleBuilder::CreateAssignBetweenImpl>(from, to);
     }
-    const Value* CreateAssign(const Value* from, const std::string& name = "", bool is_mutable = false) {
+    const Variable* CreateAssign(const Value* from, const std::string& name = "", bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateAssignImpl),
                 &ModuleBuilder::CreateAssignImpl>(from, name, is_mutable);
     }
-    std::optional<const Value*> CreateCall(const Function* func,
+    std::optional<const Variable*> CreateCall(const Function* func,
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateCallFuncImpl),
                 &ModuleBuilder::CreateCallFuncImpl>(func, args, name, is_mutable);
     }
-    std::optional<const Value*> CreateCall(const FunctionSignature* func_sig,
+    std::optional<const Variable*> CreateCall(const FunctionSignature* func_sig,
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateCallFuncSigImpl),
                 &ModuleBuilder::CreateCallFuncSigImpl>(func_sig, args, name, is_mutable);
     }
-    std::optional<const Value*> CreateCall(const FunctionType* func_type, const Value* func_ptr,
+    std::optional<const Variable*> CreateCall(const FunctionType* func_type, const Value* func_ptr,
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateCallFuncPtr), &ModuleBuilder::CreateCallFuncPtr>(
@@ -246,10 +246,10 @@ private:
     const Value* CreateConstInt(uint64_t value, const TRegister* types);
 
     template <BinaryOperation::BinOp op>
-    const Value* CreateCmp(const Value* left, const Value* right, const std::string& name,
+    const Variable* CreateCmp(const Value* left, const Value* right, const std::string& name,
                            bool is_mutable);
     template <BinaryOperation::BinOp op>
-    const Value* CreateArithmetic(const Value* left, const Value* right, const std::string& name,
+    const Variable* CreateArithmetic(const Value* left, const Value* right, const std::string& name,
                                   bool is_mutable);
 
     const Variable* CreateVariable(const std::string& name, const Type* type, bool is_mutable);
@@ -289,25 +289,25 @@ private:
             value, module_->Types());
     }
 
-    const Value* CreateAddImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateAddImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
-    const Value* CreateSubImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSubImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
-    const Value* CreateMulImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateMulImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
-    const Value* CreateSDivImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSDivImpl(const Value* left, const Value* right, const std::string& name = "",
                             bool is_mutable = false);
-    const Value* CreateEQImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateEQImpl(const Value* left, const Value* right, const std::string& name = "",
                           bool is_mutable = false);
-    const Value* CreateNEImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateNEImpl(const Value* left, const Value* right, const std::string& name = "",
                           bool is_mutable = false);
-    const Value* CreateSLEImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSLEImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
-    const Value* CreateSLTImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSLTImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
-    const Value* CreateSGEImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSGEImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
-    const Value* CreateSGTImpl(const Value* left, const Value* right, const std::string& name = "",
+    const Variable* CreateSGTImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
 
     void CreateStoreImpl(const Value* ptr, const Value* value);
@@ -319,28 +319,28 @@ private:
                              bool is_mutable = false);
     const Value* CreateAllocLayoutArrayImpl(const Layout* layout, const Value* count, const std::string& name = "",
                              bool is_mutable = false);
-    const Value* CreateLoadImpl(const Value* ptr, const Type* load_type, const std::string& name = "",
+    const Variable* CreateLoadImpl(const Value* ptr, const Type* load_type, const std::string& name = "",
                             bool is_mutable = false);
-    void CreateAssignBetweenImpl(const Value* from, const Value* to);
-    const Value* CreateAssignImpl(const Value* from, const std::string& name = "", bool is_mutable = false);
-    std::optional<const Value*> CreateCallFuncImpl(const Function* func,
+    void CreateAssignBetweenImpl(const Value* from, const Variable* to);
+    const Variable* CreateAssignImpl(const Value* from, const std::string& name = "", bool is_mutable = false);
+    std::optional<const Variable*> CreateCallFuncImpl(const Function* func,
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false);
-    std::optional<const Value*> CreateCallFuncSigImpl(const FunctionSignature* func_sig,
+    std::optional<const Variable*> CreateCallFuncSigImpl(const FunctionSignature* func_sig,
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false);
-    std::optional<const Value*> CreateCallFuncPtr(const FunctionType* func_type, const Value* func_ptr,
+    std::optional<const Variable*> CreateCallFuncPtr(const FunctionType* func_type, const Value* func_ptr,
                                            const std::vector<const Value*>& args = {},
                                            const std::string& name = "", bool is_mutable = false);
 
     void CreateReturnVoidImpl();
     void CreateReturnValueImpl(const Value* value);
 
-    const Value* CreateGEPImpl(const Value* ptr, const Layout* layout, int element_index,
+    const Variable* CreateGEPImpl(const Value* ptr, const Layout* layout, int element_index,
                            const std::string& name = "", bool is_mutable = false,
                            std::optional<const Value*> base_offset = std::nullopt,
                            std::optional<const Value*> element_offset = std::nullopt);
-    const Value* CastToImpl(const Value* value, const Type* target_type, const std::string& name = "",
+    const Variable* CastToImpl(const Value* value, const Type* target_type, const std::string& name = "",
                         bool is_mutable = false);
 
 

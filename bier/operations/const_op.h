@@ -23,7 +23,7 @@ namespace bier {
 
 class ConstOperation : public BaseOperation<OpCodes::CONST_OP> {
 public:
-    ConstOperation(const Function* context, const ConstValue* const_value, const Value* ret_value);
+    ConstOperation(const Function* context, const ConstValue* const_value, const Variable* ret_value);
 
     // FunctionContextMemeber interface
     const Function* GetContextFunction() const override;
@@ -31,13 +31,13 @@ public:
     // Operation interface
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value* return_value) override;
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable* return_value) override;
 
 private:
     const Function* context_ = nullptr;
     const ConstValue* value_ = nullptr;
-    const Value* return_value_ = nullptr;
+    const Variable* return_value_ = nullptr;
 };
 
 }  // namespace bier

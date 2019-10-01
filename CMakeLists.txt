@@ -20,6 +20,7 @@ set(BIER_INC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 
 add_subdirectory(bier)
 if(BUILD_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif()
 

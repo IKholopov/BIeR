@@ -20,7 +20,7 @@
 namespace bier {
 
 BinaryOperation::BinaryOperation(const Function* context_func, BinaryOperation::BinOp op,
-                                 const Value* left, const Value* right, const Value* return_value)
+                                 const Value* left, const Value* right, const Variable* return_value)
     : context_function_(context_func),
       left_value_(left),
       right_value_(right),
@@ -47,11 +47,11 @@ void BinaryOperation::SubstituteArguments(const std::vector<const Value*>& args)
     right_value_ = args[1];
 }
 
-std::optional<const Value*> BinaryOperation::GetReturnValue() const {
+std::optional<const Variable*> BinaryOperation::GetReturnValue() const {
     return return_value_ == nullptr ? std::nullopt : std::make_optional(return_value_);
 }
 
-void BinaryOperation::SubstituteReturnValue(const Value* return_value) {
+void BinaryOperation::SubstituteReturnValue(const Variable* return_value) {
     assert(GetReturnValue().has_value());
     return_value_ = return_value;
 }
@@ -67,7 +67,7 @@ int BinaryOperation::OpCode() const {
 }
 
 UnaryOperation::UnaryOperation(const Function* context_func, UnaryOperation::UnOp op,
-                               const Value* argument, const Value* return_value)
+                               const Value* argument, const Variable* return_value)
     : context_function_(context_func), argument_(argument), return_value_(return_value), op_(op) {
     assert(context_func != nullptr);
     assert(argument != nullptr);
@@ -88,11 +88,11 @@ void UnaryOperation::SubstituteArguments(const std::vector<const Value*>& args) 
     argument_ = args.front();
 }
 
-std::optional<const Value*> UnaryOperation::GetReturnValue() const {
+std::optional<const Variable*> UnaryOperation::GetReturnValue() const {
     return return_value_;
 }
 
-void UnaryOperation::SubstituteReturnValue(const Value* return_value) {
+void UnaryOperation::SubstituteReturnValue(const Variable* return_value) {
     return_value_ = return_value;
 }
 

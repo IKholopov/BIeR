@@ -19,7 +19,7 @@
 namespace bier {
 
 CallOp::CallOp(const Function* context, const Function* function,
-               std::optional<const Value*> return_value, const std::vector<const Value*>& arguments)
+               std::optional<const Variable*> return_value, const std::vector<const Value*>& arguments)
     : args_(arguments),
       context_(context),
       type_(function->GetSignature()->FuncType()),
@@ -40,7 +40,7 @@ CallOp::CallOp(const Function* context, const Function* function,
 }
 
 CallOp::CallOp(const Function* context, const FunctionType* type, const Value* func_value,
-               std::optional<const Value*> return_value, const std::vector<const Value*>& arguments)
+               std::optional<const Variable*> return_value, const std::vector<const Value*>& arguments)
     : args_(arguments),
       context_(context),
       type_(type),
@@ -62,7 +62,7 @@ void CallOp::SubstituteArguments(const std::vector<const Value*>& args) {
 
 }
 
-void CallOp::SubstituteReturnValue(const Value* return_value) {
+void CallOp::SubstituteReturnValue(const Variable* return_value) {
     assert(return_value_.has_value());
     return_value_ = return_value;
 }

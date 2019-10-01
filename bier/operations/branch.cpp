@@ -31,7 +31,7 @@ std::vector<const Value*> BranchOperation::GetArguments() const {
     return {};
 }
 
-std::optional<const Value*> BranchOperation::GetReturnValue() const {
+std::optional<const Variable*> BranchOperation::GetReturnValue() const {
     return std::nullopt;
 }
 
@@ -63,7 +63,7 @@ void ConditionalBranchOperation::SubstituteArguments(const std::vector<const Val
     condition_ = args[0];
 }
 
-std::optional<const Value*> ConditionalBranchOperation::GetReturnValue() const {
+std::optional<const Variable*> ConditionalBranchOperation::GetReturnValue() const {
     return std::nullopt;
 }
 

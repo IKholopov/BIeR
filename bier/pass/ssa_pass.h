@@ -31,9 +31,9 @@ private:
     StdHashSet<const Value*> allocated_;
     Function* function_ = nullptr;
 
-    const Value* MakeLoad(BasicBlock* block, OperationIterator iterator,
+    const Variable* MakeLoad(BasicBlock* block, OperationIterator iterator,
                           const Value* to_load) const;
-    const Value* MakeStore(BasicBlock* block, OperationIterator iterator,
+    const Variable* MakeStore(BasicBlock* block, OperationIterator iterator,
                            const Value* to_store) const;
 };
 

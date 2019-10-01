@@ -34,8 +34,8 @@ public:
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>&) override {
     }
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value*) override {
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable*) override {
     }
 
     // Интерфейс FunctionContextMember
@@ -60,8 +60,8 @@ public:
     // Интерфейс operation
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value*) override {
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable*) override {
     }
 
     // Интерфейс FunctionContextMember

@@ -30,10 +30,12 @@ public:
         const Type* type = nullptr;
         bool is_mutable = false;
 
-        Metadata(const std::string& _name, const Type* _type, bool _is_mutable = false);
+        Metadata(const std::string& _name, const Type* _type,
+                 bool _is_mutable = false);
     };
 
-    Variable(const Metadata& metadata);
+    explicit Variable(const Metadata& metadata) : data_(metadata) {
+    }
 
     // Value interface
     const Type* GetType() const override {
@@ -42,9 +44,13 @@ public:
     std::string GetName() const override {
         return data_.name;
     }
-
     bool IsMutable() const override {
         return data_.is_mutable;
+    }
+    std::optional<const Operation*> GetOp() const override;
+
+    void SetOp(const Operation* op) {
+        op_ = op;
     }
 
     void MakeImmutable() {
@@ -53,6 +59,7 @@ public:
 
 private:
     Metadata data_;
+    const Operation* op_ = nullptr;
 };
 
 }  // namespace bier

@@ -47,52 +47,52 @@ const StaticData* ModuleBuilder::CreateStaticDataImpl(const Layout* layout,
     return data;
 }
 
-const Value* ModuleBuilder::CreateAddImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateAddImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::ADD>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSubImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateSubImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::SUB>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateMulImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateMulImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::MULT>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSDivImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateSDivImpl(const Value* left, const Value* right,
                                        const std::string& name, bool is_mutable) {
     return CreateArithmetic<BinaryOperation::BinOp::SDIV>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateEQImpl(const Value* left, const Value* right, const std::string& name,
+const Variable* ModuleBuilder::CreateEQImpl(const Value* left, const Value* right, const std::string& name,
                                      bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::EQ>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateNEImpl(const Value* left, const Value* right, const std::string& name,
+const Variable* ModuleBuilder::CreateNEImpl(const Value* left, const Value* right, const std::string& name,
                                      bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::NE>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSLEImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateSLEImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SLE>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSLTImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateSLTImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SLT>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSGEImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateSGEImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SGE>(left, right, name, is_mutable);
 }
 
-const Value* ModuleBuilder::CreateSGTImpl(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateSGTImpl(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::SGT>(left, right, name, is_mutable);
 }
@@ -142,7 +142,7 @@ const Value* ModuleBuilder::CreateAllocLayoutArrayImpl(const Layout* layout, con
     return result;
 }
 
-const Value* ModuleBuilder::CreateLoadImpl(const Value* ptr, const Type* load_type,
+const Variable* ModuleBuilder::CreateLoadImpl(const Value* ptr, const Type* load_type,
                                        const std::string& name, bool is_mutable) {
     const Variable* result =
         CurrentFunction()->AllocateVariable(Variable::Metadata(name, load_type, is_mutable));
@@ -160,7 +160,7 @@ const Value* ModuleBuilder::CreateLoadImpl(const Value* ptr, const Type* load_ty
     return result;
 }
 
-void ModuleBuilder::CreateAssignBetweenImpl(const Value* from, const Value* to) {
+void ModuleBuilder::CreateAssignBetweenImpl(const Value* from, const Variable* to) {
     check(to->IsMutable(), IRException("cannot assign to immutable",
                                        CurrentFunction(), CurrentBlock()));
     check(from->GetType() == to->GetType(),
@@ -171,7 +171,7 @@ void ModuleBuilder::CreateAssignBetweenImpl(const Value* from, const Value* to) 
         CurrentFunction(), UnaryOperation::UnOp::ASSIGN, from, to));
 }
 
-const Value* ModuleBuilder::CreateAssignImpl(const Value* from, const std::string& name,
+const Variable* ModuleBuilder::CreateAssignImpl(const Value* from, const std::string& name,
                                          bool is_mutable) {
     const Variable* result =
         CurrentFunction()->AllocateVariable(Variable::Metadata(name, from->GetType(), is_mutable));
@@ -180,7 +180,7 @@ const Value* ModuleBuilder::CreateAssignImpl(const Value* from, const std::strin
     return result;
 }
 
-std::optional<const Value*> ModuleBuilder::CreateCallFuncImpl(const Function* func,
+std::optional<const Variable*> ModuleBuilder::CreateCallFuncImpl(const Function* func,
                                                       const std::vector<const Value*>& args,
                                                       const std::string& name, bool is_mutable) {
     std::optional<const Variable*> result;
@@ -192,7 +192,7 @@ std::optional<const Value*> ModuleBuilder::CreateCallFuncImpl(const Function* fu
     return result;
 }
 
-std::optional<const Value*> ModuleBuilder::CreateCallFuncSigImpl(const FunctionSignature* func_sig,
+std::optional<const Variable*> ModuleBuilder::CreateCallFuncSigImpl(const FunctionSignature* func_sig,
                                                       const std::vector<const Value*>& args,
                                                       const std::string& name, bool is_mutable) {
     std::optional<const Variable*> result;
@@ -205,7 +205,7 @@ std::optional<const Value*> ModuleBuilder::CreateCallFuncSigImpl(const FunctionS
     return result;
 }
 
-std::optional<const Value*> ModuleBuilder::CreateCallFuncPtr(const FunctionType* func_type, const Value* func_ptr,
+std::optional<const Variable*> ModuleBuilder::CreateCallFuncPtr(const FunctionType* func_type, const Value* func_ptr,
                                                              const std::vector<const Value*>& args, const std::string& name,
                                                              bool is_mutable) {
     std::optional<const Variable*> result;
@@ -230,7 +230,7 @@ void ModuleBuilder::CreateReturnValueImpl(const Value* value) {
     current_block_->Append(std::make_unique<ReturnValueOp>(CurrentFunction(), value));
 }
 
-const Value* ModuleBuilder::CreateGEPImpl(const Value* ptr, const Layout* layout, int element_index,
+const Variable* ModuleBuilder::CreateGEPImpl(const Value* ptr, const Layout* layout, int element_index,
                                       const std::string& name, bool is_mutable,
                                       std::optional<const Value*> base_offset,
                                       std::optional<const Value*> element_offset) {
@@ -246,7 +246,7 @@ const Value* ModuleBuilder::CreateGEPImpl(const Value* ptr, const Layout* layout
     return result;
 }
 
-const Value* ModuleBuilder::CastToImpl(const Value* value, const Type* target_type,
+const Variable* ModuleBuilder::CastToImpl(const Value* value, const Type* target_type,
                                    const std::string& name, bool is_mutable) {
     const Variable* result = CreateVariable(name, target_type, is_mutable);
     current_block_->Append(std::make_unique<CastOperation>(CurrentFunction(), value, result));
@@ -284,7 +284,7 @@ const Variable* ModuleBuilder::CreateVariable(const std::string& name, const Typ
 }
 
 template <BinaryOperation::BinOp op>
-const Value* ModuleBuilder::CreateCmp(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateCmp(const Value* left, const Value* right,
                                       const std::string& name, bool is_mutable) {
     const Variable* result = CreateVariable(name, module_->Types()->GetInt1(), is_mutable);
     current_block_->Append(
@@ -293,7 +293,7 @@ const Value* ModuleBuilder::CreateCmp(const Value* left, const Value* right,
 }
 
 template <BinaryOperation::BinOp op>
-const Value* ModuleBuilder::CreateArithmetic(const Value* left, const Value* right,
+const Variable* ModuleBuilder::CreateArithmetic(const Value* left, const Value* right,
                                              const std::string& name, bool is_mutable) {
     check(left->GetType() == right->GetType(),
           IRException("types mismatch " + left->GetType()->ToString() + " " +

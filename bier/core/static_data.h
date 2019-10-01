@@ -27,6 +27,7 @@ public:
     const Type* GetType() const override;
     std::string GetName() const override;
     bool IsMutable() const override;
+    std::optional<const Operation*> GetOp() const override;
 
     const Layout* GetLayout() const {
         return layout_;

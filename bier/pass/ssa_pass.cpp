@@ -81,9 +81,9 @@ OperationPass::OperationIterator SSAPass::OperationTransformation(BasicBlock* bl
     return next_it;
 }
 
-const Value* SSAPass::MakeLoad(BasicBlock* block, OperationIterator iterator,
+const Variable* SSAPass::MakeLoad(BasicBlock* block, OperationIterator iterator,
                                const Value* to_load) const {
-    const Value* loaded = function_->AllocateVariable(
+    const Variable* loaded = function_->AllocateVariable(
         Variable::Metadata(to_load->GetName() + "_val", to_load->GetType()));
     block->InsertAt(iterator,
                     std::make_unique<UnaryOperation>(function_, UnaryOperation::UnOp::LOAD,
@@ -91,9 +91,9 @@ const Value* SSAPass::MakeLoad(BasicBlock* block, OperationIterator iterator,
     return loaded;
 }
 
-const Value* SSAPass::MakeStore(BasicBlock* block, OperationPass::OperationIterator iterator,
+const Variable* SSAPass::MakeStore(BasicBlock* block, OperationPass::OperationIterator iterator,
                                 const Value* to_store) const {
-    const Value* store_in = function_->AllocateVariable(
+    const Variable* store_in = function_->AllocateVariable(
         Variable::Metadata(to_store->GetName() + "_val", to_store->GetType()));
     block->InsertAt(iterator, std::make_unique<BinaryOperation>(
                                   function_, BinaryOperation::BinOp::STORE, store_in,

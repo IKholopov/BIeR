@@ -40,6 +40,12 @@ std::ostream& StringSerializer::TranslateOp(const Operation* op, std::ostream& s
     stream << OpCodeName(op->OpCode()) << " ";
     if (op->OpCode() == OpCodes::GEP_OP) {
         auto gep_op = static_cast<const GEPOp*>(op);
+        const Layout* layout = gep_op->GetLayout();
+        if (layout->Name().empty()) {
+            TranslateLayout(layout, stream) ;
+        } else {
+            stream << "^" << layout->Name();
+        }
         stream << " idx " << gep_op->ElementIndex() << " ";
     }
     if (op->OpCode() == OpCodes::ALLOC_LAYOUT_OP) {
@@ -68,7 +74,6 @@ std::ostream& StringSerializer::TranslateValue(const Value* value, std::ostream&
         TranslateFunctionSignature(func_ptr->GetFunc(), stream);
     } else {
         stream << (value->IsMutable() ? "$" : "%") << value->GetName();
-        // TODO
     }
     stream << ", ";
     return stream;
@@ -77,7 +82,7 @@ std::ostream& StringSerializer::TranslateValue(const Value* value, std::ostream&
 std::ostream& StringSerializer::TranslateLayout(const Layout* layout, std::ostream& stream) const {
     stream << "\"" << layout->Name() << "\" [";
     for (const auto& entry : layout->Entries()) {
-        stream << "[" << entry.type->ToString() << " x " << entry.count << "] ";
+        stream << "[" << entry.type->ToString() << " x " << entry.count << "],";
     }
     return stream << "]";
 }
@@ -97,12 +102,15 @@ std::ostream& StringSerializer::PrintModule(const Module* module, std::ostream& 
     for (const auto& [name, data] : module->GetStaticData()) {
         TranslateStaticData(data.get(), stream) << "\n";
     }
+    stream << "\n";
     for (const auto& [name, layout] : module->GetNamedLayouts()) {
         TranslateLayout(layout.get(), stream) << "\n";
     }
+    stream << "\n";
     for (const auto& signature : module->GetExternalFunctions()) {
         TranslateFunctionSignature(signature, stream) << "\n";
     }
+    stream << "\n";
     for (const auto& [signature, body] : module->GetDefinedFunctions()) {
         TranslateFunctionSignature(signature, stream) << " {\n";
         for (const auto& block : body->GetBlocks()) {
@@ -114,7 +122,7 @@ std::ostream& StringSerializer::PrintModule(const Module* module, std::ostream& 
                 TranslateOp(op.get(), stream) << "\n";
             }
         }
-        stream << "}\n";
+        stream << "}\n\n";
     }
     return stream;
 }

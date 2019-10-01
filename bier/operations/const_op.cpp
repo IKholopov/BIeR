@@ -18,7 +18,7 @@
 namespace bier {
 
 ConstOperation::ConstOperation(const Function* context, const ConstValue* const_value,
-                               const Value* ret_value)
+                               const Variable* ret_value)
     : context_(context), value_(const_value), return_value_(ret_value) {
 }
 
@@ -37,11 +37,11 @@ void ConstOperation::SubstituteArguments(const std::vector<const Value*>& args) 
     value_ = new_arg;
 }
 
-std::optional<const Value*> ConstOperation::GetReturnValue() const {
+std::optional<const Variable*> ConstOperation::GetReturnValue() const {
     return {return_value_};
 }
 
-void ConstOperation::SubstituteReturnValue(const Value* return_value) {
+void ConstOperation::SubstituteReturnValue(const Variable* return_value) {
     return_value_ = return_value;
 }
 

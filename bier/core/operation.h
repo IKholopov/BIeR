@@ -16,7 +16,7 @@
 #pragma once
 
 #include <bier/core/function_context.h>
-#include <bier/core/value.h>
+#include <bier/core/variable.h>
 #include <vector>
 
 namespace bier {
@@ -26,8 +26,8 @@ public:
     virtual std::vector<const Value*> GetArguments() const = 0;
     virtual void SubstituteArguments(const std::vector<const Value*>& args) = 0;
 
-    virtual std::optional<const Value*> GetReturnValue() const = 0;
-    virtual void SubstituteReturnValue(const Value* return_value) = 0;
+    virtual std::optional<const Variable*> GetReturnValue() const = 0;
+    virtual void SubstituteReturnValue(const Variable* return_value) = 0;
 
     virtual int OpCode() const = 0;
 };
@@ -60,7 +60,7 @@ public:
     };
 
     BinaryOperation(const Function* context_func, BinOp op, const Value* left, const Value* right,
-                    const Value* return_value);
+                    const Variable* return_value);
 
     BinOp GetOp() const {
         return op_;
@@ -72,8 +72,8 @@ public:
     // Operation interface
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value* return_value) override;
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable* return_value) override;
     int OpCode() const override;
 
     const Value* LeftValue() const {
@@ -87,7 +87,7 @@ private:
     const Function* context_function_ = nullptr;
     const Value* left_value_ = nullptr;
     const Value* right_value_ = nullptr;
-    const Value* return_value_ = nullptr;
+    const Variable* return_value_ = nullptr;
     BinOp op_ = BinOp::INVALID;
 };
 
@@ -96,7 +96,7 @@ public:
     enum class UnOp { ALLOC, LOAD, ASSIGN, INVALID };
 
     UnaryOperation(const Function* context_func, UnOp op, const Value* argument,
-                   const Value* return_value);
+                   const Variable* return_value);
 
     UnOp GetOp() const {
         return op_;
@@ -108,14 +108,14 @@ public:
     // Operation interface
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value* return_value) override;
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable* return_value) override;
     int OpCode() const override;
 
 private:
     const Function* context_function_ = nullptr;
     const Value* argument_ = nullptr;
-    const Value* return_value_ = nullptr;
+    const Variable* return_value_ = nullptr;
     UnOp op_ = UnOp::INVALID;
 };
 

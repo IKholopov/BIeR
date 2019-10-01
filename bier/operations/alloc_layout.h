@@ -9,13 +9,13 @@ namespace bier {
 class AllocateLayout : public BaseOperation<OpCodes::ALLOC_LAYOUT_OP> {
 public:
     AllocateLayout(const Function* context, const Layout* layout, const Value* count,
-                   const Value* result);
+                   const Variable* result);
 
     // Интерфейс Operation
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value* return_value) override;
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable* return_value) override;
 
     // Интерфейс FunctionContextMember
     const Function* GetContextFunction() const override {
@@ -30,7 +30,7 @@ private:
     const Function* context_ = nullptr;
     const Layout* layout_ = nullptr;
     const Value* count_ = nullptr;
-    const Value* result_ptr_ = nullptr;
+    const Variable* result_ptr_ = nullptr;
 };
 
 }  // namespace bier

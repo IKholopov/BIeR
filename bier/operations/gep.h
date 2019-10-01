@@ -23,7 +23,7 @@ namespace bier {
 
 class GEPOp : public BaseOperation<OpCodes::Op::GEP_OP> {
 public:
-    GEPOp(const Function* func, const Value* ptr, int element_index, const Value* return_value,
+    GEPOp(const Function* func, const Value* ptr, int element_index, const Variable* return_value,
           const Layout* layout, std::optional<const Value*> base_offset = std::nullopt,
           std::optional<const Value*> element_offset = std::nullopt);
 
@@ -33,8 +33,8 @@ public:
     // Operation interface
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value* return_value) override;
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable* return_value) override;
 
     const Layout* GetLayout() const {
         return mem_layout_;
@@ -54,7 +54,7 @@ private:
     const Function* context_ = nullptr;
     const Value* ptr_ = nullptr;
     int index_ = -1;
-    const Value* return_ptr_ = nullptr;
+    const Variable* return_ptr_ = nullptr;
     const Layout* mem_layout_ = nullptr;
     std::optional<const Value*> base_offset_;
     std::optional<const Value*> element_offset_;

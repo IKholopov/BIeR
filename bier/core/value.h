@@ -24,6 +24,8 @@ public:
     virtual const Type* GetType() const = 0;
     virtual std::string GetName() const = 0;
     virtual bool IsMutable() const = 0;
+    // Only for IMmutables
+    virtual std::optional<const Operation*> GetOp() const = 0;
 };
 
 }  // namespace bier

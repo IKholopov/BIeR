@@ -6,3 +6,4 @@ add_executable(core_tests
 target_include_directories(core_tests PUBLIC ${CATCH_PATH} ${BIER_INC})
 target_link_libraries(core_tests bier::bier_core)
 target_cxx(core_tests)
+add_test(core core_tests)

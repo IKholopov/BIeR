@@ -36,6 +36,7 @@ const Layout* Module::AddAnnonymousLayout(const std::vector<Layout::LayoutEntry>
 
 const Layout* Module::AddNamedLayout(LayoutPtr&& layout, const std::string& name) {
     const Layout* ptr = layout.get();
+    layout->SetName(name);
     named_layouts_.insert({name, std::move(layout)});
     return ptr;
 }
@@ -44,6 +45,8 @@ const Layout* Module::AddNamedLayout(const std::vector<Layout::LayoutEntry>& ent
                                      const std::string& name) {
     auto layout = MakeLayout(entries);
     const Layout* ptr = layout.get();
+    layout->SetName(name);
+    check(!ContainerHas(named_layouts_, name), IRException("Named layout with name " + name + " is already defined"));
     named_layouts_.insert({name, std::move(layout)});
     return ptr;
 }
@@ -81,6 +84,7 @@ const FunctionSignature* Module::GetFunctionSignature(const std::string& name) {
 
 StaticData* Module::AddStaticData(const std::string& name, const Layout* layout) {
     check(!name.empty(), IRException("static data should be named"));
+    check(!ContainerHas(static_data_, name), IRException("static with name " + name + " is already defined"));
     auto data = std::make_unique<StaticData>(types_->DefaultTypes(), layout, name);
     StaticData* ptr = data.get();
     static_data_.insert({name, std::move(data)});

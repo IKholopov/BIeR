@@ -18,7 +18,7 @@
 namespace bier {
 
 AllocateLayout::AllocateLayout(const Function* context, const Layout* layout, const Value* count,
-                               const Value* result)
+                               const Variable* result)
     : context_(context), layout_(layout), count_(count), result_ptr_(result) {
 }
 
@@ -31,11 +31,11 @@ void AllocateLayout::SubstituteArguments(const std::vector<const Value*>& args) 
     count_ = args[0];
 }
 
-std::optional<const Value*> AllocateLayout::GetReturnValue() const {
+std::optional<const Variable*> AllocateLayout::GetReturnValue() const {
     return result_ptr_;
 }
 
-void AllocateLayout::SubstituteReturnValue(const Value* return_value) {
+void AllocateLayout::SubstituteReturnValue(const Variable* return_value) {
     result_ptr_ = return_value;
 }
 

@@ -38,6 +38,7 @@ public:
     bool IsMutable() const override {
         return false;
     }
+    std::optional<const Operation*> GetOp() const override;
 
     // ConstValue interface
     std::string GetConstValue() const override {

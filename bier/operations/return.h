@@ -32,8 +32,8 @@ public:
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>&) override {
     }
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value*) override {
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable*) override {
     }
 
 private:
@@ -50,8 +50,8 @@ public:
     // Operation interface
     std::vector<const Value*> GetArguments() const override;
     void SubstituteArguments(const std::vector<const Value*>& args) override;
-    std::optional<const Value*> GetReturnValue() const override;
-    void SubstituteReturnValue(const Value* return_value) override;
+    std::optional<const Variable*> GetReturnValue() const override;
+    void SubstituteReturnValue(const Variable* return_value) override;
 
 private:
     const Function* context_ = nullptr;
