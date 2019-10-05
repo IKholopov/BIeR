@@ -34,14 +34,18 @@ public:
     const BasicBlock* GetBlock() const {
         return block_;
     }
+    std::optional<const Operation*> GetOp(const Value* value) const;
 
     static DagContextPtr Make(const BasicBlock* block);
 
 private:
     StdHashMap<const Operation*, BasicBlock::ConstOperationIterator> op_to_iterator_;
     StdHashMap<const Operation*, DependentOps> op_dependent_;
+    StdHashMap<const Value*, const Operation*> value_to_op_;
     const BasicBlock* block_ = nullptr;
     DependentOps empty_;
+
+    void AddDependencies(const Operation* op, const Value* dependency_val, std::optional<const Operation*> dependency);
 };
 
 }   // bier

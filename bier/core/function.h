@@ -77,7 +77,6 @@ public:
     bool IsMutable() const override {
         return false;
     }
-    std::optional<const Operation*> GetOp() const override;
 
     void SetName(const std::string& name) {
         data_->name = name;
@@ -115,7 +114,6 @@ public:
     const Type* GetType() const override;
     std::string GetName() const override;
     bool IsMutable() const override;
-    std::optional<const Operation*> GetOp() const override;
 
     std::optional<const Type*> ReturnType() const {
         return type_->ReturnType();
@@ -144,7 +142,6 @@ public:
     const Type* GetType() const override;
     std::string GetName() const override;
     bool IsMutable() const override;
-    std::optional<const Operation*> GetOp() const override;
 
     const FunctionSignature* GetFunc() const {
         return signature_;
@@ -168,7 +165,7 @@ public:
     std::string GetName() const override;
     bool IsMutable() const override {
         return false;
-    }std::optional<const Operation*> GetOp() const override;
+    }
 
     const FunctionSignature* GetSignature() const {
         return signature_;

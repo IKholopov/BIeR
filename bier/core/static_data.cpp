@@ -37,10 +37,6 @@ bool StaticData::IsMutable() const {
     return false;
 }
 
-std::optional<const Operation*> StaticData::GetOp() const {
-    return std::nullopt;
-}
-
 const Value* StaticData::GetEntry(size_t index) const {
     check(index < values_.size(), IRException("index " + std::to_string(index)
                                                            + " is out of static data bounds"));

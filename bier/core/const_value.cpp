@@ -23,10 +23,4 @@ IntegerConst::IntegerConst(uint64_t value, const IntTypeBase* type) : value_(val
           IRException(std::to_string(value) + "is not in range of " + type_->ToString()));
 }
 
-std::optional<const Operation*> IntegerConst::GetOp() const {
-    return std::nullopt;
-}
-
-
-
 }  // namespace bier

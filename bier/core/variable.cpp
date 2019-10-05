@@ -24,12 +24,4 @@ Variable::Metadata::Metadata(const std::string& _name, const Type* _type, bool _
     assert(type != nullptr);
 }
 
-std::optional<const Operation*> Variable::GetOp() const{
-    if (IsMutable() || op_ == nullptr) {
-        return std::nullopt;
-    }
-
-    return op_;
-}
-
 }  // namespace bier

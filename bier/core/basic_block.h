@@ -30,6 +30,7 @@ public:
     template <typename T>
     using OperationContainer = std::list<T>;
     using OperationIterator = OperationContainer<OperationPtr>::iterator;
+    using ConstOperationIterator = OperationContainer<OperationPtr>::const_iterator;
 
     explicit BasicBlock(const Function* function, const std::string& label = "")
         : label_(label), context_(function) {

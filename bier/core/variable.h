@@ -47,11 +47,6 @@ public:
     bool IsMutable() const override {
         return data_.is_mutable;
     }
-    std::optional<const Operation*> GetOp() const override;
-
-    void SetOp(const Operation* op) {
-        op_ = op;
-    }
 
     void MakeImmutable() {
         data_.is_mutable = false;
@@ -59,7 +54,6 @@ public:
 
 private:
     Metadata data_;
-    const Operation* op_ = nullptr;
 };
 
 }  // namespace bier

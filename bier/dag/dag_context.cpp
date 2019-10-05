@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "dag_context.h"
+#include <bier/operations/opcodes.h>
 
 namespace bier {
 
@@ -24,16 +25,16 @@ void DagContext::Build(const BasicBlock* block) {
     for (auto it = range.begin(); it != range.end(); ++it) {
         const Operation* op = it->get();
         op_to_iterator_.insert({op, it});
+        auto return_value = op->GetReturnValue();
+        if (return_value.has_value()) {
+            value_to_op_.insert({return_value.value(), op});
+        }
     }
     for (const auto& op : range) {
         auto args = op->GetArguments();
         for (const Value* arg : args) {
-            auto dependent = arg->GetOp();
-            if (dependent.has_value()
-                    && ContainerHas(op_to_iterator_, dependent.value())) {
-                auto& dependents = op_dependent_[op.get()];
-                dependents.emplace_back(op_to_iterator_.at(dependent.value()));
-            }
+            auto dependency = GetOp(arg);
+            AddDependencies(op.get(), arg, dependency);
         }
     }
 }
@@ -58,6 +59,28 @@ DagContextPtr DagContext::Make(const BasicBlock* block) {
     auto context = std::make_shared<DagContext>();
     context->Build(block);
     return context;
+}
+
+void DagContext::AddDependencies(const Operation* op, const Value* dependency_val,
+                                 std::optional<const Operation*> dependency) {
+    if (!dependency.has_value()) {
+        return;
+    }
+    const Operation* dependency_op = dependency.value();
+    if (ContainerHas(op_to_iterator_, dependency_op)) {
+        auto& dependents = op_dependent_[op];
+        dependents.emplace_back(op_to_iterator_.at(dependency_op));
+    }
+    if (dependency_op->OpCode() == OpCodes::Op::ALLOC_OP) {
+        value_to_op_.insert({dependency_val, dependency_op});
+    }
+}
+
+std::optional<const Operation*> DagContext::GetOp(const Value* value) const {
+    if (!ContainerHas(value_to_op_, value)) {
+        return std::nullopt;
+    }
+    return value_to_op_.at(value);
 }
 
 }   // bier

@@ -50,7 +50,7 @@ std::vector<DagView> DagView::Links() const {
     const Operation* op = asOp()->get();
     std::vector<const Value*> arguments = op->GetArguments();
     for (const auto arg : arguments) {
-        auto arg_op = arg->GetOp();
+        auto arg_op = context_->GetOp(arg);
         if (arg_op.has_value() && context_->Has(arg_op.value())
                 && arg_op.value()->OpCode() != OpCodes::Op::ALLOC_OP) {
             links.push_back(DagView(context_->Get(arg_op.value()),
@@ -69,8 +69,9 @@ DagNodeType DagView::GetType() const {
         return DagNodeType::OPERATION;
     }
     const Value* value = AsVal();
-    if (value->GetOp().has_value()) {
-        return value->GetOp().value()->OpCode() == OpCodes::Op::ALLOC_OP ? DagNodeType::ALLOCA
+    auto op = context_->GetOp(value);
+    if (op.has_value()) {
+        return op.value()->OpCode() == OpCodes::Op::ALLOC_OP ? DagNodeType::ALLOCA
                                                                          : DagNodeType::EXTERNAL_OPERATION;
     }
     if (dynamic_cast<const ArgumentValue*>(value) != nullptr) {
