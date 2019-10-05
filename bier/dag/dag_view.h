@@ -15,34 +15,61 @@
 */
 #pragma once
 #include <bier/core/function.h>
+#include <bier/dag/dag_context.h>
 #include <variant>
 
 namespace bier {
 
 enum class DagNodeType {
+    SIGNATURE,
+    CONST,
+    STATIC_DATA,
     ALLOCA,
     ARG,
     MUTABLE,
-    OPERATION
+    OPERATION,
+    EXTERNAL_OPERATION
 };
 
 class DagView {
 public:
-    DagView(const BasicBlock* block, BasicBlock::OperationIterator operation_it);
-    DagView(const BasicBlock* block, const Value* value);
+    struct Hash {
+        HashType operator()(const DagView& dag) const;
+    };
+
+    DagView(const BasicBlock* block, BasicBlock::ConstOperationIterator operation_it);
+    DagView(const BasicBlock* block, const Value* value); 
 
     std::optional<DagView> SeqLink() const;
     std::vector<DagView> Links() const;
 
     DagNodeType GetType() const;
+    const Operation* AsOp() const;
+    const Value* AsVal() const;
+
+    static DagView Root(const BasicBlock* block);
+
+    bool operator==(const DagView& other) const;
+    bool operator!=(const DagView& other) const {
+        return !(*this == other);
+    }
+
+protected:
+    DagView(BasicBlock::ConstOperationIterator operation_it,
+            DagContextPtr context);
+    DagView(const Value* value, DagContextPtr context);
 
 private:
     static const size_t kOpIndex = 0;
     static const size_t kValueIndex = 1;
 
-    std::variant<BasicBlock::OperationIterator, const Value*> content_;
-    const BasicBlock* block_= nullptr;
-    const BasicBlock::OperationIterator as_op() const;
+    std::variant<BasicBlock::ConstOperationIterator, const Value*> content_;
+    DagContextPtr context_;
+
+    const BasicBlock* block() const {
+        return context_->GetBlock();
+    }
+    const BasicBlock::ConstOperationIterator asOp() const;
 };
 
 }   // _bier

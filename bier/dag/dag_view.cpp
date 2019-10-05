@@ -14,28 +14,31 @@
    limitations under the License.
 */
 #include "dag_view.h"
+#include <bier/core/static_data.h>
+#include <bier/operations/opcodes.h>
+#include <boost/functional/hash.hpp>
 
 namespace bier {
 
-DagView::DagView(const BasicBlock* block, BasicBlock::OperationIterator operation_it)
+DagView::DagView(const BasicBlock* block, BasicBlock::ConstOperationIterator operation_it)
     : content_(operation_it),
-      block_(block) {
+      context_(DagContext::Make(block)) {
 }
 
 DagView::DagView(const BasicBlock* block, const Value* value)
     : content_(value),
-      block_(block) {
+      context_(DagContext::Make(block)){
 }
 
 std::optional<DagView> DagView::SeqLink() const {
     if (content_.index() == kValueIndex
-            || std::get<BasicBlock::OperationIterator>(content_) == block_->GetOperations().begin()) {
+            || asOp() == block()->GetOperations().begin()) {
         return std::nullopt;
     }
 
-    auto op = as_op();
+    auto op = asOp();
     --op;
-    return DagView(block_, op);
+    return DagView(op, context_);
 }
 
 std::vector<DagView> DagView::Links() const {
@@ -44,18 +47,98 @@ std::vector<DagView> DagView::Links() const {
         return links;
     }
 
-    const Operation* op = as_op()->get();
+    const Operation* op = asOp()->get();
     std::vector<const Value*> arguments = op->GetArguments();
     for (const auto arg : arguments) {
         auto arg_op = arg->GetOp();
-        if (arg_op.has_value()) {
-
+        if (arg_op.has_value() && context_->Has(arg_op.value())
+                && arg_op.value()->OpCode() != OpCodes::Op::ALLOC_OP) {
+            links.push_back(DagView(context_->Get(arg_op.value()),
+                                    context_));
+            continue;
         }
+
+        links.push_back(DagView(arg, context_));
     }
+
+    return links;
 }
 
-const BasicBlock::OperationIterator DagView::as_op() const {
-    return std::get<BasicBlock::OperationIterator>(content_);
+DagNodeType DagView::GetType() const {
+    if (content_.index() == 0) {
+        return DagNodeType::OPERATION;
+    }
+    const Value* value = AsVal();
+    if (value->GetOp().has_value()) {
+        return value->GetOp().value()->OpCode() == OpCodes::Op::ALLOC_OP ? DagNodeType::ALLOCA
+                                                                         : DagNodeType::EXTERNAL_OPERATION;
+    }
+    if (dynamic_cast<const ArgumentValue*>(value) != nullptr) {
+        return DagNodeType::ARG;
+    }
+    if (dynamic_cast<const Variable*>(value) != nullptr) {
+        return DagNodeType::MUTABLE;
+    }
+    if (dynamic_cast<const ConstValue*>(value) != nullptr) {
+        return DagNodeType::CONST;
+    }
+    if (dynamic_cast<const FunctionSignature*>(value) != nullptr) {
+        return DagNodeType::SIGNATURE;
+    }
+    if (dynamic_cast<const StaticData*>(value) != nullptr) {
+        return DagNodeType::STATIC_DATA;
+    }
+    assert(false);
+}
+
+const Operation* DagView::AsOp() const {
+    return asOp()->get();
+}
+
+DagView DagView::Root(const BasicBlock* block) {
+    return {block, --block->GetOperations().end()};
+}
+
+bool DagView::operator==(const DagView& other) const {
+    if (context_.get() != other.context_.get()
+            || content_.index() != other.content_.index()) {
+        return false;
+    }
+    if (content_.index() == kOpIndex) {
+        return asOp()->get() == other.asOp()->get();
+    }
+    return AsVal() == other.AsVal();
+}
+
+DagView::DagView(BasicBlock::ConstOperationIterator operation_it,
+                 DagContextPtr context)
+    : content_(operation_it),
+      context_(context) {
+}
+
+DagView::DagView(const Value* value,
+                 DagContextPtr context)
+    : content_(value),
+      context_(context) {
+}
+
+const BasicBlock::ConstOperationIterator DagView::asOp() const {
+    return std::get<BasicBlock::ConstOperationIterator>(content_);
+}
+
+const Value* DagView::AsVal() const {
+    return std::get<const Value*>(content_);
+}
+
+HashType DagView::Hash::operator()(const DagView& dag) const {
+    HashType hash = 0;
+    boost::hash_combine(hash, dag.context_.get());
+    if (dag.content_.index() == kOpIndex) {
+        boost::hash_combine(hash, dag.asOp()->get());
+    } else {
+        boost::hash_combine(hash, dag.AsVal());
+    }
+    return hash;
 }
 
 }   // _bier
