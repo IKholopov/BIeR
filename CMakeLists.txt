@@ -36,11 +36,13 @@ target_link_libraries(bier
         bier::bier_ops
         bier::bier_serialization
         bier::bier_pass
-        bier::bier_llvm)
+        bier::bier_llvm
+        bier::bier_dag
+        bier::bier_dag_graph)
 add_library(bier::bier ALIAS bier)
 
 
-install(TARGETS bier bier_core bier_builder bier_ops bier_serialization bier_pass bier_llvm
+install(TARGETS bier bier_core bier_builder bier_ops bier_serialization bier_pass bier_llvm bier_dag bier_dag_graph
         EXPORT bier-targets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
