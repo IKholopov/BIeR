@@ -59,7 +59,7 @@ void DagDotSerializer::Serialize(const VisualOpDag* graph, const std::string& la
             edges.emplace_back(std::to_string(i), node.get(), node->Dependencies().at(i));
             stream_ << "|" << "<" << i << ">" << i;
         }
-        stream_ << "}|" << AttributesString(node.get()) << "}\"];\n";
+        stream_ << "}|{" << AttributesString(node.get()) << "}}\"];\n";
         if (node->SeqLink().has_value()) {
             seq_links.emplace_back("seq", node.get(), node->SeqLink().value());
         }

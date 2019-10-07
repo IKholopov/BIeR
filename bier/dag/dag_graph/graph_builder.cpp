@@ -25,7 +25,8 @@ void OpDagBuilder::Build(const BasicBlock* block) {
 }
 
 void OpDagBuilder::fillIn(const DagView& view, VisualOpDagNode* node) const {
-    switch (view.GetType()) {
+    const DagNodeType type = view.GetType();
+    switch (type) {
         case DagNodeType::SIGNATURE:
             node->AddAttribute("signature");
         break;
@@ -52,6 +53,10 @@ void OpDagBuilder::fillIn(const DagView& view, VisualOpDagNode* node) const {
             node->AddAttribute("external op");
         break;
     }
+    if (type != DagNodeType::EXTERNAL_OPERATION
+            && type != DagNodeType::OPERATION) {
+        node->AddAttribute(view.AsVal()->GetName());
+    }
 }
 
 void OpDagBuilder::fillOp(const DagView& view, VisualOpDagNode* node) const {
@@ -59,7 +64,6 @@ void OpDagBuilder::fillOp(const DagView& view, VisualOpDagNode* node) const {
     std::ostringstream stream;
     serializer_.TranslateOp(view.AsOp(), stream);
     node->AddAttribute(stream.str());
-    //node->AddAttribute(serializer_.OpCodeName(view.AsOp()->OpCode()));
 }
 
 void OpDagBuilder::init(const DagView& view) {

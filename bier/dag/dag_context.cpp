@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "dag_context.h"
+#include <bier/core/function.h>
 #include <bier/operations/opcodes.h>
 
 namespace bier {
@@ -21,20 +22,26 @@ namespace bier {
 void DagContext::Build(const BasicBlock* block) {
     block_ = block;
     op_to_iterator_.clear();
+    const Function* funciton = block->GetContextFunction();
+    for (const auto& block : funciton->GetBlocks()) {
+        for (const auto& op : block.GetOperations()) {
+            auto return_value = op->GetReturnValue();
+            if (return_value.has_value()) {
+                value_to_op_.insert({return_value.value(), op.get()});
+            }
+        }
+    }
+
     auto range = block->GetOperations();
     for (auto it = range.begin(); it != range.end(); ++it) {
         const Operation* op = it->get();
         op_to_iterator_.insert({op, it});
-        auto return_value = op->GetReturnValue();
-        if (return_value.has_value()) {
-            value_to_op_.insert({return_value.value(), op});
-        }
     }
     for (const auto& op : range) {
         auto args = op->GetArguments();
         for (const Value* arg : args) {
             auto dependency = GetOp(arg);
-            AddDependencies(op.get(), arg, dependency);
+            AddDependencies(op.get(), dependency);
         }
     }
 }
@@ -61,7 +68,7 @@ DagContextPtr DagContext::Make(const BasicBlock* block) {
     return context;
 }
 
-void DagContext::AddDependencies(const Operation* op, const Value* dependency_val,
+void DagContext::AddDependencies(const Operation* op,
                                  std::optional<const Operation*> dependency) {
     if (!dependency.has_value()) {
         return;
@@ -70,9 +77,6 @@ void DagContext::AddDependencies(const Operation* op, const Value* dependency_va
     if (ContainerHas(op_to_iterator_, dependency_op)) {
         auto& dependents = op_dependent_[op];
         dependents.emplace_back(op_to_iterator_.at(dependency_op));
-    }
-    if (dependency_op->OpCode() == OpCodes::Op::ALLOC_OP) {
-        value_to_op_.insert({dependency_val, dependency_op});
     }
 }
 

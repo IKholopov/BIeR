@@ -45,7 +45,7 @@ private:
     const BasicBlock* block_ = nullptr;
     DependentOps empty_;
 
-    void AddDependencies(const Operation* op, const Value* dependency_val, std::optional<const Operation*> dependency);
+    void AddDependencies(const Operation* op, std::optional<const Operation*> dependency);
 };
 
 }   // bier
