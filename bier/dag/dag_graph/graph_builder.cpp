@@ -33,6 +33,7 @@ void OpDagBuilder::fillIn(const DagView& view, VisualOpDagNode* node) const {
         break;
         case DagNodeType::CONST:
             node->AddAttribute("const");
+            fillConst(view, node);
         break;
         case DagNodeType::STATIC_DATA:
             node->AddAttribute("static data");
@@ -65,6 +66,10 @@ void OpDagBuilder::fillOp(const DagView& view, VisualOpDagNode* node) const {
     std::ostringstream stream;
     serializer_.TranslateOp(view.AsOp(), stream);
     node->AddAttribute(stream.str());
+}
+
+void OpDagBuilder::fillConst(const DagView& view, VisualOpDagNode* node) const {
+    node->AddAttribute(static_cast<const ConstValue*>(view.AsVal())->GetConstValue());
 }
 
 void OpDagBuilder::fillSignature(const DagView& view, VisualOpDagNode* node) const {

@@ -15,7 +15,9 @@
 */
 #include "function.h"
 #include <bier/core/exceptions.h>
+#include <bier/utils/streaming_utils.h>
 #include <boost/functional/hash.hpp>
+#include <sstream>
 
 namespace bier {
 
@@ -38,7 +40,17 @@ FunctionType::FunctionType(std::optional<const Type*> return_type,
 }
 
 std::string FunctionType::ToString() const {
-    return "func()";
+    std::ostringstream type_stream;
+    if (return_type_.has_value()) {
+        type_stream << return_type_.value()->ToString() << "(";
+    } else {
+        type_stream << "void(";
+    }
+    JoinWithSeparator(",", type_stream, arguments_, [&](const Type* type){
+        type_stream << type->ToString();
+    });
+    type_stream << ")";
+    return type_stream.str();
 }
 
 HashType FunctionSignature::HashPtr::operator()(const FunctionSignature* signature) const {
