@@ -29,6 +29,7 @@ void OpDagBuilder::fillIn(const DagView& view, VisualOpDagNode* node) const {
     switch (type) {
         case DagNodeType::SIGNATURE:
             node->AddAttribute("signature");
+            fillSignature(view, node);
         break;
         case DagNodeType::CONST:
             node->AddAttribute("const");
@@ -64,6 +65,12 @@ void OpDagBuilder::fillOp(const DagView& view, VisualOpDagNode* node) const {
     std::ostringstream stream;
     serializer_.TranslateOp(view.AsOp(), stream);
     node->AddAttribute(stream.str());
+}
+
+void OpDagBuilder::fillSignature(const DagView& view, VisualOpDagNode* node) const {
+    const auto signature = static_cast<const FunctionSignature*>(view.AsVal());
+    node->AddAttribute(signature->ReturnType().has_value() ? signature->ReturnType().value()->ToString() : "void");
+    node->AddAttribute(signature->FuncType()->ToString());
 }
 
 void OpDagBuilder::init(const DagView& view) {

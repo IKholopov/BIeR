@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #pragma once
+#include <bier/core/module.h>
 #include <bier/dag/dag_graph/graph.h>
 #include <ostream>
 
@@ -32,6 +33,17 @@ private:
 
     std::string AttributesString(const VisualOpDagNode* node) const;
     std::string GetNodeName(int index) const;
+};
+
+class ModuleDagsDotSerializer {
+public:
+    explicit ModuleDagsDotSerializer(std::ostream& dag_stream) : stream_(dag_stream) {
+    }
+
+    void Serialize(const Module* module);
+
+private:
+    std::ostream& stream_;
 };
 
 }   // bier

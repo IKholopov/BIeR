@@ -15,6 +15,7 @@
 */
 #include "dot_serializer.h"
 #include <bier/common.h>
+#include <bier/dag/dag_graph/graph_builder.h>
 
 namespace bier {
 
@@ -53,8 +54,12 @@ void DagDotSerializer::Serialize(const VisualOpDag* graph, const std::string& la
     for (const auto& node : graph->Nodes()) {
         int id = counter++;
         node_to_idx.insert({node.get(), id});
-        stream_ << GetNodeName(id) << " [shape=record,shape=Mrecord,label=\"{"
-                << "{<seq>seq";
+        stream_ << GetNodeName(id) << " [shape=record,shape=Mrecord,label=\"{";
+        if (node->SeqLink().has_value()) {
+            stream_ << "{<seq>seq";
+        } else {
+            stream_ << "{";
+        }
         for (size_t i = 0; i < node->Dependencies().size(); ++i) {
             edges.emplace_back(std::to_string(i), node.get(), node->Dependencies().at(i));
             stream_ << "|" << "<" << i << ">" << i;
@@ -95,6 +100,15 @@ std::string DagDotSerializer::GetNodeName(int index) const {
     return "node_" + std::to_string(subgraphs_counter_) + "_" + std::to_string(index);
 }
 
-
+void ModuleDagsDotSerializer::Serialize(const Module* module) {
+    DagDotSerializer serializer{stream_};
+    for (const auto& function : module->GetDefinedFunctions()) {
+        for (auto& block : function.second->GetBlocks()) {
+            OpDagBuilder builder;
+            builder.Build(&block);
+            serializer.Serialize(&builder.Graph(), function.first->Name() + "." + block.GetLabel());
+        }
+    }
+}
 
 }   // bier

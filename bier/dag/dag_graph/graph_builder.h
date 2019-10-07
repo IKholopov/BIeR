@@ -37,6 +37,7 @@ private:
 
     void fillIn(const DagView& view, VisualOpDagNode* node) const;
     void fillOp(const DagView& view, VisualOpDagNode* node) const;
+    void fillSignature(const DagView& view, VisualOpDagNode* node) const;
     void init(const DagView& view);
     void process(const DagView& view);
     void clear();

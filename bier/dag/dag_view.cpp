@@ -69,6 +69,9 @@ DagNodeType DagView::GetType() const {
         return DagNodeType::OPERATION;
     }
     const Value* value = AsVal();
+    if (value->IsMutable()) {
+        return DagNodeType::MUTABLE;
+    }
     auto op = context_->GetOp(value);
     if (op.has_value()) {
         return op.value()->OpCode() == OpCodes::Op::ALLOC_OP ? DagNodeType::ALLOCA
@@ -76,9 +79,6 @@ DagNodeType DagView::GetType() const {
     }
     if (dynamic_cast<const ArgumentValue*>(value) != nullptr) {
         return DagNodeType::ARG;
-    }
-    if (dynamic_cast<const Variable*>(value) != nullptr) {
-        return DagNodeType::MUTABLE;
     }
     if (dynamic_cast<const ConstValue*>(value) != nullptr) {
         return DagNodeType::CONST;
