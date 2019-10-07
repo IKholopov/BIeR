@@ -16,6 +16,7 @@
 #include "text_serializer.h"
 #include "op_literals.h"
 #include <bier/operations/ops.h>
+#include <bier/utils/streaming_utils.h>
 
 namespace bier {
 
@@ -23,9 +24,9 @@ std::ostream& StringSerializer::TranslateFunctionSignature(const FunctionSignatu
                                                            std::ostream& stream) const {
     assert(op != nullptr);
     stream << "func " << op->Name() << " (";
-    for (const auto arg : op->Arguments()) {
-        stream << arg->GetType()->ToString() << " %" << arg->GetName() << ",";
-    }
+    JoinWithSeparator(", ", stream, op->Arguments(), [&](const ArgumentValue* arg) {
+        stream << arg->GetType()->ToString() << " %" << arg->GetName();
+    });
     stream << ") "
            << (op->ReturnType().has_value() ? op->ReturnType().value()->ToString() : "void");
     return stream;
@@ -53,14 +54,14 @@ std::ostream& StringSerializer::TranslateOp(const Operation* op, std::ostream& s
         const Layout* layout = alloc_op->GetLayout();
         layout->Name().empty() ? TranslateLayout(layout, stream) : stream << "@" + layout->Name();
     }
-    for (const Value* arg : op->GetArguments()) {
+    JoinWithSeparator(", ", stream, op->GetArguments(), [&](const Value* arg){
         TranslateValue(arg, stream);
-    }
+    });
     if (op->OpCode() == OpCodes::BRANCH_OP || op->OpCode() == OpCodes::COND_BRANCH_OP) {
         auto branch_op = dynamic_cast<const Branch*>(op);
-        for (auto block : branch_op->DestinationBlocks()) {
-            stream << block->GetLabel() << ", ";
-        }
+        JoinWithSeparator(", ", stream, branch_op->DestinationBlocks(), [&](const BasicBlock* block) {
+             stream << block->GetLabel();
+        });
     }
     return stream;
 }
@@ -75,16 +76,15 @@ std::ostream& StringSerializer::TranslateValue(const Value* value, std::ostream&
     } else {
         stream << (value->IsMutable() ? "$" : "%") << value->GetName();
     }
-    stream << ", ";
     return stream;
 }
 
 std::ostream& StringSerializer::TranslateLayout(const Layout* layout, std::ostream& stream) const {
-    stream << "\"" << layout->Name() << "\" [";
-    for (const auto& entry : layout->Entries()) {
-        stream << "[" << entry.type->ToString() << " x " << entry.count << "],";
-    }
-    return stream << "]";
+    stream << "\"" << layout->Name() << "\" \"[";
+    JoinWithSeparator(", ", stream, layout->Entries(), [&](const auto& entry){
+        stream << "[" << entry.type->ToString() << " x " << entry.count << "]";
+    });
+    return stream << "]\"";
 }
 
 std::ostream& StringSerializer::TranslateStaticData(const StaticData* data, std::ostream& stream) const {
