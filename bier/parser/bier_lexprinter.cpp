@@ -64,6 +64,10 @@ int main(int argc, const char* argv[]) {
 
     if (argc > 1) {
         file_stream.open(argv[1]);
+        if (!file_stream.is_open()) {
+            std::cerr << "failed to open a file " << argv[1] << std::endl;
+            return 1;
+        }
         scanner.switch_streams(file_stream, std::cerr);
     }
 
@@ -72,6 +76,7 @@ int main(int argc, const char* argv[]) {
         parser.parse();
     } catch (std::exception& e) {
         std::cerr << "\x1B[31m" << e.what() << "\x1B[0m" << std::endl;
+        return 1;
     }
 
     return 0;

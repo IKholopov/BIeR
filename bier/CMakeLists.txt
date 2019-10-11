@@ -15,8 +15,9 @@ endif()
 
 find_package(FLEX 2.6)
 find_package(BISON 3.2)
+set(PARSER_ENABLED ${FLEX_FOUND} AND ${BISON_FOUND})
 
-if(${FLEX_FOUND} AND ${BISON_FOUND})
+if(${PARSER_ENABLED})
     add_subdirectory(parser)
 else()
    message("Supported versions of FLEX(2.6+)/BISON(3.2+) are missing parser is disabled")

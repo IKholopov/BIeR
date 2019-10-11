@@ -18,9 +18,13 @@ include(GNUInstallDirs)
 set(BIER_INC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
              $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-add_subdirectory(bier)
 if(BUILD_TESTS)
     enable_testing()
+    set(TEST_PT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/parser/sources)
+endif()
+
+add_subdirectory(bier)
+if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 

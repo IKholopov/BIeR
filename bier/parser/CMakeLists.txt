@@ -9,13 +9,24 @@ add_library(bier_parser
 	${FLEX_bier_parser_flex_OUTPUTS}
         ${BISON_bier_parser_bison_OUTPUTS}
 )
+add_library(bier::bier_parser ALIAS bier_parser)
 target_include_directories(bier_parser PUBLIC ${BIER_INC} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(bier_lexprinter
         bier_lexprinter.cpp)
+add_executable(bier::bier_lexprinter ALIAS bier_lexprinter)
 target_link_libraries(bier_lexprinter PRIVATE bier_parser)
 
 
 add_executable(bier_parserprinter
         bier_parserprinter.cpp)
+add_executable(bier::bier_parserprinter ALIAS bier_parserprinter)
 target_link_libraries(bier_parserprinter PRIVATE bier_parser)
+
+if(BUILD_TESTS)
+    file(GLOB LexerSamples "${TEST_PT_SRC_DIR}/*.pt")
+
+    foreach(sample ${LexerSamples})
+        add_test("Lexer_${sample}" bier_lexprinter "${sample}")
+    endforeach()
+endif()

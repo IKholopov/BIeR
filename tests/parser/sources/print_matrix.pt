@@ -1,0 +1,121 @@
+
+"list_element" "[[ptr x 1], [i1 x 1]]"
+
+func terminate () void
+func append_slice (ptr %sliced_list, i64 %from, i1 %from_present, i64 %to, i1 %to_present, ptr %target_list) ptr
+func allocate_list () ptr
+func get_list_element (ptr %list, i64 %index) ptr
+func append_int_element (ptr %list, i64 %value) void
+func read () i64
+func print_list (ptr %) ptr
+func append_list_element (ptr %list, ptr %value) void
+func get_int_element (ptr %list, i64 %index) i64
+func print (i64 %) i64
+func append_any_element (ptr %list, ptr %value) void
+func get_any_element (ptr %list, i64 %index, ptr %any) ptr
+func len (ptr %list) i64
+func concat_lists (ptr %left_list, ptr %right_list) void
+
+func prt_idx_sum (ptr %pair) void {
+func_entry:
+	%int_element i64 = call (ptr,i64)i64 %get_int_element, ptr %pair, i64 0
+	%int_element0 i64 = call (ptr,i64)i64 %get_int_element, ptr %pair, i64 1
+	%addtmp i64 = add i64 %int_element, i64 %int_element0
+	%callprint i64 = call (i64)i64 %print, i64 %addtmp
+	ret 
+}
+
+func prt_idx (ptr %mx, ptr %idx) void {
+func_entry:
+	%listalloc ptr = call ()ptr %allocate_list
+	%listalloc0 ptr = call ()ptr %allocate_list
+	%int_element i64 = call (ptr,i64)i64 %get_int_element, ptr %idx, i64 0
+	%list_element ptr = call (ptr,i64)ptr %get_list_element, ptr %mx, i64 %int_element
+	%int_element0 i64 = call (ptr,i64)i64 %get_int_element, ptr %idx, i64 1
+	%any_element_ptr ptr = alloc_layout @list_elementi64 1
+	%any_element ptr = call (ptr,i64,ptr)ptr %get_any_element, ptr %list_element, i64 %int_element0, ptr %any_element_ptr
+	call (ptr,ptr)void %append_any_element, ptr %listalloc0, ptr %any_element
+	%int_element1 i64 = call (ptr,i64)i64 %get_int_element, ptr %idx, i64 2
+	%list_element0 ptr = call (ptr,i64)ptr %get_list_element, ptr %mx, i64 %int_element1
+	%int_element2 i64 = call (ptr,i64)i64 %get_int_element, ptr %idx, i64 3
+	%any_element_ptr0 ptr = alloc_layout @list_elementi64 1
+	%any_element0 ptr = call (ptr,i64,ptr)ptr %get_any_element, ptr %list_element0, i64 %int_element2, ptr %any_element_ptr0
+	call (ptr,ptr)void %append_any_element, ptr %listalloc0, ptr %any_element0
+	%callprint_list ptr = call (ptr)ptr %print_list, ptr %listalloc0
+	call (ptr)void %prt_idx_sum, ptr %callprint_list
+	ret 
+}
+
+func make_matrix (i64 %x, i64 %y, ptr %present_list) ptr {
+func_entry:
+	%callmake_column ptr = call (i64,i64,i64,ptr)ptr %make_column, i64 %x, i64 %y, i64 0, ptr %present_list
+	ret ptr %callmake_column
+}
+
+func make_row (i64 %x, i64 %col, i64 %row, ptr %present_list) ptr {
+func_entry:
+	%lttmp i1 = lt i64 %row, i64 %x
+	%if_cmp i1 = ne i1 %lttmp, i1 0
+	cond i1 %if_cmp if_then, if_else
+if_then:
+	%addtmp i64 = add i64 %col, i64 %row
+	call (ptr,i64)void %append_int_element, ptr %present_list, i64 %addtmp
+	%addtmp0 i64 = add i64 %row, i64 1
+	%callmake_row ptr = call (i64,i64,i64,ptr)ptr %make_row, i64 %x, i64 %col, i64 %addtmp0, ptr %present_list
+	$if_result ptr = assign ptr %callmake_row
+	branch  if_merge
+if_else:
+	$if_result ptr = assign ptr %present_list
+	branch  if_merge
+if_merge:
+	ret ptr $if_result
+}
+
+func prt (ptr %mx) void {
+func_entry:
+	%listalloc ptr = call ()ptr %allocate_list
+	%listalloc0 ptr = call ()ptr %allocate_list
+	%callread i64 = call ()i64 %read
+	call (ptr,i64)void %append_int_element, ptr %listalloc0, i64 %callread
+	%callread0 i64 = call ()i64 %read
+	call (ptr,i64)void %append_int_element, ptr %listalloc0, i64 %callread0
+	%callread1 i64 = call ()i64 %read
+	call (ptr,i64)void %append_int_element, ptr %listalloc0, i64 %callread1
+	%callread2 i64 = call ()i64 %read
+	call (ptr,i64)void %append_int_element, ptr %listalloc0, i64 %callread2
+	call (ptr,ptr)void %prt_idx, ptr %mx, ptr %listalloc0
+	ret 
+}
+
+func main () void {
+func_entry:
+	%listalloc ptr = call ()ptr %allocate_list
+	%listalloc0 ptr = call ()ptr %allocate_list
+	%callread i64 = call ()i64 %read
+	%callread0 i64 = call ()i64 %read
+	%callmake_matrix ptr = call (i64,i64,ptr)ptr %make_matrix, i64 %callread, i64 %callread0, ptr %listalloc0
+	%callprint_list ptr = call (ptr)ptr %print_list, ptr %callmake_matrix
+	call (ptr)void %prt, ptr %callprint_list
+	ret 
+}
+
+func make_column (i64 %x, i64 %y, i64 %col, ptr %present_list) ptr {
+func_entry:
+	%lttmp i1 = lt i64 %col, i64 %y
+	%if_cmp i1 = ne i1 %lttmp, i1 0
+	cond i1 %if_cmp if_then, if_else
+if_then:
+	%listalloc ptr = call ()ptr %allocate_list
+	%callmake_row ptr = call (i64,i64,i64,ptr)ptr %make_row, i64 %x, i64 %col, i64 0, ptr %listalloc
+	call (ptr,ptr)void %append_list_element, ptr %present_list, ptr %callmake_row
+	%addtmp i64 = add i64 %col, i64 1
+	%callmake_column ptr = call (i64,i64,i64,ptr)ptr %make_column, i64 %x, i64 %y, i64 %addtmp, ptr %present_list
+	$if_result ptr = assign ptr %callmake_column
+	branch  if_merge
+if_else:
+	$if_result ptr = assign ptr %present_list
+	branch  if_merge
+if_merge:
+	ret ptr $if_result
+}
+
