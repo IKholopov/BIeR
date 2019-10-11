@@ -41,15 +41,16 @@ FunctionType::FunctionType(std::optional<const Type*> return_type,
 
 std::string FunctionType::ToString() const {
     std::ostringstream type_stream;
-    if (return_type_.has_value()) {
-        type_stream << return_type_.value()->ToString() << "(";
-    } else {
-        type_stream << "void(";
-    }
+    type_stream << "(";
     JoinWithSeparator(",", type_stream, arguments_, [&](const Type* type){
         type_stream << type->ToString();
     });
     type_stream << ")";
+    if (return_type_.has_value()) {
+        type_stream << return_type_.value()->ToString();
+    } else {
+        type_stream << "void";
+    }
     return type_stream.str();
 }
 

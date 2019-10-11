@@ -45,7 +45,7 @@ std::ostream& StringSerializer::TranslateOp(const Operation* op, std::ostream& s
         if (layout->Name().empty()) {
             TranslateLayout(layout, stream) ;
         } else {
-            stream << "^" << layout->Name();
+            stream << "@" << layout->Name();
         }
         stream << " idx " << gep_op->ElementIndex() << " ";
     }
@@ -59,6 +59,7 @@ std::ostream& StringSerializer::TranslateOp(const Operation* op, std::ostream& s
     });
     if (op->OpCode() == OpCodes::BRANCH_OP || op->OpCode() == OpCodes::COND_BRANCH_OP) {
         auto branch_op = dynamic_cast<const Branch*>(op);
+        stream << " ";
         JoinWithSeparator(", ", stream, branch_op->DestinationBlocks(), [&](const BasicBlock* block) {
              stream << block->GetLabel();
         });
