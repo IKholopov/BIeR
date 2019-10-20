@@ -36,12 +36,28 @@ void BierScanner::FillValue(Token token) {
         case Token::I_TYPE: {
             std::string value = YYText();
             assert(value.size() > 1);
-            value_->build<int>(std::stoi(value.c_str() + 1));
+            value_->build<uint64_t>(std::stoull(value.c_str() + 1));
         }
             return;
+        case Token::I_CONST: {
+            value_->build<uint64_t>(std::stoull(YYText()));
+        }
+        return;
         case Token::ID:
             value_->build<std::string>(YYText());
             return;
+        case Token::VAR:{
+            std::string value = YYText();
+            assert(value.size() >= 1);
+            value_->build<std::string>(value.c_str() + 1);
+        }
+        return;
+        case Token::MUTABLE_VAR:{
+            std::string value = YYText();
+            assert(value.size() >= 1);
+            value_->build<std::string>(value.c_str() + 1);
+        }
+        return;
         default:
             return;
     }
@@ -68,7 +84,7 @@ void BierScanner::Space(Position* location) {
 }
 
 void BierScanner::Error() {
-    throw LexicalException(std::string("Unknown lexem \"") + YYText() + "\"", line, col);
+    throw LexicalException(std::string("Unknown lexem \"") + YYText() + "\"", FilePos{line, col});
 }
 
 }   // bier

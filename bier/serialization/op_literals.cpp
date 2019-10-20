@@ -104,7 +104,7 @@ struct OpLiteral<OpCodes::RETVOID_OP> {
 };
 template <>
 struct OpLiteral<OpCodes::RETVALUE_OP> {
-    static constexpr const char* Literal = "ret";
+    static constexpr const char* Literal = "retval";
 };
 
 // GEP

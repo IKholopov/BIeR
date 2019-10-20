@@ -48,18 +48,25 @@ func print (i64 %) void
 func new_array (i64 %) ptr
 func new_object (i64 %) ptr
 
-func Tree_GetHas_Left (ptr %this_ptr) i1 {
-func_entry:
-	%has_left_ptr i1* = gep @Tree idx 4 ptr %this_ptr
-	%0 i1 = load i1* %has_left_ptr
-	ret i1 %0
+func main () void {
+main_block:
+	%0 ptr = call (i64)ptr %new_object, i64 8
+	%vptr ptr* = gep @TV idx 0 ptr %0
+	store ptr %vtable_TV, ptr* %vptr
+	%v_ptr_ptr ptr* = gep @TV idx 0 ptr %0
+	%1 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_TV idx 0 ptr %1
+	%2 ptr = load ptr* %func_ptr
+	%call i64 = call ptr %2, ptr %0
+	call (i64)void %print, i64 %call
+	ret 
 }
 
-func Tree_GetHas_Right (ptr %this_ptr) i1 {
+func Tree_SetKey (ptr %this_ptr, i64 %v_key) i1 {
 func_entry:
-	%has_right_ptr i1* = gep @Tree idx 5 ptr %this_ptr
-	%0 i1 = load i1* %has_right_ptr
-	ret i1 %0
+	%key_ptr i64* = gep @Tree idx 3 ptr %this_ptr
+	store i64 %v_key, i64* %key_ptr
+	retval i1 1
 }
 
 func Visitor_visit (ptr %this_ptr, ptr %n) i64 {
@@ -119,68 +126,7 @@ if_else0:
 	store i64 0, i64* %nti
 	branch  if_merge0
 if_merge0:
-	ret i64 0
-}
-
-func Tree_Init (ptr %this_ptr, i64 %v_key) i1 {
-func_entry:
-	%key_ptr i64* = gep @Tree idx 3 ptr %this_ptr
-	store i64 %v_key, i64* %key_ptr
-	%has_left_ptr i1* = gep @Tree idx 4 ptr %this_ptr
-	store i1 0, i1* %has_left_ptr
-	%has_right_ptr i1* = gep @Tree idx 5 ptr %this_ptr
-	store i1 0, i1* %has_right_ptr
-	ret i1 1
-}
-
-func Tree_Print (ptr %this_ptr) i1 {
-func_entry:
-	%ntb i1* = alloc i64 1
-	%current_node ptr* = alloc i64 1
-	store ptr %this_ptr, ptr* %current_node
-	%0 ptr = load ptr* %current_node
-	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %this_ptr
-	%1 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_Tree idx 9 ptr %1
-	%2 ptr = load ptr* %func_ptr
-	%call i1 = call ptr %2, ptr %this_ptr, ptr %0
-	store i1 %call, i1* %ntb
-	ret i1 1
-}
-
-func Tree_GetLeft (ptr %this_ptr) ptr {
-func_entry:
-	%left_ptr ptr* = gep @Tree idx 1 ptr %this_ptr
-	%0 ptr = load ptr* %left_ptr
-	ret ptr %0
-}
-
-func Tree_SetRight (ptr %this_ptr, ptr %rn) i1 {
-func_entry:
-	%right_ptr ptr* = gep @Tree idx 2 ptr %this_ptr
-	store ptr %rn, ptr* %right_ptr
-	ret i1 1
-}
-
-func Tree_SetHas_Left (ptr %this_ptr, i1 %val) i1 {
-func_entry:
-	%has_left_ptr i1* = gep @Tree idx 4 ptr %this_ptr
-	store i1 %val, i1* %has_left_ptr
-	ret i1 1
-}
-
-func main () void {
-main_block:
-	%0 ptr = call (i64)ptr %new_object, i64 8
-	%vptr ptr* = gep @TV idx 0 ptr %0
-	store ptr %vtable_TV, ptr* %vptr
-	%v_ptr_ptr ptr* = gep @TV idx 0 ptr %0
-	%1 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_TV idx 0 ptr %1
-	%2 ptr = load ptr* %func_ptr
-	%call i64 = call ptr %2, ptr %0
-	call (i64)void %print, i64 %call
-	ret 
+	retval i64 0
 }
 
 func MyVisitor_visit (ptr %this_ptr, ptr %n) i64 {
@@ -246,7 +192,155 @@ if_else0:
 	store i64 0, i64* %nti
 	branch  if_merge0
 if_merge0:
-	ret i64 0
+	retval i64 0
+}
+
+func Tree_GetKey (ptr %this_ptr) i64 {
+func_entry:
+	%key_ptr i64* = gep @Tree idx 3 ptr %this_ptr
+	%0 i64 = load i64* %key_ptr
+	retval i64 %0
+}
+
+func Tree_GetLeft (ptr %this_ptr) ptr {
+func_entry:
+	%left_ptr ptr* = gep @Tree idx 1 ptr %this_ptr
+	%0 ptr = load ptr* %left_ptr
+	retval ptr %0
+}
+
+func Tree_Print (ptr %this_ptr) i1 {
+func_entry:
+	%ntb i1* = alloc i64 1
+	%current_node ptr* = alloc i64 1
+	store ptr %this_ptr, ptr* %current_node
+	%0 ptr = load ptr* %current_node
+	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %this_ptr
+	%1 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_Tree idx 9 ptr %1
+	%2 ptr = load ptr* %func_ptr
+	%call i1 = call ptr %2, ptr %this_ptr, ptr %0
+	store i1 %call, i1* %ntb
+	retval i1 1
+}
+
+func Tree_SetHas_Left (ptr %this_ptr, i1 %val) i1 {
+func_entry:
+	%has_left_ptr i1* = gep @Tree idx 4 ptr %this_ptr
+	store i1 %val, i1* %has_left_ptr
+	retval i1 1
+}
+
+func Tree_SetHas_Right (ptr %this_ptr, i1 %val) i1 {
+func_entry:
+	%has_right_ptr i1* = gep @Tree idx 5 ptr %this_ptr
+	store i1 %val, i1* %has_right_ptr
+	retval i1 1
+}
+
+func Tree_Init (ptr %this_ptr, i64 %v_key) i1 {
+func_entry:
+	%key_ptr i64* = gep @Tree idx 3 ptr %this_ptr
+	store i64 %v_key, i64* %key_ptr
+	%has_left_ptr i1* = gep @Tree idx 4 ptr %this_ptr
+	store i1 0, i1* %has_left_ptr
+	%has_right_ptr i1* = gep @Tree idx 5 ptr %this_ptr
+	store i1 0, i1* %has_right_ptr
+	retval i1 1
+}
+
+func Tree_RemoveLeft (ptr %this_ptr, ptr %p_node, ptr %c_node) i1 {
+arg_realloc0:
+	$c_node_local ptr = assign ptr %c_node
+	branch  arg_realloc
+arg_realloc:
+	$p_node_local ptr = assign ptr %p_node
+	branch  func_entry
+func_entry:
+	%ntb i1* = alloc i64 1
+	branch  while
+while:
+	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr $c_node_local
+	%0 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_Tree idx 12 ptr %0
+	%1 ptr = load ptr* %func_ptr
+	%call i1 = call ptr %1, ptr $c_node_local
+	cond i1 %call while_body, while_end
+while_body:
+	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr $c_node_local
+	%2 ptr = load ptr* %v_ptr_ptr0
+	%func_ptr0 ptr* = gep @vtable_Tree idx 7 ptr %2
+	%3 ptr = load ptr* %func_ptr0
+	%call0 ptr = call ptr %3, ptr $c_node_local
+	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %call0
+	%4 ptr = load ptr* %v_ptr_ptr1
+	%func_ptr1 ptr* = gep @vtable_Tree idx 8 ptr %4
+	%5 ptr = load ptr* %func_ptr1
+	%call1 i64 = call ptr %5, ptr %call0
+	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr $c_node_local
+	%6 ptr = load ptr* %v_ptr_ptr2
+	%func_ptr2 ptr* = gep @vtable_Tree idx 19 ptr %6
+	%7 ptr = load ptr* %func_ptr2
+	%call2 i1 = call ptr %7, ptr $c_node_local, i64 %call1
+	store i1 %call2, i1* %ntb
+	$p_node_local ptr = assign ptr $c_node_local
+	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr $c_node_local
+	%8 ptr = load ptr* %v_ptr_ptr3
+	%func_ptr3 ptr* = gep @vtable_Tree idx 7 ptr %8
+	%9 ptr = load ptr* %func_ptr3
+	%call3 ptr = call ptr %9, ptr $c_node_local
+	$c_node_local ptr = assign ptr %call3
+	branch  while
+while_end:
+	%my_null_ptr ptr* = gep @Tree idx 6 ptr %this_ptr
+	%10 ptr = load ptr* %my_null_ptr
+	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr $p_node_local
+	%11 ptr = load ptr* %v_ptr_ptr4
+	%func_ptr4 ptr* = gep @vtable_Tree idx 10 ptr %11
+	%12 ptr = load ptr* %func_ptr4
+	%call4 i1 = call ptr %12, ptr $p_node_local, ptr %10
+	store i1 %call4, i1* %ntb
+	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr $p_node_local
+	%13 ptr = load ptr* %v_ptr_ptr5
+	%func_ptr5 ptr* = gep @vtable_Tree idx 20 ptr %13
+	%14 ptr = load ptr* %func_ptr5
+	%call5 i1 = call ptr %14, ptr $p_node_local, i1 0
+	store i1 %call5, i1* %ntb
+	retval i1 1
+}
+
+func Tree_accept (ptr %this_ptr, ptr %v) i64 {
+func_entry:
+	%nti i64* = alloc i64 1
+	call (i64)void %print, i64 333
+	%v_ptr_ptr ptr* = gep @Visitor idx 0 ptr %v
+	%0 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_Visitor idx 0 ptr %0
+	%1 ptr = load ptr* %func_ptr
+	%call i64 = call ptr %1, ptr %v, ptr %this_ptr
+	store i64 %call, i64* %nti
+	retval i64 0
+}
+
+func Tree_SetRight (ptr %this_ptr, ptr %rn) i1 {
+func_entry:
+	%right_ptr ptr* = gep @Tree idx 2 ptr %this_ptr
+	store ptr %rn, ptr* %right_ptr
+	retval i1 1
+}
+
+func Tree_GetHas_Left (ptr %this_ptr) i1 {
+func_entry:
+	%has_left_ptr i1* = gep @Tree idx 4 ptr %this_ptr
+	%0 i1 = load i1* %has_left_ptr
+	retval i1 %0
+}
+
+func Tree_GetHas_Right (ptr %this_ptr) i1 {
+func_entry:
+	%has_right_ptr i1* = gep @Tree idx 5 ptr %this_ptr
+	%0 i1 = load i1* %has_right_ptr
+	retval i1 %0
 }
 
 func TV_Start (ptr %this_ptr) i64 {
@@ -401,21 +495,14 @@ func_entry:
 	%59 ptr = load ptr* %func_ptr17
 	%call17 i64 = call ptr %59, ptr %57, i64 12
 	call (i64)void %print, i64 %call17
-	ret i64 0
+	retval i64 0
 }
 
-func Tree_SetKey (ptr %this_ptr, i64 %v_key) i1 {
+func Tree_GetRight (ptr %this_ptr) ptr {
 func_entry:
-	%key_ptr i64* = gep @Tree idx 3 ptr %this_ptr
-	store i64 %v_key, i64* %key_ptr
-	ret i1 1
-}
-
-func Tree_SetHas_Right (ptr %this_ptr, i1 %val) i1 {
-func_entry:
-	%has_right_ptr i1* = gep @Tree idx 5 ptr %this_ptr
-	store i1 %val, i1* %has_right_ptr
-	ret i1 1
+	%right_ptr ptr* = gep @Tree idx 2 ptr %this_ptr
+	%0 ptr = load ptr* %right_ptr
+	retval ptr %0
 }
 
 func Tree_Compare (ptr %this_ptr, i64 %num1, i64 %num2) i1 {
@@ -437,7 +524,7 @@ if_else:
 	cond i1 %1 if_then0, if_else0
 if_merge:
 	%2 i1 = load i1* %ntb
-	ret i1 %2
+	retval i1 %2
 if_then0:
 	store i1 0, i1* %ntb
 	branch  if_merge0
@@ -448,18 +535,204 @@ if_merge0:
 	branch  if_merge
 }
 
-func Tree_GetKey (ptr %this_ptr) i64 {
+func Tree_Search (ptr %this_ptr, i64 %v_key) i64 {
 func_entry:
-	%key_ptr i64* = gep @Tree idx 3 ptr %this_ptr
-	%0 i64 = load i64* %key_ptr
-	ret i64 %0
+	%current_node ptr* = alloc i64 1
+	%ifound i64* = alloc i64 1
+	%cont i1* = alloc i64 1
+	%key_aux i64* = alloc i64 1
+	store ptr %this_ptr, ptr* %current_node
+	store i1 1, i1* %cont
+	store i64 0, i64* %ifound
+	branch  while
+while:
+	%0 i1 = load i1* %cont
+	cond i1 %0 while_body, while_end
+while_body:
+	%1 ptr = load ptr* %current_node
+	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %1
+	%2 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_Tree idx 8 ptr %2
+	%3 ptr = load ptr* %func_ptr
+	%call i64 = call ptr %3, ptr %1
+	store i64 %call, i64* %key_aux
+	%4 i64 = load i64* %key_aux
+	%less_val i1 = lt i64 %v_key, i64 %4
+	cond i1 %less_val if_then, if_else
+while_end:
+	%18 i64 = load i64* %ifound
+	retval i64 %18
+if_then:
+	%5 ptr = load ptr* %current_node
+	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr %5
+	%6 ptr = load ptr* %v_ptr_ptr0
+	%func_ptr0 ptr* = gep @vtable_Tree idx 12 ptr %6
+	%7 ptr = load ptr* %func_ptr0
+	%call0 i1 = call ptr %7, ptr %5
+	cond i1 %call0 if_then0, if_else0
+if_else:
+	%11 i64 = load i64* %key_aux
+	%less_val0 i1 = lt i64 %11, i64 %v_key
+	cond i1 %less_val0 if_then1, if_else1
+if_merge:
+	branch  while
+if_then0:
+	%8 ptr = load ptr* %current_node
+	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %8
+	%9 ptr = load ptr* %v_ptr_ptr1
+	%func_ptr1 ptr* = gep @vtable_Tree idx 7 ptr %9
+	%10 ptr = load ptr* %func_ptr1
+	%call1 ptr = call ptr %10, ptr %8
+	store ptr %call1, ptr* %current_node
+	branch  if_merge0
+if_else0:
+	store i1 0, i1* %cont
+	branch  if_merge0
+if_merge0:
+	branch  if_merge
+if_then1:
+	%12 ptr = load ptr* %current_node
+	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr %12
+	%13 ptr = load ptr* %v_ptr_ptr2
+	%func_ptr2 ptr* = gep @vtable_Tree idx 11 ptr %13
+	%14 ptr = load ptr* %func_ptr2
+	%call2 i1 = call ptr %14, ptr %12
+	cond i1 %call2 if_then2, if_else2
+if_else1:
+	store i64 1, i64* %ifound
+	store i1 0, i1* %cont
+	branch  if_merge1
+if_merge1:
+	branch  if_merge
+if_then2:
+	%15 ptr = load ptr* %current_node
+	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr %15
+	%16 ptr = load ptr* %v_ptr_ptr3
+	%func_ptr3 ptr* = gep @vtable_Tree idx 6 ptr %16
+	%17 ptr = load ptr* %func_ptr3
+	%call3 ptr = call ptr %17, ptr %15
+	store ptr %call3, ptr* %current_node
+	branch  if_merge2
+if_else2:
+	store i1 0, i1* %cont
+	branch  if_merge2
+if_merge2:
+	branch  if_merge1
 }
 
-func Tree_SetLeft (ptr %this_ptr, ptr %ln) i1 {
+func Tree_Insert (ptr %this_ptr, i64 %v_key) i1 {
 func_entry:
-	%left_ptr ptr* = gep @Tree idx 1 ptr %this_ptr
-	store ptr %ln, ptr* %left_ptr
-	ret i1 1
+	%new_node ptr* = alloc i64 1
+	%ntb i1* = alloc i64 1
+	%current_node ptr* = alloc i64 1
+	%cont i1* = alloc i64 1
+	%key_aux i64* = alloc i64 1
+	%0 ptr = call (i64)ptr %new_object, i64 48
+	%vptr ptr* = gep @Tree idx 0 ptr %0
+	store ptr %vtable_Tree, ptr* %vptr
+	store ptr %0, ptr* %new_node
+	%1 ptr = load ptr* %new_node
+	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %1
+	%2 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_Tree idx 14 ptr %2
+	%3 ptr = load ptr* %func_ptr
+	%call i1 = call ptr %3, ptr %1, i64 %v_key
+	store i1 %call, i1* %ntb
+	store ptr %this_ptr, ptr* %current_node
+	store i1 1, i1* %cont
+	branch  while
+while:
+	%4 i1 = load i1* %cont
+	cond i1 %4 while_body, while_end
+while_body:
+	%5 ptr = load ptr* %current_node
+	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr %5
+	%6 ptr = load ptr* %v_ptr_ptr0
+	%func_ptr0 ptr* = gep @vtable_Tree idx 8 ptr %6
+	%7 ptr = load ptr* %func_ptr0
+	%call0 i64 = call ptr %7, ptr %5
+	store i64 %call0, i64* %key_aux
+	%8 i64 = load i64* %key_aux
+	%less_val i1 = lt i64 %v_key, i64 %8
+	cond i1 %less_val if_then, if_else
+while_end:
+	retval i1 1
+if_then:
+	%9 ptr = load ptr* %current_node
+	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %9
+	%10 ptr = load ptr* %v_ptr_ptr1
+	%func_ptr1 ptr* = gep @vtable_Tree idx 12 ptr %10
+	%11 ptr = load ptr* %func_ptr1
+	%call1 i1 = call ptr %11, ptr %9
+	cond i1 %call1 if_then0, if_else0
+if_else:
+	%22 ptr = load ptr* %current_node
+	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr %22
+	%23 ptr = load ptr* %v_ptr_ptr5
+	%func_ptr5 ptr* = gep @vtable_Tree idx 11 ptr %23
+	%24 ptr = load ptr* %func_ptr5
+	%call5 i1 = call ptr %24, ptr %22
+	cond i1 %call5 if_then1, if_else1
+if_merge:
+	branch  while
+if_then0:
+	%12 ptr = load ptr* %current_node
+	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr %12
+	%13 ptr = load ptr* %v_ptr_ptr2
+	%func_ptr2 ptr* = gep @vtable_Tree idx 7 ptr %13
+	%14 ptr = load ptr* %func_ptr2
+	%call2 ptr = call ptr %14, ptr %12
+	store ptr %call2, ptr* %current_node
+	branch  if_merge0
+if_else0:
+	store i1 0, i1* %cont
+	%15 ptr = load ptr* %current_node
+	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr %15
+	%16 ptr = load ptr* %v_ptr_ptr3
+	%func_ptr3 ptr* = gep @vtable_Tree idx 20 ptr %16
+	%17 ptr = load ptr* %func_ptr3
+	%call3 i1 = call ptr %17, ptr %15, i1 1
+	store i1 %call3, i1* %ntb
+	%18 ptr = load ptr* %current_node
+	%19 ptr = load ptr* %new_node
+	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr %18
+	%20 ptr = load ptr* %v_ptr_ptr4
+	%func_ptr4 ptr* = gep @vtable_Tree idx 10 ptr %20
+	%21 ptr = load ptr* %func_ptr4
+	%call4 i1 = call ptr %21, ptr %18, ptr %19
+	store i1 %call4, i1* %ntb
+	branch  if_merge0
+if_merge0:
+	branch  if_merge
+if_then1:
+	%25 ptr = load ptr* %current_node
+	%v_ptr_ptr6 ptr* = gep @Tree idx 0 ptr %25
+	%26 ptr = load ptr* %v_ptr_ptr6
+	%func_ptr6 ptr* = gep @vtable_Tree idx 6 ptr %26
+	%27 ptr = load ptr* %func_ptr6
+	%call6 ptr = call ptr %27, ptr %25
+	store ptr %call6, ptr* %current_node
+	branch  if_merge1
+if_else1:
+	store i1 0, i1* %cont
+	%28 ptr = load ptr* %current_node
+	%v_ptr_ptr7 ptr* = gep @Tree idx 0 ptr %28
+	%29 ptr = load ptr* %v_ptr_ptr7
+	%func_ptr7 ptr* = gep @vtable_Tree idx 13 ptr %29
+	%30 ptr = load ptr* %func_ptr7
+	%call7 i1 = call ptr %30, ptr %28, i1 1
+	store i1 %call7, i1* %ntb
+	%31 ptr = load ptr* %current_node
+	%32 ptr = load ptr* %new_node
+	%v_ptr_ptr8 ptr* = gep @Tree idx 0 ptr %31
+	%33 ptr = load ptr* %v_ptr_ptr8
+	%func_ptr8 ptr* = gep @vtable_Tree idx 17 ptr %33
+	%34 ptr = load ptr* %func_ptr8
+	%call8 i1 = call ptr %34, ptr %31, ptr %32
+	store i1 %call8, i1* %ntb
+	branch  if_merge1
+if_merge1:
+	branch  if_merge
 }
 
 func Tree_Delete (ptr %this_ptr, i64 %v_key) i1 {
@@ -493,7 +766,7 @@ while_body:
 	cond i1 %less_val if_then, if_else
 while_end:
 	%37 i1 = load i1* %found
-	ret i1 %37
+	retval i1 %37
 if_then:
 	%5 ptr = load ptr* %current_node
 	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr %5
@@ -609,6 +882,131 @@ if_merge5:
 	branch  if_merge3
 }
 
+func Tree_RemoveRight (ptr %this_ptr, ptr %p_node, ptr %c_node) i1 {
+arg_realloc0:
+	$c_node_local ptr = assign ptr %c_node
+	branch  arg_realloc
+arg_realloc:
+	$p_node_local ptr = assign ptr %p_node
+	branch  func_entry
+func_entry:
+	%ntb i1* = alloc i64 1
+	branch  while
+while:
+	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr $c_node_local
+	%0 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_Tree idx 11 ptr %0
+	%1 ptr = load ptr* %func_ptr
+	%call i1 = call ptr %1, ptr $c_node_local
+	cond i1 %call while_body, while_end
+while_body:
+	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr $c_node_local
+	%2 ptr = load ptr* %v_ptr_ptr0
+	%func_ptr0 ptr* = gep @vtable_Tree idx 6 ptr %2
+	%3 ptr = load ptr* %func_ptr0
+	%call0 ptr = call ptr %3, ptr $c_node_local
+	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %call0
+	%4 ptr = load ptr* %v_ptr_ptr1
+	%func_ptr1 ptr* = gep @vtable_Tree idx 8 ptr %4
+	%5 ptr = load ptr* %func_ptr1
+	%call1 i64 = call ptr %5, ptr %call0
+	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr $c_node_local
+	%6 ptr = load ptr* %v_ptr_ptr2
+	%func_ptr2 ptr* = gep @vtable_Tree idx 19 ptr %6
+	%7 ptr = load ptr* %func_ptr2
+	%call2 i1 = call ptr %7, ptr $c_node_local, i64 %call1
+	store i1 %call2, i1* %ntb
+	$p_node_local ptr = assign ptr $c_node_local
+	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr $c_node_local
+	%8 ptr = load ptr* %v_ptr_ptr3
+	%func_ptr3 ptr* = gep @vtable_Tree idx 6 ptr %8
+	%9 ptr = load ptr* %func_ptr3
+	%call3 ptr = call ptr %9, ptr $c_node_local
+	$c_node_local ptr = assign ptr %call3
+	branch  while
+while_end:
+	%my_null_ptr ptr* = gep @Tree idx 6 ptr %this_ptr
+	%10 ptr = load ptr* %my_null_ptr
+	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr $p_node_local
+	%11 ptr = load ptr* %v_ptr_ptr4
+	%func_ptr4 ptr* = gep @vtable_Tree idx 17 ptr %11
+	%12 ptr = load ptr* %func_ptr4
+	%call4 i1 = call ptr %12, ptr $p_node_local, ptr %10
+	store i1 %call4, i1* %ntb
+	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr $p_node_local
+	%13 ptr = load ptr* %v_ptr_ptr5
+	%func_ptr5 ptr* = gep @vtable_Tree idx 13 ptr %13
+	%14 ptr = load ptr* %func_ptr5
+	%call5 i1 = call ptr %14, ptr $p_node_local, i1 0
+	store i1 %call5, i1* %ntb
+	retval i1 1
+}
+
+func Tree_RecPrint (ptr %this_ptr, ptr %node) i1 {
+func_entry:
+	%ntb i1* = alloc i64 1
+	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %node
+	%0 ptr = load ptr* %v_ptr_ptr
+	%func_ptr ptr* = gep @vtable_Tree idx 12 ptr %0
+	%1 ptr = load ptr* %func_ptr
+	%call i1 = call ptr %1, ptr %node
+	cond i1 %call if_then, if_else
+if_then:
+	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr %node
+	%2 ptr = load ptr* %v_ptr_ptr0
+	%func_ptr0 ptr* = gep @vtable_Tree idx 7 ptr %2
+	%3 ptr = load ptr* %func_ptr0
+	%call0 ptr = call ptr %3, ptr %node
+	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %this_ptr
+	%4 ptr = load ptr* %v_ptr_ptr1
+	%func_ptr1 ptr* = gep @vtable_Tree idx 9 ptr %4
+	%5 ptr = load ptr* %func_ptr1
+	%call1 i1 = call ptr %5, ptr %this_ptr, ptr %call0
+	store i1 %call1, i1* %ntb
+	branch  if_merge
+if_else:
+	store i1 1, i1* %ntb
+	branch  if_merge
+if_merge:
+	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr %node
+	%6 ptr = load ptr* %v_ptr_ptr2
+	%func_ptr2 ptr* = gep @vtable_Tree idx 8 ptr %6
+	%7 ptr = load ptr* %func_ptr2
+	%call2 i64 = call ptr %7, ptr %node
+	call (i64)void %print, i64 %call2
+	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr %node
+	%8 ptr = load ptr* %v_ptr_ptr3
+	%func_ptr3 ptr* = gep @vtable_Tree idx 11 ptr %8
+	%9 ptr = load ptr* %func_ptr3
+	%call3 i1 = call ptr %9, ptr %node
+	cond i1 %call3 if_then0, if_else0
+if_then0:
+	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr %node
+	%10 ptr = load ptr* %v_ptr_ptr4
+	%func_ptr4 ptr* = gep @vtable_Tree idx 6 ptr %10
+	%11 ptr = load ptr* %func_ptr4
+	%call4 ptr = call ptr %11, ptr %node
+	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr %this_ptr
+	%12 ptr = load ptr* %v_ptr_ptr5
+	%func_ptr5 ptr* = gep @vtable_Tree idx 9 ptr %12
+	%13 ptr = load ptr* %func_ptr5
+	%call5 i1 = call ptr %13, ptr %this_ptr, ptr %call4
+	store i1 %call5, i1* %ntb
+	branch  if_merge0
+if_else0:
+	store i1 1, i1* %ntb
+	branch  if_merge0
+if_merge0:
+	retval i1 1
+}
+
+func Tree_SetLeft (ptr %this_ptr, ptr %ln) i1 {
+func_entry:
+	%left_ptr ptr* = gep @Tree idx 1 ptr %this_ptr
+	store ptr %ln, ptr* %left_ptr
+	retval i1 1
+}
+
 func Tree_Remove (ptr %this_ptr, ptr %p_node, ptr %c_node) i1 {
 func_entry:
 	%ntb i1* = alloc i64 1
@@ -636,7 +1034,7 @@ if_else:
 	%call1 i1 = call ptr %5, ptr %c_node
 	cond i1 %call1 if_then0, if_else0
 if_merge:
-	ret i1 1
+	retval i1 1
 if_then0:
 	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr %this_ptr
 	%6 ptr = load ptr* %v_ptr_ptr2
@@ -707,404 +1105,6 @@ if_else1:
 	branch  if_merge1
 if_merge1:
 	branch  if_merge0
-}
-
-func Tree_Search (ptr %this_ptr, i64 %v_key) i64 {
-func_entry:
-	%current_node ptr* = alloc i64 1
-	%ifound i64* = alloc i64 1
-	%cont i1* = alloc i64 1
-	%key_aux i64* = alloc i64 1
-	store ptr %this_ptr, ptr* %current_node
-	store i1 1, i1* %cont
-	store i64 0, i64* %ifound
-	branch  while
-while:
-	%0 i1 = load i1* %cont
-	cond i1 %0 while_body, while_end
-while_body:
-	%1 ptr = load ptr* %current_node
-	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %1
-	%2 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_Tree idx 8 ptr %2
-	%3 ptr = load ptr* %func_ptr
-	%call i64 = call ptr %3, ptr %1
-	store i64 %call, i64* %key_aux
-	%4 i64 = load i64* %key_aux
-	%less_val i1 = lt i64 %v_key, i64 %4
-	cond i1 %less_val if_then, if_else
-while_end:
-	%18 i64 = load i64* %ifound
-	ret i64 %18
-if_then:
-	%5 ptr = load ptr* %current_node
-	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr %5
-	%6 ptr = load ptr* %v_ptr_ptr0
-	%func_ptr0 ptr* = gep @vtable_Tree idx 12 ptr %6
-	%7 ptr = load ptr* %func_ptr0
-	%call0 i1 = call ptr %7, ptr %5
-	cond i1 %call0 if_then0, if_else0
-if_else:
-	%11 i64 = load i64* %key_aux
-	%less_val0 i1 = lt i64 %11, i64 %v_key
-	cond i1 %less_val0 if_then1, if_else1
-if_merge:
-	branch  while
-if_then0:
-	%8 ptr = load ptr* %current_node
-	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %8
-	%9 ptr = load ptr* %v_ptr_ptr1
-	%func_ptr1 ptr* = gep @vtable_Tree idx 7 ptr %9
-	%10 ptr = load ptr* %func_ptr1
-	%call1 ptr = call ptr %10, ptr %8
-	store ptr %call1, ptr* %current_node
-	branch  if_merge0
-if_else0:
-	store i1 0, i1* %cont
-	branch  if_merge0
-if_merge0:
-	branch  if_merge
-if_then1:
-	%12 ptr = load ptr* %current_node
-	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr %12
-	%13 ptr = load ptr* %v_ptr_ptr2
-	%func_ptr2 ptr* = gep @vtable_Tree idx 11 ptr %13
-	%14 ptr = load ptr* %func_ptr2
-	%call2 i1 = call ptr %14, ptr %12
-	cond i1 %call2 if_then2, if_else2
-if_else1:
-	store i64 1, i64* %ifound
-	store i1 0, i1* %cont
-	branch  if_merge1
-if_merge1:
-	branch  if_merge
-if_then2:
-	%15 ptr = load ptr* %current_node
-	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr %15
-	%16 ptr = load ptr* %v_ptr_ptr3
-	%func_ptr3 ptr* = gep @vtable_Tree idx 6 ptr %16
-	%17 ptr = load ptr* %func_ptr3
-	%call3 ptr = call ptr %17, ptr %15
-	store ptr %call3, ptr* %current_node
-	branch  if_merge2
-if_else2:
-	store i1 0, i1* %cont
-	branch  if_merge2
-if_merge2:
-	branch  if_merge1
-}
-
-func Tree_Insert (ptr %this_ptr, i64 %v_key) i1 {
-func_entry:
-	%new_node ptr* = alloc i64 1
-	%ntb i1* = alloc i64 1
-	%current_node ptr* = alloc i64 1
-	%cont i1* = alloc i64 1
-	%key_aux i64* = alloc i64 1
-	%0 ptr = call (i64)ptr %new_object, i64 48
-	%vptr ptr* = gep @Tree idx 0 ptr %0
-	store ptr %vtable_Tree, ptr* %vptr
-	store ptr %0, ptr* %new_node
-	%1 ptr = load ptr* %new_node
-	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %1
-	%2 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_Tree idx 14 ptr %2
-	%3 ptr = load ptr* %func_ptr
-	%call i1 = call ptr %3, ptr %1, i64 %v_key
-	store i1 %call, i1* %ntb
-	store ptr %this_ptr, ptr* %current_node
-	store i1 1, i1* %cont
-	branch  while
-while:
-	%4 i1 = load i1* %cont
-	cond i1 %4 while_body, while_end
-while_body:
-	%5 ptr = load ptr* %current_node
-	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr %5
-	%6 ptr = load ptr* %v_ptr_ptr0
-	%func_ptr0 ptr* = gep @vtable_Tree idx 8 ptr %6
-	%7 ptr = load ptr* %func_ptr0
-	%call0 i64 = call ptr %7, ptr %5
-	store i64 %call0, i64* %key_aux
-	%8 i64 = load i64* %key_aux
-	%less_val i1 = lt i64 %v_key, i64 %8
-	cond i1 %less_val if_then, if_else
-while_end:
-	ret i1 1
-if_then:
-	%9 ptr = load ptr* %current_node
-	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %9
-	%10 ptr = load ptr* %v_ptr_ptr1
-	%func_ptr1 ptr* = gep @vtable_Tree idx 12 ptr %10
-	%11 ptr = load ptr* %func_ptr1
-	%call1 i1 = call ptr %11, ptr %9
-	cond i1 %call1 if_then0, if_else0
-if_else:
-	%22 ptr = load ptr* %current_node
-	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr %22
-	%23 ptr = load ptr* %v_ptr_ptr5
-	%func_ptr5 ptr* = gep @vtable_Tree idx 11 ptr %23
-	%24 ptr = load ptr* %func_ptr5
-	%call5 i1 = call ptr %24, ptr %22
-	cond i1 %call5 if_then1, if_else1
-if_merge:
-	branch  while
-if_then0:
-	%12 ptr = load ptr* %current_node
-	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr %12
-	%13 ptr = load ptr* %v_ptr_ptr2
-	%func_ptr2 ptr* = gep @vtable_Tree idx 7 ptr %13
-	%14 ptr = load ptr* %func_ptr2
-	%call2 ptr = call ptr %14, ptr %12
-	store ptr %call2, ptr* %current_node
-	branch  if_merge0
-if_else0:
-	store i1 0, i1* %cont
-	%15 ptr = load ptr* %current_node
-	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr %15
-	%16 ptr = load ptr* %v_ptr_ptr3
-	%func_ptr3 ptr* = gep @vtable_Tree idx 20 ptr %16
-	%17 ptr = load ptr* %func_ptr3
-	%call3 i1 = call ptr %17, ptr %15, i1 1
-	store i1 %call3, i1* %ntb
-	%18 ptr = load ptr* %current_node
-	%19 ptr = load ptr* %new_node
-	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr %18
-	%20 ptr = load ptr* %v_ptr_ptr4
-	%func_ptr4 ptr* = gep @vtable_Tree idx 10 ptr %20
-	%21 ptr = load ptr* %func_ptr4
-	%call4 i1 = call ptr %21, ptr %18, ptr %19
-	store i1 %call4, i1* %ntb
-	branch  if_merge0
-if_merge0:
-	branch  if_merge
-if_then1:
-	%25 ptr = load ptr* %current_node
-	%v_ptr_ptr6 ptr* = gep @Tree idx 0 ptr %25
-	%26 ptr = load ptr* %v_ptr_ptr6
-	%func_ptr6 ptr* = gep @vtable_Tree idx 6 ptr %26
-	%27 ptr = load ptr* %func_ptr6
-	%call6 ptr = call ptr %27, ptr %25
-	store ptr %call6, ptr* %current_node
-	branch  if_merge1
-if_else1:
-	store i1 0, i1* %cont
-	%28 ptr = load ptr* %current_node
-	%v_ptr_ptr7 ptr* = gep @Tree idx 0 ptr %28
-	%29 ptr = load ptr* %v_ptr_ptr7
-	%func_ptr7 ptr* = gep @vtable_Tree idx 13 ptr %29
-	%30 ptr = load ptr* %func_ptr7
-	%call7 i1 = call ptr %30, ptr %28, i1 1
-	store i1 %call7, i1* %ntb
-	%31 ptr = load ptr* %current_node
-	%32 ptr = load ptr* %new_node
-	%v_ptr_ptr8 ptr* = gep @Tree idx 0 ptr %31
-	%33 ptr = load ptr* %v_ptr_ptr8
-	%func_ptr8 ptr* = gep @vtable_Tree idx 17 ptr %33
-	%34 ptr = load ptr* %func_ptr8
-	%call8 i1 = call ptr %34, ptr %31, ptr %32
-	store i1 %call8, i1* %ntb
-	branch  if_merge1
-if_merge1:
-	branch  if_merge
-}
-
-func Tree_RemoveRight (ptr %this_ptr, ptr %p_node, ptr %c_node) i1 {
-arg_realloc0:
-	$c_node_local ptr = assign ptr %c_node
-	branch  arg_realloc
-arg_realloc:
-	$p_node_local ptr = assign ptr %p_node
-	branch  func_entry
-func_entry:
-	%ntb i1* = alloc i64 1
-	branch  while
-while:
-	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr $c_node_local
-	%0 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_Tree idx 11 ptr %0
-	%1 ptr = load ptr* %func_ptr
-	%call i1 = call ptr %1, ptr $c_node_local
-	cond i1 %call while_body, while_end
-while_body:
-	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr $c_node_local
-	%2 ptr = load ptr* %v_ptr_ptr0
-	%func_ptr0 ptr* = gep @vtable_Tree idx 6 ptr %2
-	%3 ptr = load ptr* %func_ptr0
-	%call0 ptr = call ptr %3, ptr $c_node_local
-	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %call0
-	%4 ptr = load ptr* %v_ptr_ptr1
-	%func_ptr1 ptr* = gep @vtable_Tree idx 8 ptr %4
-	%5 ptr = load ptr* %func_ptr1
-	%call1 i64 = call ptr %5, ptr %call0
-	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr $c_node_local
-	%6 ptr = load ptr* %v_ptr_ptr2
-	%func_ptr2 ptr* = gep @vtable_Tree idx 19 ptr %6
-	%7 ptr = load ptr* %func_ptr2
-	%call2 i1 = call ptr %7, ptr $c_node_local, i64 %call1
-	store i1 %call2, i1* %ntb
-	$p_node_local ptr = assign ptr $c_node_local
-	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr $c_node_local
-	%8 ptr = load ptr* %v_ptr_ptr3
-	%func_ptr3 ptr* = gep @vtable_Tree idx 6 ptr %8
-	%9 ptr = load ptr* %func_ptr3
-	%call3 ptr = call ptr %9, ptr $c_node_local
-	$c_node_local ptr = assign ptr %call3
-	branch  while
-while_end:
-	%my_null_ptr ptr* = gep @Tree idx 6 ptr %this_ptr
-	%10 ptr = load ptr* %my_null_ptr
-	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr $p_node_local
-	%11 ptr = load ptr* %v_ptr_ptr4
-	%func_ptr4 ptr* = gep @vtable_Tree idx 17 ptr %11
-	%12 ptr = load ptr* %func_ptr4
-	%call4 i1 = call ptr %12, ptr $p_node_local, ptr %10
-	store i1 %call4, i1* %ntb
-	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr $p_node_local
-	%13 ptr = load ptr* %v_ptr_ptr5
-	%func_ptr5 ptr* = gep @vtable_Tree idx 13 ptr %13
-	%14 ptr = load ptr* %func_ptr5
-	%call5 i1 = call ptr %14, ptr $p_node_local, i1 0
-	store i1 %call5, i1* %ntb
-	ret i1 1
-}
-
-func Tree_GetRight (ptr %this_ptr) ptr {
-func_entry:
-	%right_ptr ptr* = gep @Tree idx 2 ptr %this_ptr
-	%0 ptr = load ptr* %right_ptr
-	ret ptr %0
-}
-
-func Tree_RemoveLeft (ptr %this_ptr, ptr %p_node, ptr %c_node) i1 {
-arg_realloc0:
-	$c_node_local ptr = assign ptr %c_node
-	branch  arg_realloc
-arg_realloc:
-	$p_node_local ptr = assign ptr %p_node
-	branch  func_entry
-func_entry:
-	%ntb i1* = alloc i64 1
-	branch  while
-while:
-	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr $c_node_local
-	%0 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_Tree idx 12 ptr %0
-	%1 ptr = load ptr* %func_ptr
-	%call i1 = call ptr %1, ptr $c_node_local
-	cond i1 %call while_body, while_end
-while_body:
-	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr $c_node_local
-	%2 ptr = load ptr* %v_ptr_ptr0
-	%func_ptr0 ptr* = gep @vtable_Tree idx 7 ptr %2
-	%3 ptr = load ptr* %func_ptr0
-	%call0 ptr = call ptr %3, ptr $c_node_local
-	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %call0
-	%4 ptr = load ptr* %v_ptr_ptr1
-	%func_ptr1 ptr* = gep @vtable_Tree idx 8 ptr %4
-	%5 ptr = load ptr* %func_ptr1
-	%call1 i64 = call ptr %5, ptr %call0
-	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr $c_node_local
-	%6 ptr = load ptr* %v_ptr_ptr2
-	%func_ptr2 ptr* = gep @vtable_Tree idx 19 ptr %6
-	%7 ptr = load ptr* %func_ptr2
-	%call2 i1 = call ptr %7, ptr $c_node_local, i64 %call1
-	store i1 %call2, i1* %ntb
-	$p_node_local ptr = assign ptr $c_node_local
-	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr $c_node_local
-	%8 ptr = load ptr* %v_ptr_ptr3
-	%func_ptr3 ptr* = gep @vtable_Tree idx 7 ptr %8
-	%9 ptr = load ptr* %func_ptr3
-	%call3 ptr = call ptr %9, ptr $c_node_local
-	$c_node_local ptr = assign ptr %call3
-	branch  while
-while_end:
-	%my_null_ptr ptr* = gep @Tree idx 6 ptr %this_ptr
-	%10 ptr = load ptr* %my_null_ptr
-	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr $p_node_local
-	%11 ptr = load ptr* %v_ptr_ptr4
-	%func_ptr4 ptr* = gep @vtable_Tree idx 10 ptr %11
-	%12 ptr = load ptr* %func_ptr4
-	%call4 i1 = call ptr %12, ptr $p_node_local, ptr %10
-	store i1 %call4, i1* %ntb
-	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr $p_node_local
-	%13 ptr = load ptr* %v_ptr_ptr5
-	%func_ptr5 ptr* = gep @vtable_Tree idx 20 ptr %13
-	%14 ptr = load ptr* %func_ptr5
-	%call5 i1 = call ptr %14, ptr $p_node_local, i1 0
-	store i1 %call5, i1* %ntb
-	ret i1 1
-}
-
-func Tree_accept (ptr %this_ptr, ptr %v) i64 {
-func_entry:
-	%nti i64* = alloc i64 1
-	call (i64)void %print, i64 333
-	%v_ptr_ptr ptr* = gep @Visitor idx 0 ptr %v
-	%0 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_Visitor idx 0 ptr %0
-	%1 ptr = load ptr* %func_ptr
-	%call i64 = call ptr %1, ptr %v, ptr %this_ptr
-	store i64 %call, i64* %nti
-	ret i64 0
-}
-
-func Tree_RecPrint (ptr %this_ptr, ptr %node) i1 {
-func_entry:
-	%ntb i1* = alloc i64 1
-	%v_ptr_ptr ptr* = gep @Tree idx 0 ptr %node
-	%0 ptr = load ptr* %v_ptr_ptr
-	%func_ptr ptr* = gep @vtable_Tree idx 12 ptr %0
-	%1 ptr = load ptr* %func_ptr
-	%call i1 = call ptr %1, ptr %node
-	cond i1 %call if_then, if_else
-if_then:
-	%v_ptr_ptr0 ptr* = gep @Tree idx 0 ptr %node
-	%2 ptr = load ptr* %v_ptr_ptr0
-	%func_ptr0 ptr* = gep @vtable_Tree idx 7 ptr %2
-	%3 ptr = load ptr* %func_ptr0
-	%call0 ptr = call ptr %3, ptr %node
-	%v_ptr_ptr1 ptr* = gep @Tree idx 0 ptr %this_ptr
-	%4 ptr = load ptr* %v_ptr_ptr1
-	%func_ptr1 ptr* = gep @vtable_Tree idx 9 ptr %4
-	%5 ptr = load ptr* %func_ptr1
-	%call1 i1 = call ptr %5, ptr %this_ptr, ptr %call0
-	store i1 %call1, i1* %ntb
-	branch  if_merge
-if_else:
-	store i1 1, i1* %ntb
-	branch  if_merge
-if_merge:
-	%v_ptr_ptr2 ptr* = gep @Tree idx 0 ptr %node
-	%6 ptr = load ptr* %v_ptr_ptr2
-	%func_ptr2 ptr* = gep @vtable_Tree idx 8 ptr %6
-	%7 ptr = load ptr* %func_ptr2
-	%call2 i64 = call ptr %7, ptr %node
-	call (i64)void %print, i64 %call2
-	%v_ptr_ptr3 ptr* = gep @Tree idx 0 ptr %node
-	%8 ptr = load ptr* %v_ptr_ptr3
-	%func_ptr3 ptr* = gep @vtable_Tree idx 11 ptr %8
-	%9 ptr = load ptr* %func_ptr3
-	%call3 i1 = call ptr %9, ptr %node
-	cond i1 %call3 if_then0, if_else0
-if_then0:
-	%v_ptr_ptr4 ptr* = gep @Tree idx 0 ptr %node
-	%10 ptr = load ptr* %v_ptr_ptr4
-	%func_ptr4 ptr* = gep @vtable_Tree idx 6 ptr %10
-	%11 ptr = load ptr* %func_ptr4
-	%call4 ptr = call ptr %11, ptr %node
-	%v_ptr_ptr5 ptr* = gep @Tree idx 0 ptr %this_ptr
-	%12 ptr = load ptr* %v_ptr_ptr5
-	%func_ptr5 ptr* = gep @vtable_Tree idx 9 ptr %12
-	%13 ptr = load ptr* %func_ptr5
-	%call5 i1 = call ptr %13, ptr %this_ptr, ptr %call4
-	store i1 %call5, i1* %ntb
-	branch  if_merge0
-if_else0:
-	store i1 1, i1* %ntb
-	branch  if_merge0
-if_merge0:
-	ret i1 1
 }
 
 

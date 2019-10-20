@@ -18,10 +18,22 @@
 
 namespace bier {
 
+struct FilePos {
+    unsigned int line = 0;
+    unsigned int col = 0;
+};
+
 class LexicalException : public std::runtime_error {
 public:
-    LexicalException(const std::string& message, unsigned int line, unsigned int col)
-        : std::runtime_error(message + " at " + std::to_string(line) + "," + std::to_string(col)) {
+    LexicalException(const std::string& message, const FilePos& pos)
+        : std::runtime_error(message + " at " + std::to_string(pos.line) + "," + std::to_string(pos.col)) {
+    }
+};
+
+class LanguageException : public std::runtime_error {
+public:
+    LanguageException(const std::string& message, const FilePos& pos)
+        : std::runtime_error(message + " at " + std::to_string(pos.line) + "," + std::to_string(pos.col)) {
     }
 };
 

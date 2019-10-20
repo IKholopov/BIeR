@@ -4,7 +4,7 @@ project("BIeR" LANGUAGES CXX VERSION 0.1.0)
 find_program(CLANG_TIDY NAMES clang-tidy)
 function(target_cxx target)
     target_compile_features(${target} PRIVATE cxx_std_17)
-    target_compile_options(${target} PRIVATE -Wall -Wextra -Wno-sign-compare)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -Wno-sign-compare -Wno-overloaded-virtual)
     #[=[set_target_properties(${target}
         PROPERTIES
             CXX_CLANG_TIDY ${CLANG_TIDY})

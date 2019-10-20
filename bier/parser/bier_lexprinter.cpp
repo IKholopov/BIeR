@@ -14,9 +14,12 @@
    limitations under the License.
 */
 #include "bier_scanner.h"
+#include <bier/parser/ast/module_ast_builder.h>
 #include <fstream>
 #include <string>
 #include <unordered_map>
+
+#include <thread>
 
 static const std::unordered_map<bier::Token, std::string> kTokenNames = {
     {bier::Token::GLOBAL, "GLOBAL"},
@@ -30,15 +33,21 @@ static const std::unordered_map<bier::Token, std::string> kTokenNames = {
     {bier::Token::L_BR, "L_BR"},
     {bier::Token::R_BR, "R_BR"},
     {bier::Token::PTR, "PTR"},
+    {bier::Token::I_CONST, "I_CONST"},
     {bier::Token::I_TYPE, "I_TYPE"},
+    {bier::Token::VOID, "VOID"},
     {bier::Token::STAR, "STAR"},
     {bier::Token::EQ, "EQ"},
-    {bier::Token::PERCENT, "PERCENT"},
-    {bier::Token::DOLLAR, "DOLLAR"},
+    {bier::Token::VAR, "VAR"},
+    {bier::Token::MUTABLE_VAR, "MUTABLE_VAR"},
     {bier::Token::QUOTE, "QUOTE"},
     {bier::Token::X, "X"},
     {bier::Token::COMMA, "COMMA"},
     {bier::Token::COLON, "COLON"},
+    {bier::Token::GEP, "GEP"},
+    {bier::Token::BRANCH, "BRANCH"},
+    {bier::Token::COND_BRANCH, "COND_BRANCH"},
+    {bier::Token::ALLOC_LAYOUT, "ALLOC_LAYOUT"},
     {bier::Token::ID, "ID"},
     {bier::Token::IDX, "IDX"},
     {bier::Token::AT, "AT"}
@@ -56,7 +65,12 @@ private:
     std::ostream& stream_;
 };
 
+static void report_error(const std::string& message) {
+    std::cerr << "\x1B[31m" << message << "\x1B[0m" << std::endl;
+}
+
 int main(int argc, const char* argv[]) {
+    // std::this_thread::sleep_for(std::chrono::milliseconds(500));
     PrintTokenCallBack callback{std::cerr};
 
     bier::BierScanner scanner{&callback};
@@ -70,12 +84,16 @@ int main(int argc, const char* argv[]) {
         }
         scanner.switch_streams(file_stream, std::cerr);
     }
-
-    yy::parser parser(scanner);
+    bier::ast::ModuleAst ast;
+    bier::ast::ModuleAstBuilder astBuilder{&ast};
+    yy::parser parser(scanner, astBuilder);
     try {
-        parser.parse();
+        if( parser.parse() != 0 ) {
+            report_error( "parsing failed" );
+            return 1;
+        }
     } catch (std::exception& e) {
-        std::cerr << "\x1B[31m" << e.what() << "\x1B[0m" << std::endl;
+        report_error( e.what() );
         return 1;
     }
 

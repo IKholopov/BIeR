@@ -17,10 +17,12 @@
 
 namespace bier {
 
-namespace AST {
+namespace ast {
 
-class Id;
+class StaticDataEntry;
+class StaticFuncEntry;
+class StaticIntEntry;
 
-}   // AST
+}   // ast
 
 }   // bier

@@ -15,13 +15,16 @@
 */
 #pragma once
 
+#include <bier/core/module.h>
+#include <bier/parser/ast/ast_structs.h>
+#include <bier/parser/ast/node_types.h>
 #include <bier/parser/ast/visitor.h>
-#include <bier/parser/bier_scanner.h>
+#include <bier/parser/exceptions.h>
 #include <memory>
 
 namespace bier {
 
-namespace AST {
+namespace ast {
 
 template<typename T>
 using ASTPtr = std::unique_ptr<T>;
@@ -29,26 +32,34 @@ using ASTPtr = std::unique_ptr<T>;
 class ASTNode {
 public:
     virtual ~ASTNode() = default;
-    virtual Position FilePosition() const = 0;
+    virtual FilePos FilePosition() const = 0;
     virtual void Accept(Visitor* visitor) const = 0;
 };
 
 template<typename T, typename TBase=ASTNode>
 class ASTBase : public TBase {
 public:
-    explicit ASTBase(Position pos) : position_(pos) {
+    explicit ASTBase(FilePos pos) : position_(pos) {
     }
 
     void Accept(Visitor* visitor) const override {
         visitor->Visit(static_cast<const T*>(this));
     }
 
-    Position FilePosition() const override {
+    FilePos FilePosition() const override {
         return position_;
     }
 private:
-    Position position_;
+    FilePos position_;
 };
+
+class StaticEntry : public ASTNode {
+public:
+    virtual ValuePtr Make(const Module& module) const = 0;
+    virtual void VerifyIsOfType(const Type* type, const TypeRegistryInterface* types) const = 0;
+};
+
+using StaticEntryPtr = std::unique_ptr<StaticEntry>;
 
 }
 

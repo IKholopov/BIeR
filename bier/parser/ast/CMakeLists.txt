@@ -1,16 +1,9 @@
-# Build parser
-flex_target(bier_parser_flex lexems.ll ${CMAKE_CURRENT_BINARY_DIR}/lexems.gen.cpp)
-bison_target(bier_parser_bison parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.gen.cpp VERBOSE )
-
-add_flex_bison_dependency(bier_parser_flex bier_parser_bison)
-
-add_library(bier_parser
-        bier_scanner.cpp
-	${FLEX_bier_parser_flex_OUTPUTS}
-        ${BISON_bier_parser_bison_OUTPUTS}
+# Build parser_ast
+add_library(bier_parser_ast
+        ast_static.cpp
+        module_ast.cpp
+        module_ast_builder.cpp
 )
-target_include_directories(bier_parser PUBLIC ${BIER_INC} ${CMAKE_CURRENT_BINARY_DIR})
-
-add_executable(bier_lexprinter
-        bier_lexprinter.cpp)
-target_link_libraries(bier_lexprinter PRIVATE bier_parser)
+target_include_directories(bier_parser_ast PUBLIC ${BIER_INC})
+target_cxx(bier_parser_ast)
+target_link_libraries(bier_parser_ast PUBLIC bier_core bier_serialization)

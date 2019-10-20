@@ -16,6 +16,13 @@ func len (ptr %list) i64
 func get_int_element (ptr %list, i64 %index) i64
 func concat_lists (ptr %left_list, ptr %right_list) void
 
+func user_list (ptr %present_list) ptr {
+func_entry:
+	%callread i64 = call ()i64 %read
+	%callarange ptr = call (i64,ptr)ptr %arange, i64 %callread, ptr %present_list
+	retval ptr %callarange
+}
+
 func first_two (ptr %l, ptr %present_list) ptr {
 func_entry:
 	%any_element_ptr ptr = alloc_layout @list_elementi64 1
@@ -67,7 +74,7 @@ if_else0:
 	branch  if_merge0
 if_merge0:
 	call (ptr,ptr)void %append_any_element, ptr %present_list, ptr %any_element0
-	ret ptr %present_list
+	retval ptr %present_list
 }
 
 func main () i64 {
@@ -78,14 +85,7 @@ func_entry:
 	%callfirst_two ptr = call (ptr,ptr)ptr %first_two, ptr %calluser_list, ptr %listalloc
 	%calllen i64 = call (ptr)i64 %len, ptr %callfirst_two
 	%callprint i64 = call (i64)i64 %print, i64 %calllen
-	ret i64 %callprint
-}
-
-func user_list (ptr %present_list) ptr {
-func_entry:
-	%callread i64 = call ()i64 %read
-	%callarange ptr = call (i64,ptr)ptr %arange, i64 %callread, ptr %present_list
-	ret ptr %callarange
+	retval i64 %callprint
 }
 
 func arange (i64 %n, ptr %present_list) ptr {
@@ -105,6 +105,6 @@ if_else:
 	$if_result ptr = assign ptr %present_list
 	branch  if_merge
 if_merge:
-	ret ptr $if_result
+	retval ptr $if_result
 }
 

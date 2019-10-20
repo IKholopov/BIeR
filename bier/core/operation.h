@@ -17,6 +17,7 @@
 
 #include <bier/core/function_context.h>
 #include <bier/core/variable.h>
+#include <optional>
 #include <vector>
 
 namespace bier {

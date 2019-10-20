@@ -14,20 +14,29 @@
    limitations under the License.
 */
 #pragma once
-#include <bier/parser/ast/node_types.h>
+
+#include <bier/parser/ast/ast_node.h>
+#include <bier/core/types_registry.h>
 
 namespace bier {
 
 namespace ast {
 
-class Visitor {
+class ModuleAst {
 public:
-    virtual ~Visitor() = default;
-    virtual void Visit(const StaticDataEntry*) = 0;
-    virtual void Visit(const StaticFuncEntry*) = 0;
-    virtual void Visit(const StaticIntEntry*) = 0;
+    explicit ModuleAst(std::unique_ptr<DefaultTypesRegistry> types
+                       = std::make_unique<DefaultTypesRegistry>())
+        : types_(std::move(types)){
+    }
+
+    TypeRegistryInterface* Types() const {
+        return types_.get();
+    }
+
+private:
+    std::unique_ptr<DefaultTypesRegistry> types_;
 };
 
-}   // AST
+}   // ast
 
 }   // bier

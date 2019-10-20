@@ -13,21 +13,4 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#pragma once
-#include <bier/parser/ast/node_types.h>
-
-namespace bier {
-
-namespace ast {
-
-class Visitor {
-public:
-    virtual ~Visitor() = default;
-    virtual void Visit(const StaticDataEntry*) = 0;
-    virtual void Visit(const StaticFuncEntry*) = 0;
-    virtual void Visit(const StaticIntEntry*) = 0;
-};
-
-}   // AST
-
-}   // bier
+#include "module_ast.h"

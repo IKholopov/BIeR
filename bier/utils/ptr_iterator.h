@@ -33,6 +33,10 @@ public:
         return iterator++;
     }
 
+    PtrIterator operator+(size_t value) {
+        return iterator + value;
+    }
+
     element_type* operator*() {
         return iterator->get();
     }
