@@ -19,14 +19,6 @@ namespace bier {
 
 namespace ast {
 
-class StaticDataEntry;
-class StaticFuncEntry;
-class StaticIntEntry;
-class RegularOp;
-class GepOp;
-class BranchOp;
-class Block;
-
 }   // ast
 
 }   // bier

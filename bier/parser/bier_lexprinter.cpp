@@ -48,6 +48,7 @@ static const std::unordered_map<bier::Token, std::string> kTokenNames = {
     {bier::Token::BRANCH, "BRANCH"},
     {bier::Token::COND_BRANCH, "COND_BRANCH"},
     {bier::Token::ALLOC_LAYOUT, "ALLOC_LAYOUT"},
+    {bier::Token::RETURN, "RETURN"},
     {bier::Token::ID, "ID"},
     {bier::Token::IDX, "IDX"},
     {bier::Token::AT, "AT"}

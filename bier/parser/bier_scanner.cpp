@@ -44,6 +44,11 @@ void BierScanner::FillValue(Token token) {
         }
         return;
         case Token::ID:
+        case Token::RETURN:
+        case Token::GEP:
+        case Token::ALLOC_LAYOUT:
+        case Token::BRANCH:
+        case Token::COND_BRANCH:
             value_->build<std::string>(YYText());
             return;
         case Token::VAR:{

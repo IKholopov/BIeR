@@ -23,9 +23,13 @@ namespace ast {
 class Visitor {
 public:
     virtual ~Visitor() = default;
-    virtual void Visit(const StaticDataEntry*) = 0;
-    virtual void Visit(const StaticFuncEntry*) = 0;
-    virtual void Visit(const StaticIntEntry*) = 0;
+    virtual void Visit(const StaticDataEntry*) {};
+    virtual void Visit(const StaticFuncEntry*) {};
+    virtual void Visit(const StaticIntEntry*) {};
+    virtual void Visit(const RegularOp*) {};
+    virtual void Visit(const GepOp*) {};
+    virtual void Visit(const BranchOp*) {};
+    virtual void Visit(const Block*) {};
 };
 
 }   // AST

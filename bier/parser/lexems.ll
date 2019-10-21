@@ -55,6 +55,7 @@ ID      ({CHAR}|{DIGIT})*
 "alloc_layout"          {   return Process(Token::ALLOC_LAYOUT, location);  }
 "@"                     {   return Process(Token::AT, location);  }
 "idx"                   {   return Process(Token::IDX, location);  }
+"ret"|"retval"          {   return Process(Token::RETURN, location);  }
 {ID}                    {   return Process(Token::ID, location);  }
 .                       {   Error(); }
 

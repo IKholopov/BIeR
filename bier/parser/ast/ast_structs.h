@@ -58,6 +58,11 @@ struct LayoutEntry {
     uint64_t count = 1;
 };
 
+struct Layout {
+    std::vector<LayoutEntry> contents;
+    std::string name;
+};
+
 }   // ast
 
 }   // bier

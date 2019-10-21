@@ -13,19 +13,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#pragma once
+#include "ast_block.h"
 
 namespace bier {
 
 namespace ast {
 
-class StaticDataEntry;
-class StaticFuncEntry;
-class StaticIntEntry;
-class RegularOp;
-class GepOp;
-class BranchOp;
-class Block;
+Block::Block(std::vector<ReturnValueOpPtr>&& ops, BranchOpPtr&& branch_op,
+             const std::string& label, const FilePos& pos)
+    : ASTBase(pos),
+      ops_(std::move(ops)),
+      branch_(std::move(branch_op)),
+      label_(label) {
+}
 
 }   // ast
 
