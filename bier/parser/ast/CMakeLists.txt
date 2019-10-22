@@ -2,6 +2,7 @@
 add_library(bier_parser_ast
         ast_block.cpp
         ast_func.cpp
+        ast_layout.cpp
         ast_static.cpp
         module_ast.cpp
         module_ast_builder.cpp

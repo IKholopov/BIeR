@@ -26,6 +26,9 @@ class RegularOp;
 class GepOp;
 class BranchOp;
 class Block;
+class ExternFunction;
+class DefinedFunction;
+class ASTLayout;
 
 }   // ast
 

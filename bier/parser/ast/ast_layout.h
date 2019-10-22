@@ -16,28 +16,20 @@
 #pragma once
 
 #include <bier/parser/ast/ast_node.h>
-#include <bier/core/types_registry.h>
 
 namespace bier {
 
 namespace ast {
 
-class ModuleAst {
+class ASTLayout : public ASTBase<ASTLayout> {
 public:
-    explicit ModuleAst(std::unique_ptr<DefaultTypesRegistry> types
-                       = std::make_unique<DefaultTypesRegistry>())
-        : types_(std::move(types)){
+    ASTLayout(Layout&& layout, const FilePos& pos)
+        : ASTBase(pos),
+          layout_(std::move(layout)) {
     }
-
-    TypeRegistryInterface* Types() const {
-        return types_.get();
-    }
-
-    void AddTopNode(ASTPtr<ASTNode>&& nodes);
 
 private:
-    std::unique_ptr<DefaultTypesRegistry> types_;
-    std::vector<ASTPtr<ASTNode>> top_nodes_;
+    Layout layout_;
 };
 
 }   // ast

@@ -14,3 +14,15 @@
    limitations under the License.
 */
 #include "module_ast.h"
+
+namespace bier {
+
+namespace ast {
+
+void ModuleAst::AddTopNode(ASTPtr<bier::ast::ASTNode>&& nodes) {
+    top_nodes_.emplace_back(std::move(nodes));
+}
+
+}   // ast
+
+}   // bier

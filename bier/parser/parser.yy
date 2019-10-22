@@ -8,6 +8,8 @@
 %code requires{
     #include <bier/core/function.h>
     #include <bier/parser/ast/ast_block.h>
+    #include <bier/parser/ast/ast_func.h>
+    #include <bier/parser/ast/ast_layout.h>
     #include <bier/parser/ast/ast_node.h>
     #include <bier/parser/ast/ast_static.h>
     namespace bier {
@@ -76,16 +78,16 @@
 %token END 0
 
 %type module
-%type top_entry
-%type top_entry_list
+%type <ASTPtr<ASTNode>> top_entry
+%type <std::vector<ASTPtr<ASTNode>>> top_entry_list
 
 %type <bier::ast::StaticDataEntryPtr> static_data
 %type <bier::ast::StaticEntryPtr> static_data_entry
 %type <std::vector<bier::ast::StaticEntryPtr>> static_data_entry_list
 %type <bier::ast::StaticEntryPtr> static_value
 
-%type func_declaration
-%type func_definition
+%type <ExternFunctionPtr> func_declaration
+%type <DefinedFunctionPtr> func_definition
 %type <const bier::FunctionType*> func_sig_type
 %type <FuncSignature> func_signature
 %type <std::vector<BlockPtr>> func_body
@@ -128,14 +130,14 @@ module
     | top_entry_list END
 
 top_entry_list
-    : top_entry
-    | top_entry_list top_entry
+    : top_entry                     { $$.emplace_back(std::move($1)); }
+    | top_entry_list top_entry      { $1.emplace_back(std::move($2)); $$ = std::move($1); }
 
 top_entry
-    : static_data
-    | layout
-    | func_declaration
-    | func_definition
+    : static_data           { $$ = std::move($1); }
+    | layout                { $$ = std::make_unique<ASTLayout>(std::move($1), to_pos(@1)); }
+    | func_declaration      { $$ = std::move($1); }
+    | func_definition       { $$ = std::move($1); }
 
 static_data
     : GLOBAL ID L_ANG_BR static_data_entry_list R_ANG_BR    { $$ = std::make_unique<StaticDataEntry>($2, std::move($4), to_pos(@1)); }
@@ -184,10 +186,10 @@ basic_type_list
     | basic_type_list COMMA basic_type    { $1.push_back($3); $$ = std::move($1); }
 
 func_definition
-    : func_signature L_FIG_BR func_body R_FIG_BR
+    : func_signature L_FIG_BR func_body R_FIG_BR    { $$ = std::make_unique<DefinedFunction>(std::move($1), std::move($3), to_pos(@1)); }
 
 func_declaration
-    : func_signature
+    : func_signature    { $$ = std::make_unique<ExternFunction>(std::move($1), to_pos(@1)); }
 
 func_body
     : block             { $$.emplace_back(std::move($1)); }

@@ -30,6 +30,9 @@ public:
     virtual void Visit(const GepOp*) {};
     virtual void Visit(const BranchOp*) {};
     virtual void Visit(const Block*) {};
+    virtual void Visit(const ExternFunction*) {};
+    virtual void Visit(const DefinedFunction*) {};
+    virtual void Visit(const ASTLayout*) {};
 };
 
 }   // AST

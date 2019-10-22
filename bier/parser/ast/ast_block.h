@@ -25,17 +25,17 @@ public:
     virtual const Operation& Op() const = 0;
 };
 
-using OperationNodePtr = std::unique_ptr<OperationNode>;
+using OperationNodePtr = ASTPtr<OperationNode>;
 
-class ReturnValueOp {
+class ReturnValueOp : public OperationNode {
 public:
     virtual ~ReturnValueOp() = default;
     virtual void SetReturnValue(const VarEntry& entry) = 0;
 };
 
-using ReturnValueOpPtr = std::unique_ptr<ReturnValueOp>;
+using ReturnValueOpPtr = ASTPtr<ReturnValueOp>;
 
-class RegularOp : public ASTBase<RegularOp, OperationNode>, public ReturnValueOp {
+class RegularOp : public ASTBase<RegularOp, ReturnValueOp> {
 public:
     RegularOp(Operation&& op, const FilePos& pos)
         : ASTBase(pos),
@@ -55,7 +55,7 @@ private:
 
 using RegularOpPtr = std::unique_ptr<RegularOp>;
 
-class GepOp : public ASTBase<GepOp, OperationNode>, public ReturnValueOp  {
+class GepOp : public ASTBase<GepOp, ReturnValueOp>  {
 public:
     explicit GepOp(Operation&& op, const std::string& name,
                    uint64_t index, const FilePos& pos)
@@ -96,7 +96,7 @@ private:
 };
 
 
-class AllocLayoutOp : public ASTBase<GepOp, OperationNode>, public ReturnValueOp  {
+class AllocLayoutOp : public ASTBase<GepOp, ReturnValueOp> {
 public:
     explicit AllocLayoutOp (Operation&& op, const std::string& name,
                    uint64_t count, const FilePos& pos)
@@ -154,7 +154,7 @@ private:
     std::vector<std::string> labels_;
 };
 
-using BranchOpPtr = std::unique_ptr<BranchOp>;
+using BranchOpPtr = ASTPtr<BranchOp>;
 
 class Block : public ASTBase<Block>{
 public:
@@ -167,7 +167,7 @@ private:
     std::string label_;
 };
 
-using BlockPtr = std::unique_ptr<Block>;
+using BlockPtr = ASTPtr<Block>;
 
 }   // ast
 

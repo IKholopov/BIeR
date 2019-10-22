@@ -14,10 +14,39 @@
    limitations under the License.
 */
 #pragma once
+#include <bier/parser/ast/ast_block.h>
 
 namespace bier {
 
 namespace ast {
+
+class ExternFunction : public ASTBase<ExternFunction> {
+public:
+    ExternFunction(FuncSignature&& signature, const FilePos& pos)
+        : ASTBase(pos),
+          signature_(std::move(signature)) {
+    }
+
+private:
+    FuncSignature signature_;
+};
+
+using ExternFunctionPtr = ASTPtr<ExternFunction>;
+
+class DefinedFunction : public ASTBase<DefinedFunction> {
+public:
+    DefinedFunction(FuncSignature&& signature, std::vector<BlockPtr>&& blocks, const FilePos& pos)
+        : ASTBase(pos),
+          signature_(std::move(signature)),
+          blocks_(std::move(blocks)) {
+    }
+
+private:
+    FuncSignature signature_;
+    std::vector<BlockPtr> blocks_;
+};
+
+using DefinedFunctionPtr = ASTPtr<DefinedFunction>;
 
 }   // ast
 
