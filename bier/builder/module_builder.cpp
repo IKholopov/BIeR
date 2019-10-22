@@ -67,6 +67,11 @@ const Variable* ModuleBuilder::CreateSDivImpl(const Value* left, const Value* ri
     return CreateArithmetic<BinaryOperation::BinOp::SDIV>(left, right, name, is_mutable);
 }
 
+const Variable* ModuleBuilder::CreateSRemImpl(const Value* left, const Value* right,
+                                       const std::string& name, bool is_mutable) {
+    return CreateArithmetic<BinaryOperation::BinOp::SREM>(left, right, name, is_mutable);
+}
+
 const Variable* ModuleBuilder::CreateEQImpl(const Value* left, const Value* right, const std::string& name,
                                      bool is_mutable) {
     return CreateCmp<BinaryOperation::BinOp::EQ>(left, right, name, is_mutable);

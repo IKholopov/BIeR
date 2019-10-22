@@ -102,6 +102,11 @@ public:
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateSDivImpl),
                 &ModuleBuilder::CreateSDivImpl>(left, right, name, is_mutable);
     }
+    const Variable* CreateSRem(const Value* left, const Value* right, const std::string& name = "",
+                                bool is_mutable = false) {
+        return DiagnosticCreate<decltype (&ModuleBuilder::CreateSRemImpl),
+                &ModuleBuilder::CreateSRemImpl>(left, right, name, is_mutable);
+    }
     const Variable* CreateEQ(const Value* left, const Value* right, const std::string& name = "",
                               bool is_mutable = false) {
         return DiagnosticCreate<decltype (&ModuleBuilder::CreateEQImpl),
@@ -296,6 +301,8 @@ private:
     const Variable* CreateMulImpl(const Value* left, const Value* right, const std::string& name = "",
                            bool is_mutable = false);
     const Variable* CreateSDivImpl(const Value* left, const Value* right, const std::string& name = "",
+                            bool is_mutable = false);
+    const Variable* CreateSRemImpl(const Value* left, const Value* right, const std::string& name = "",
                             bool is_mutable = false);
     const Variable* CreateEQImpl(const Value* left, const Value* right, const std::string& name = "",
                           bool is_mutable = false);
